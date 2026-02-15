@@ -14,6 +14,7 @@ import Signup from "./pages/SignUp";
 import Home from "./pages/Homepage";
 import ProfilePage from "./pages/ProfilePage";
 import { ToastProvider } from "./context/ToastContext";
+import {useEffect} from "react"
 
 
 function App() {
