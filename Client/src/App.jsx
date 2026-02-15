@@ -17,6 +17,9 @@ import { ToastProvider } from "./context/ToastContext";
 
 
 function App() {
+  useEffect(() => {
+    console.log("API URL:", import.meta.env.VITE_API_URL);
+  }, []);
   return (
     <ThemeProvider>
       <ToastProvider>
