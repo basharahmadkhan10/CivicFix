@@ -1,7 +1,7 @@
 import axios from "axios";
+
 const api = axios.create({
   baseURL: "https://civicfix-backend01.onrender.com",
-// Base URL
   timeout: 30000,
   withCredentials: false,
 });
@@ -9,10 +9,9 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    if (process.env.NODE_ENV === "development") {
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+
+    if (import.meta.env.DEV) {
       console.log("API Request:", {
         url: config.url,
         method: config.method,
@@ -20,16 +19,15 @@ api.interceptors.request.use(
         headers: config.headers,
       });
     }
+
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  },
+  (error) => Promise.reject(error),
 );
+
 api.interceptors.response.use(
   (response) => {
-    
-    if (process.env.NODE_ENV === "development") {
+    if (import.meta.env.DEV) {
       console.log("API Response:", {
         url: response.config.url,
         status: response.status,
@@ -39,8 +37,7 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    
-    if (process.env.NODE_ENV === "development") {
+    if (import.meta.env.DEV) {
       console.error("API Error:", {
         url: error.config?.url,
         method: error.config?.method,
@@ -52,7 +49,6 @@ api.interceptors.response.use(
     }
 
     if (error.response?.status === 401) {
-      
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       window.location.href = "/login";
@@ -63,5 +59,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-
-
