@@ -14,7 +14,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://civicfix-frontend02.onrender.com",
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Accept"],
@@ -31,3 +31,4 @@ app.use("/api/v1/officer", officerRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(globalErrorHandler);
 export default app;
+
