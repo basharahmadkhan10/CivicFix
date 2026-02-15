@@ -180,7 +180,7 @@ const Login = () => {
 
       console.log("Login attempt with:", { email, role });
 
-      const response = await fetch("http://localhost:5000/api/v1/auth/login", {
+      const response = await fetch("https://civicfix-backend01.onrender.com/api/v1/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -282,7 +282,7 @@ const Login = () => {
     try {
       
       const response = await fetch(
-        "http://localhost:5000/api/v1/auth/login/verify-otp",
+        "https://civicfix-backend01.onrender.com/api/v1/auth/login/verify-otp",
         {
           method: "POST",
           headers: {
@@ -338,7 +338,7 @@ const Login = () => {
     try {
       
       const response = await fetch(
-        "http://localhost:5000/api/v1/auth/login/resend-otp",
+        "https://civicfix-backend01.onrender.com/api/v1/auth/login/resend-otp",
         {
           method: "POST",
           headers: {
@@ -859,3 +859,4 @@ const Login = () => {
 };
 
 export default Login;
+
