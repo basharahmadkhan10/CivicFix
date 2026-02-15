@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
- baseURL: "https://civicfix-backend01.onrender.com",
+ baseURL: "https://civicfix-backend01.onrender.com/api",
  // backend URL
 });
 
@@ -13,5 +13,6 @@ api.interceptors.request.use((config) => {
 });
 
 export default api;
+
 
 
