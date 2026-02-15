@@ -308,7 +308,6 @@ const HomePage = () => {
     { label: "Cities Covered", value: 3, suffix: "actively participating" },
     { label: "User Satisfaction", value: 87, suffix: "% positive feedback" },
   ];
-g
   if (!pageLoaded) {
     return <Preloader />;
   }
@@ -903,3 +902,4 @@ g
 };
 
 export default HomePage;
+
