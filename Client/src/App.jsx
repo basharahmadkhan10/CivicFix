@@ -10,7 +10,7 @@ import ComplaintDetails from "./pages/ComplaintDetails";
 import EditComplaint from "./pages/EditComplaint";
 import NewComplaint from "./pages/NewComplaint";
 import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+import Signup from "./pages/SignUp";
 import Home from "./pages/Homepage";
 import ProfilePage from "./pages/ProfilePage";
 import { ToastProvider } from "./context/ToastContext";
