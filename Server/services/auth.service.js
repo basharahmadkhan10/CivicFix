@@ -66,16 +66,18 @@ export const loginUser = async (credentials) => {
   console.log(`🔐 OTP for ${user.email}: ${otp}`);
   console.log(`🔐 Expires: ${new Date(user.otp.expiresAt).toLocaleString()}`);
   console.log("=================================");
-      await sendEmail({
-        to: user.email,
-        subject: "Login OTP",
-        text: `Your login OTP is: ${otp}. It expires in 5 minutes.`,
-      });
+      sendEmail({
+  to: user.email,
+  subject: "Login OTP",
+  text: `Your login OTP is: ${otp}`,
+}).catch(err => console.error("Background email failed:", err.message));
 
-      return {
-        message: "OTP sent for verification",
-        otpRequired: true, 
-      };
+// Return immediately - don't wait for email
+return {
+  success: true,
+  message: "OTP sent for verification",
+  otpRequired: true,
+};
     }
     const token = generateToken(user._id);
     return {
@@ -163,4 +165,5 @@ export const resetPassword = async (resetData) => {
     throw error;
   }
 };
+
 
