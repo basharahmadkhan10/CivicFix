@@ -58,8 +58,14 @@ export const loginUser = async (credentials) => {
     user.lockUntil = undefined;
     await user.save();
     if ([ROLES.SUPERVISOR, ROLES.ADMIN].includes(user.role)) {
+      
       const otp = user.generateOTP(OTP_PURPOSE.LOGIN);
       await user.save();
+      // 🔴 ADD THIS - logs OTP to Render console
+  console.log("=================================");
+  console.log(`🔐 OTP for ${user.email}: ${otp}`);
+  console.log(`🔐 Expires: ${new Date(user.otp.expiresAt).toLocaleString()}`);
+  console.log("=================================");
       await sendEmail({
         to: user.email,
         subject: "Login OTP",
@@ -157,3 +163,4 @@ export const resetPassword = async (resetData) => {
     throw error;
   }
 };
+
