@@ -164,97 +164,103 @@ const Login = () => {
   }, [activeTab]);
 
   const handleLoginSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    setMessage("");
+  e.preventDefault();
+  setLoading(true);
+  setError("");
+  setMessage("");
 
-    if (!email || !password) {
-      setError("Please fill in all fields");
-      setLoading(false);
-      return;
+  if (!email || !password) {
+    setError("Please fill in all fields");
+    setLoading(false);
+    return;
+  }
+
+  try {
+    const role = getRoleFromTab(activeTab);
+
+    console.log("Login attempt with:", { email, role });
+
+    const response = await fetch("https://civicfix-backend01.onrender.com/api/v1/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: email.toLowerCase().trim(),
+        password,
+        role: role,
+      }),
+    });
+
+    const data = await response.json();
+    
+    // 🔴 CRITICAL: Log the FULL response
+    console.log("🔴 FULL LOGIN RESPONSE:", {
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries()),
+      data: data
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        data.message || `Login failed with status ${response.status}`,
+      );
     }
 
-    try {
-      const role = getRoleFromTab(activeTab);
-
-      console.log("Login attempt with:", { email, role });
-
-      const response = await fetch("https://civicfix-backend01.onrender.com/api/v1/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email.toLowerCase().trim(),
-          password,
-          role: role,
-        }),
+    if (data.success) {
+      // Check ALL possible locations for otpRequired
+      const otpRequired = data.data?.otpRequired || data.otpRequired || data.requiresOtp;
+      
+      console.log("🔴 OTP Required check:", {
+        "data.data?.otpRequired": data.data?.otpRequired,
+        "data.otpRequired": data.otpRequired,
+        "data.requiresOtp": data.requiresOtp,
+        "final otpRequired": otpRequired
       });
+      
+      if (otpRequired) {
+        setPendingLoginData({
+          email: email.toLowerCase().trim(),
+          role: role,
+        });
+        setShowOtpVerification(true);
+        setMessage("Please enter the OTP sent to your email");
+        setCountdown(60);
+        setCanResendOtp(false);
 
-      const data = await response.json();
-      console.log("Login API response:", data);
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || `Login failed with status ${response.status}`,
-        );
-      }
-
-      if (data.success) {
-        
-        if (data.data?.otpRequired || data.otpRequired) {
-        
-          setPendingLoginData({
-            email: email.toLowerCase().trim(),
-            role: role,
-            token: null, 
-            userData: data.data?.user || {
-              _id: "pending",
-              name: email.split("@")[0],
-              email: email,
-              role: role,
-            },
-          });
-          setShowOtpVerification(true);
-          setMessage("Please enter the OTP sent to your email");
-          setCountdown(60);
-          setCanResendOtp(false);
-
-          setTimeout(() => {
-            document.getElementById("otp-0")?.focus();
-          }, 100);
-        } else {
-        
-          const token = data.data?.token || data.token;
-          const userData = data.data?.user ||
-            data.data || {
-              _id: "temp-id",
-              name: email.split("@")[0],
-              email: email,
-              role: role,
-            };
-
-          login(token, userData);
-
-          const dashboardRoute = getDashboardRoute(userData.role || role);
-          console.log("Redirecting to:", dashboardRoute);
-
-          setTimeout(() => {
-            navigate(dashboardRoute);
-          }, 100);
-        }
+        setTimeout(() => {
+          document.getElementById("otp-0")?.focus();
+        }, 100);
       } else {
-        setError(data.message || "Login failed");
-      }
-    } catch (err) {
-      console.error("Login error details:", err);
-      setError(err.message || "An unexpected error occurred");
-    } finally {
-      setLoading(false);
-    }
-  };
+        const token = data.data?.token || data.token;
+        const userData = data.data?.user ||
+          data.data || {
+            _id: "temp-id",
+            name: email.split("@")[0],
+            email: email,
+            role: role,
+          };
 
+        login(token, userData);
+
+        const dashboardRoute = getDashboardRoute(userData.role || role);
+        console.log("Redirecting to:", dashboardRoute);
+
+        setTimeout(() => {
+          navigate(dashboardRoute);
+        }, 100);
+      }
+    } else {
+      setError(data.message || "Login failed");
+    }
+  } catch (err) {
+    console.error("❌ Login error details:", err);
+    setError(err.message || "An unexpected error occurred");
+  } finally {
+    setLoading(false);
+  }
+};
   const handleOtpChange = (index, value) => {
     if (!/^\d*$/.test(value)) return;
 
@@ -859,4 +865,5 @@ const Login = () => {
 };
 
 export default Login;
+
 
