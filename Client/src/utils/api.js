@@ -2,7 +2,7 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: "https://civicfix-backend01.onrender.com/api",
-  timeout: 30000,
+  timeout: 60000,
   withCredentials: false,
 });
 
@@ -59,4 +59,5 @@ api.interceptors.response.use(
 );
 
 export default api;
+
 
