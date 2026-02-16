@@ -19,10 +19,10 @@ const HomePage = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [hoveredImageCard, setHoveredImageCard] = useState(null);
   const [statsCount, setStatsCount] = useState({
-    activeCitizens: 0,
-    issuesReported: 0,
-    citiesCovered: 0,
-    satisfaction: 0
+    activeCitizens: 50,
+    issuesReported: 100,
+    citiesCovered: 10,
+    satisfaction: 95
   });
   const [pageLoaded, setPageLoaded] = useState(false);
   const [typingText, setTypingText] = useState("");
@@ -41,14 +41,6 @@ const HomePage = () => {
     "Make Your Voice Heard",
   ];
   const currentLogo = theme === "dark" ? darkLogo : lightLogo;
-
-  // ✅ YOUR EXACT STATS VALUES
-  const statsTargets = {
-    activeCitizens: 50,
-    issuesReported: 100,
-    citiesCovered: 10,
-    satisfaction: 95
-  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -778,3 +770,4 @@ const HomePage = () => {
 };
 
 export default HomePage;
+
