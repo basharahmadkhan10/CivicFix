@@ -6,7 +6,7 @@ export const sendEmail = async ({ to, subject, text }) => {
   // Use SSL port 465 with secure:true
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 465,
+    port: 2525,
     secure: true, // Use SSL
     auth: {
       user: process.env.EMAIL_USER,
@@ -42,3 +42,4 @@ export const sendEmail = async ({ to, subject, text }) => {
     throw error;
   }
 };
+
