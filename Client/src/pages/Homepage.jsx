@@ -18,18 +18,18 @@ const HomePage = () => {
   const [activeSection, setActiveSection] = useState(0);
   const [hoveredCard, setHoveredCard] = useState(null);
   const [hoveredImageCard, setHoveredImageCard] = useState(null);
-  const [statsCount, setStatsCount] = useState({
-    activeCitizens: 0,
-    issuesReported: 0,
-    citiesCovered: 0,
-    satisfaction: 0
+  // ✅ STATIC HARDCODED VALUES - NO DYNAMIC COUNTING
+  const [statsCount] = useState({
+    activeCitizens: 50,
+    issuesReported: 100,
+    citiesCovered: 10,
+    satisfaction: 95
   });
   const [pageLoaded, setPageLoaded] = useState(false);
   const [typingText, setTypingText] = useState("");
   const [typingIndex, setTypingIndex] = useState(0);
   const [deleting, setDeleting] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [countingStarted, setCountingStarted] = useState(false);
   const sectionRefs = useRef([]);
   const rafId = useRef(null);
 
@@ -41,14 +41,6 @@ const HomePage = () => {
     "Make Your Voice Heard",
   ];
   const currentLogo = theme === "dark" ? darkLogo : lightLogo;
-
-  // ✅ YOUR EXACT STATS VALUES
-  const statsTargets = {
-    activeCitizens: 50,
-    issuesReported: 100,
-    citiesCovered: 10,
-    satisfaction: 95
-  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -113,12 +105,6 @@ const HomePage = () => {
             if (index !== -1) {
               setActiveSection(index);
             }
-            
-            // ✅ Start counting when stats section becomes visible (index 6)
-            if (index === 6 && !countingStarted) {
-              setCountingStarted(true);
-              startCounting();
-            }
           }
         });
       },
@@ -132,34 +118,7 @@ const HomePage = () => {
     });
 
     return () => observer.disconnect();
-  }, [countingStarted]);
-
-  // ✅ FIXED: Start counting function
-  const startCounting = () => {
-    const duration = 2000; // 2 seconds
-    const startTime = Date.now();
-    
-    const animate = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      // Easing function for smooth animation
-      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-      
-      setStatsCount({
-        activeCitizens: Math.floor(statsTargets.activeCitizens * easeOutQuart),
-        issuesReported: Math.floor(statsTargets.issuesReported * easeOutQuart),
-        citiesCovered: Math.floor(statsTargets.citiesCovered * easeOutQuart),
-        satisfaction: Math.floor(statsTargets.satisfaction * easeOutQuart)
-      });
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
-    };
-    
-    animate();
-  };
+  }, []);
 
   const getThemeColors = () => {
     if (theme === "light") {
@@ -324,30 +283,26 @@ const HomePage = () => {
     },
   ];
   
-  // ✅ Updated stats with your values
+  // ✅ STATS WITH HARDCODED VALUES (NO DYNAMIC COUNTING)
   const stats = [
     { 
       label: "Active Citizens", 
-      value: statsCount.activeCitizens, 
-      target: 50,
+      value: 50,
       suffix: "+ using the platform" 
     },
     { 
       label: "Issues Reported", 
-      value: statsCount.issuesReported, 
-      target: 100,
+      value: 100,
       suffix: "+ logged so far" 
     },
     { 
       label: "Cities Covered", 
-      value: statsCount.citiesCovered, 
-      target: 10,
+      value: 10,
       suffix: "+ actively participating" 
     },
     { 
       label: "User Satisfaction", 
-      value: statsCount.satisfaction, 
-      target: 95,
+      value: 95,
       suffix: "% positive feedback" 
     },
   ];
@@ -378,7 +333,7 @@ const HomePage = () => {
         }}
       />
       
-      {/* Navigation - same as before */}
+      {/* Navigation */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 px-4 py-3 transition-all duration-300 ${
           scrollY > 50 ? "backdrop-blur-md bg-opacity-95" : ""
@@ -395,8 +350,8 @@ const HomePage = () => {
           borderBottom: `1px solid ${colors.border}`,
         }}
       >
-        {/* ... keep your existing navigation code ... */}
         <div className="flex items-center justify-between">
+          {/* Logo */}
           <div
             className="flex items-center cursor-pointer group"
             onClick={() => scrollToSection(0)}
@@ -408,10 +363,12 @@ const HomePage = () => {
             />
           </div>
 
+          {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden p-2 rounded-lg focus:outline-none"
             style={{ color: colors.text }}
+            aria-label="Toggle menu"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {mobileMenuOpen ? (
@@ -422,7 +379,9 @@ const HomePage = () => {
             </svg>
           </button>
 
+          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4 lg:space-x-6">
+            {/* Section dots */}
             <div className="flex items-center space-x-2">
               {sections.map((_, index) => {
                 const sectionIndex = index + 1;
@@ -435,6 +394,7 @@ const HomePage = () => {
                     style={{
                       backgroundColor: isActive ? (theme === "dark" ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)") : "transparent",
                     }}
+                    aria-label={`Go to section ${sectionIndex}`}
                   >
                     <div
                       className="w-2 h-2 rounded-full transition-all duration-300"
@@ -449,8 +409,14 @@ const HomePage = () => {
               })}
             </div>
 
+            {/* Desktop Action Buttons */}
             <div className="flex items-center space-x-3">
-              <Link to="/login" className="text-sm font-medium relative group overflow-hidden px-3 py-2" style={{ color: colors.text }}>
+              {/* ✅ FIXED: Sign In link with proper styling and z-index */}
+              <Link 
+                to="/login" 
+                className="text-sm font-medium relative group overflow-hidden px-3 py-2 inline-block"
+                style={{ color: colors.text, zIndex: 60 }}
+              >
                 <span className="relative z-10">Sign In</span>
                 <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" style={{ background: colors.shinyOverlay }} />
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300" style={{ backgroundColor: colors.accent }} />
@@ -461,11 +427,16 @@ const HomePage = () => {
                 <span className="relative z-10">Get Started</span>
               </PrimaryButton>
 
-              <button onClick={toggleTheme} className="p-2 rounded-lg border transition-all duration-200 hover:scale-105" style={{
-                backgroundColor: theme === "dark" ? "#0a0a0a" : "#f5f5f5",
-                borderColor: theme === "dark" ? "#1a1a1a" : "#e5e5e5",
-                color: theme === "dark" ? "#ffffff" : "#000000",
-              }}>
+              <button 
+                onClick={toggleTheme} 
+                className="p-2 rounded-lg border transition-all duration-200 hover:scale-105" 
+                style={{
+                  backgroundColor: theme === "dark" ? "#0a0a0a" : "#f5f5f5",
+                  borderColor: theme === "dark" ? "#1a1a1a" : "#e5e5e5",
+                  color: theme === "dark" ? "#ffffff" : "#000000",
+                }}
+                aria-label="Toggle theme"
+              >
                 {theme === "dark" ? (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -485,6 +456,8 @@ const HomePage = () => {
           <div className="md:hidden mt-4 p-4 rounded-lg animate-slideDown" style={{
             backgroundColor: theme === "dark" ? "#1a1a1a" : "#f5f5f5",
             border: `1px solid ${colors.border}`,
+            position: 'relative',
+            zIndex: 100,
           }}>
             <div className="flex flex-wrap gap-2 mb-4">
               {sections.map((section, index) => (
@@ -498,22 +471,36 @@ const HomePage = () => {
               ))}
             </div>
             <div className="flex flex-col space-y-3">
-              <Link to="/login" className="w-full text-center py-3 rounded-lg font-medium" style={{
-                backgroundColor: theme === "dark" ? "#333" : "#e5e5e5",
-                color: colors.text,
-              }} onClick={() => setMobileMenuOpen(false)}>
+              <Link 
+                to="/login" 
+                className="w-full text-center py-3 rounded-lg font-medium"
+                style={{
+                  backgroundColor: theme === "dark" ? "#333" : "#e5e5e5",
+                  color: colors.text,
+                }} 
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 Sign In
               </Link>
-              <Link to="/signup" className="w-full text-center py-3 rounded-lg font-medium" style={{
-                backgroundColor: colors.accent,
-                color: theme === "dark" ? "#000" : "#fff",
-              }} onClick={() => setMobileMenuOpen(false)}>
+              <Link 
+                to="/signup" 
+                className="w-full text-center py-3 rounded-lg font-medium"
+                style={{
+                  backgroundColor: colors.accent,
+                  color: theme === "dark" ? "#000" : "#fff",
+                }} 
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 Get Started
               </Link>
-              <button onClick={() => { toggleTheme(); setMobileMenuOpen(false); }} className="w-full text-center py-3 rounded-lg font-medium flex items-center justify-center gap-2" style={{
-                backgroundColor: theme === "dark" ? "#333" : "#e5e5e5",
-                color: colors.text,
-              }}>
+              <button 
+                onClick={() => { toggleTheme(); setMobileMenuOpen(false); }} 
+                className="w-full text-center py-3 rounded-lg font-medium flex items-center justify-center gap-2"
+                style={{
+                  backgroundColor: theme === "dark" ? "#333" : "#e5e5e5",
+                  color: colors.text,
+                }}
+              >
                 {theme === "dark" ? "Switch to Light" : "Switch to Dark"}
               </button>
             </div>
@@ -564,6 +551,7 @@ const HomePage = () => {
               <span className="relative z-10">Start Reporting</span>
             </PrimaryButton>
             
+            {/* ✅ FIXED: Hero section Sign In button */}
             <SecondaryButton as={Link} to="/login" size="lg" theme={theme} className="text-sm sm:text-base md:text-lg px-6 sm:px-8 py-3 sm:py-4 rounded-xl relative overflow-hidden group w-full sm:w-auto">
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               <span className="relative z-10">Sign In</span>
@@ -670,7 +658,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* ✅ STATS SECTION - NOW DYNAMIC WITH YOUR VALUES */}
+      {/* ✅ STATS SECTION - HARDCODED VALUES */}
       <section ref={(el) => (sectionRefs.current[6] = el)} className="py-12 md:py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
@@ -720,6 +708,7 @@ const HomePage = () => {
               <span className="relative z-10 text-sm sm:text-base">Start Free Today</span>
             </PrimaryButton>
             
+            {/* ✅ FIXED: CTA section Sign In button */}
             <SecondaryButton as={Link} to="/login" size="lg" theme={theme} className="rounded-lg md:rounded-xl px-6 sm:px-8 md:px-10 py-3 md:py-4 relative overflow-hidden group w-full sm:w-auto">
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               <span className="relative z-10 text-sm sm:text-base">Sign In</span>
