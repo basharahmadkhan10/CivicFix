@@ -10,10 +10,9 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  MessageSquare,
+  Image as ImageIcon,
   Edit,
   Trash2,
-  Image as ImageIcon,
 } from "lucide-react";
 import api from "../utils/api";
 import Preloader from "../components/Preloader";
@@ -27,21 +26,35 @@ const ComplaintDetails = () => {
   const [pageLoaded, setPageLoaded] = useState(false);
   const [complaint, setComplaint] = useState(null);
   const [timeline, setTimeline] = useState([]);
-  const [comment, setComment] = useState("");
-  const [submittingComment, setSubmittingComment] = useState(false);
   const [imageErrors, setImageErrors] = useState({});
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const colors =
     theme === "light"
-      ? { bg: "#ffffff", text: "#000000", card: "#cad4f3", border: "#e5e7eb" }
-      : { bg: "#000000", text: "#ffffff", card: "#111111", border: "#374151" };
+      ? { 
+          bg: "#ffffff", 
+          text: "#000000", 
+          card: "#f3f4f6", 
+          border: "#e5e7eb",
+          primary: "#3b82f6",
+          success: "#10b981",
+          warning: "#f59e0b",
+          danger: "#ef4444"
+        }
+      : { 
+          bg: "#000000", 
+          text: "#ffffff", 
+          card: "#111111", 
+          border: "#374151",
+          primary: "#3b82f6",
+          success: "#10b981",
+          warning: "#f59e0b",
+          danger: "#ef4444"
+        };
 
   const getFullImageUrl = (imagePath) => {
     if (!imagePath) return "";
-
-    if (imagePath.startsWith("http")) {
-      return imagePath;
-    }
+    if (imagePath.startsWith("http")) return imagePath;
     const baseURL = api.defaults.baseURL || "http://localhost:5000";
     if (imagePath.startsWith("/uploads/")) {
       return `${baseURL}${imagePath}`;
@@ -63,11 +76,6 @@ const ComplaintDetails = () => {
     try {
       setLoading(true);
       const response = await api.get(`/v1/complaints/${id}`);
-      console.log("Complaint data:", response.data?.data);
-      if (response.data?.data?.images?.citizen) {
-        console.log("Image paths:", response.data.data.images.citizen);
-      }
-
       setComplaint(response.data?.data || null);
     } catch (error) {
       console.error("Error fetching complaint details:", error);
@@ -87,42 +95,12 @@ const ComplaintDetails = () => {
   };
 
   const handleWithdrawComplaint = async () => {
-    const confirmToastId = toast.warning(
-      <div className="flex flex-col gap-2">
-        <div className="font-bold text-sm">Withdraw Complaint?</div>
-        <div className="text-xs opacity-90">
-          Are you sure you want to withdraw this complaint? This action cannot
-          be undone.
-        </div>
-        <div className="flex gap-2 mt-2">
-          <button
-            onClick={() => {
-              toast.removeToast(confirmToastId);
-              proceedWithWithdraw();
-            }}
-            className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded transition-colors"
-          >
-            Yes, Withdraw
-          </button>
-          <button
-            onClick={() => {
-              toast.removeToast(confirmToastId);
-              toast.info("Withdrawal cancelled");
-            }}
-            className="px-3 py-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-xs rounded transition-colors"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>,
-      {
-        position: "top-center",
-        duration: 0,
-      },
+    const confirmWithdraw = window.confirm(
+      "Are you sure you want to withdraw this complaint? This action cannot be undone."
     );
-  };
+    
+    if (!confirmWithdraw) return;
 
-  const proceedWithWithdraw = async () => {
     try {
       toast.info("Withdrawing complaint...");
       await api.patch(`/v1/complaints/${id}/withdraw`, {});
@@ -132,33 +110,44 @@ const ComplaintDetails = () => {
       }, 1000);
     } catch (error) {
       console.error("Error withdrawing complaint:", error);
-      toast.error(
-        `Failed to withdraw: ${error.response?.data?.message || error.message}`,
-      );
+      toast.error(`Failed to withdraw: ${error.response?.data?.message || error.message}`);
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case "CREATED":
-        return <AlertCircle className="text-blue-500" />;
-      case "ASSIGNED":
-        return <Clock className="text-yellow-500" />;
-      case "IN_PROGRESS":
-        return <Clock className="text-purple-500" />;
-      case "RESOLVED":
-        return <CheckCircle className="text-green-500" />;
+      case "CREATED": return <AlertCircle size={20} className="text-blue-500" />;
+      case "ASSIGNED": return <Clock size={20} className="text-yellow-500" />;
+      case "IN_PROGRESS": return <Clock size={20} className="text-purple-500" />;
+      case "RESOLVED": return <CheckCircle size={20} className="text-green-500" />;
       case "REJECTED":
-      case "WITHDRAWN":
-        return <XCircle className="text-red-500" />;
-      default:
-        return <AlertCircle />;
+      case "WITHDRAWN": return <XCircle size={20} className="text-red-500" />;
+      default: return <AlertCircle size={20} />;
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "CREATED": return "blue";
+      case "ASSIGNED": return "yellow";
+      case "IN_PROGRESS": return "purple";
+      case "RESOLVED": return "green";
+      case "REJECTED":
+      case "WITHDRAWN": return "red";
+      default: return "gray";
     }
   };
 
   const handleImageError = (imagePath, index) => {
-    console.error(`Failed to load image: ${imagePath}`);
     setImageErrors((prev) => ({ ...prev, [index]: true }));
+  };
+
+  const openImageModal = (imageUrl) => {
+    setSelectedImage(imageUrl);
+  };
+
+  const closeImageModal = () => {
+    setSelectedImage(null);
   };
 
   if (loading || !pageLoaded) {
@@ -173,26 +162,16 @@ const ComplaintDetails = () => {
       >
         <AlertCircle size={48} className="mb-4 opacity-50" />
         <h1 className="text-xl font-bold mb-2">Complaint Not Found</h1>
-        <p className="opacity-75 mb-4">
+        <p className="text-sm opacity-75 mb-4 text-center">
           The requested complaint does not exist or you don't have access to it.
         </p>
         <button
-          onClick={() => {
-            toast.info("Returning to dashboard...", {
-              position: "top-right",
-              duration: 2000,
-            });
-            setTimeout(() => {
-              navigate(`/dashboard`);
-            }, 500);
-          }}
-          className="mb-4 mt-3 px-4 py-2 rounded-lg flex items-center hover:opacity-90 transition-opacity font-bolder"
+          onClick={() => navigate("/dashboard")}
+          className="px-6 py-3 rounded-lg flex items-center"
+          style={{ backgroundColor: colors.primary, color: "white" }}
         >
-          <ArrowLeft
-            size={18}
-            className="mr-2 h-7 w-10"
-            style={{ color: theme === "dark" ? "#ffffff" : "#000000" }}
-          />
+          <ArrowLeft size={18} className="mr-2" />
+          Go to Dashboard
         </button>
       </div>
     );
@@ -200,215 +179,154 @@ const ComplaintDetails = () => {
 
   return (
     <div
-      className="min-h-screen p-4"
+      className="min-h-screen p-3 sm:p-4 md:p-6"
       style={{ backgroundColor: colors.bg, color: colors.text }}
     >
-      <header className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <button
-            onClick={() => {
-              toast.info("Returning to dashboard...", {
-                position: "top-right",
-                duration: 2000,
-              });
-              setTimeout(() => {
-                navigate(`/dashboard`);
-              }, 500);
-            }}
-            className="mb-4 mt-3 px-4 py-2 rounded-lg flex items-center hover:opacity-90 transition-opacity font-bolder"
-          >
-            <ArrowLeft
-              size={18}
-              className="mr-2 h-7 w-10"
-              style={{ color: theme === "dark" ? "#ffffff" : "#000000" }}
-            />
-          </button>
-          <button
-            onClick={toggleTheme}
-            className="flex items-center gap-2 px-3 py-1.5 lg:px-4 lg:py-2 rounded-lg border transition-colors duration-200 hover:scale-105"
-            style={{
-              backgroundColor: theme === "dark" ? "#0a0a0a" : "#f5f5f5",
-              borderColor: theme === "dark" ? "#1a1a1a" : "#e5e5e5",
-              color: theme === "dark" ? "#ffffff" : "#000000",
-            }}
-          >
-            {theme === "dark" ? (
-              <>
-                <svg
-                  className="w-4 h-4 lg:w-5 lg:h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                  />
-                </svg>
-                <span className="text-xs lg:text-sm font-medium">
-                  Light Mode
-                </span>
-              </>
-            ) : (
-              <>
-                <svg
-                  className="w-4 h-4 lg:w-5 lg:h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-                  />
-                </svg>
-                <span className="text-xs lg:text-sm font-medium">
-                  Dark Mode
-                </span>
-              </>
-            )}
-          </button>
-        </div>
+      {/* Header - Mobile Optimized */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-6">
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="flex items-center text-sm sm:text-base w-fit"
+          style={{ color: colors.primary }}
+        >
+          <ArrowLeft size={18} className="mr-1" />
+          Back to Dashboard
+        </button>
 
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold m-5">
-              Title: <em>{complaint.title}</em>
-            </h1>
-            <div className="flex flex-wrap items-center gap-3 mt-2">
-              <div className="flex items-center gap-2">
-                {getStatusIcon(complaint.status)}
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    complaint.status === "CREATED"
-                      ? "bg-blue-100 text-blue-800"
-                      : complaint.status === "ASSIGNED"
-                        ? "bg-yellow-100 text-yellow-600"
-                        : complaint.status === "IN_PROGRESS"
-                          ? "bg-purple-100 text-purple-800"
-                          : complaint.status === "RESOLVED"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {complaint.status}
-                </span>
-              </div>
-              <span className="px-3 py-1 rounded-full text-sm bg-gray-100 dark:bg-gray-500 dark:text-gray-200">
-                {complaint.category}
-              </span>
-              {complaint.priority && (
-                <span
-                  className={`px-3 py-1 rounded-full text-sm ${
-                    complaint.priority === "CRITICAL"
-                      ? "bg-red-100 text-red-800"
-                      : complaint.priority === "HIGH"
-                        ? "bg-orange-100 text-orange-800"
-                        : complaint.priority === "MEDIUM"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-green-100 text-green-800"
-                  }`}
-                >
-                  {complaint.priority} Priority
-                </span>
-              )}
-            </div>
-          </div>
-          {["CREATED", "ASSIGNED"].includes(complaint.status) && (
-            <div className="flex gap-5">
-              <button
-                onClick={() => {
-                  toast.info("Opening edit page...");
-                  setTimeout(() => {
-                    navigate(`/complaints/${id}/edit`);
-                  }, 500);
-                }}
-                className="px-4 py-2 rounded-lg flex items-center hover:opacity-90 transition-opacity"
-                style={{
-                  backgroundColor: colors.card,
-                  border: `1px solid ${colors.border}`,
-                }}
-              >
-                <Edit size={16} className="mr-2" />
-                Edit
-              </button>
-              <button
-                onClick={handleWithdrawComplaint}
-                className="px-4 py-2 rounded-lg flex items-center bg-red-500 text-white hover:bg-red-600 transition-colors"
-              >
-                <Trash2 size={16} className="mr-2" />
-                Withdraw
-              </button>
-            </div>
+        <button
+          onClick={toggleTheme}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg border text-sm w-fit"
+          style={{
+            backgroundColor: theme === "dark" ? "#0a0a0a" : "#f5f5f5",
+            borderColor: colors.border,
+          }}
+        >
+          {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
+        </button>
+      </div>
+
+      {/* Title and Status - Mobile Optimized */}
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">
+          {complaint.title}
+        </h1>
+        
+        <div className="flex flex-wrap items-center gap-2 mb-2">
+          <span
+            className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium`}
+            style={{
+              backgroundColor: `${colors[getStatusColor(complaint.status)]}20`,
+              color: colors[getStatusColor(complaint.status)],
+            }}
+          >
+            {getStatusIcon(complaint.status)}
+            {complaint.status}
+          </span>
+          
+          <span className="text-xs sm:text-sm px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800">
+            {complaint.category}
+          </span>
+          
+          {complaint.priority && (
+            <span
+              className={`text-xs sm:text-sm px-3 py-1.5 rounded-full ${
+                complaint.priority === "CRITICAL"
+                  ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                  : complaint.priority === "HIGH"
+                  ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
+                  : complaint.priority === "MEDIUM"
+                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                  : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+              }`}
+            >
+              {complaint.priority} Priority
+            </span>
           )}
         </div>
-      </header>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-2">
-        
-        <div className="lg:col-span-2 space-y-15 mt-6">
 
-          <div
-            className="p-6 rounded-lg"
-            style={{
-              backgroundColor: colors.card,
-              border: `1px solid ${colors.border}`,
-            }}
-          >
-            <h2 className="text-lg font-bold mb-4">Description</h2>
-            <p className="whitespace-pre-wrap opacity-90">
-              {complaint.description}
-            </p>
-          </div>
-          {complaint.images?.citizen && complaint.images.citizen.length > 0 && (
-            <div
-              className="p-6 rounded-lg"
+        {/* Action Buttons */}
+        {["CREATED", "ASSIGNED"].includes(complaint.status) && (
+          <div className="flex gap-2 mt-3">
+            <button
+              onClick={() => navigate(`/complaints/${id}/edit`)}
+              className="flex-1 sm:flex-none px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-sm"
               style={{
                 backgroundColor: colors.card,
                 border: `1px solid ${colors.border}`,
               }}
             >
-              <h2 className="text-lg font-bold mb-4 flex items-center">
-                <ImageIcon size={20} className="mr-2" />
+              <Edit size={16} />
+              Edit
+            </button>
+            <button
+              onClick={handleWithdrawComplaint}
+              className="flex-1 sm:flex-none px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-sm"
+              style={{ backgroundColor: colors.danger, color: "white" }}
+            >
+              <Trash2 size={16} />
+              Withdraw
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Main Content - Mobile Optimized */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        {/* Left Column - Description and Images */}
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+          {/* Description */}
+          <div
+            className="p-4 sm:p-6 rounded-lg"
+            style={{
+              backgroundColor: colors.card,
+              border: `1px solid ${colors.border}`,
+            }}
+          >
+            <h2 className="text-base sm:text-lg font-bold mb-3">Description</h2>
+            <p className="text-sm sm:text-base whitespace-pre-wrap opacity-90">
+              {complaint.description}
+            </p>
+          </div>
+
+          {/* Images */}
+          {complaint.images?.citizen && complaint.images.citizen.length > 0 && (
+            <div
+              className="p-4 sm:p-6 rounded-lg"
+              style={{
+                backgroundColor: colors.card,
+                border: `1px solid ${colors.border}`,
+              }}
+            >
+              <h2 className="text-base sm:text-lg font-bold mb-3 flex items-center">
+                <ImageIcon size={18} className="mr-2" />
                 Complaint Images ({complaint.images.citizen.length})
               </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                 {complaint.images.citizen.map((imagePath, index) => {
                   const fullImageUrl = getFullImageUrl(imagePath);
-                  console.log(`Image ${index + 1} URL:`, fullImageUrl); // Debug log
-
                   return (
-                    <div key={index} className="relative group">
+                    <div
+                      key={index}
+                      className="relative group cursor-pointer"
+                      onClick={() => openImageModal(fullImageUrl)}
+                    >
                       {!imageErrors[index] ? (
                         <img
                           src={fullImageUrl}
-                          alt={`Complaint evidence ${index + 1}`}
-                          className="w-full h-48 object-cover rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-500 transition-all duration-300"
-                          onClick={() => window.open(fullImageUrl, "_blank")}
+                          alt={`Evidence ${index + 1}`}
+                          className="w-full h-24 sm:h-32 object-cover rounded-lg border-2 border-transparent hover:border-blue-500 transition-all"
                           onError={() => handleImageError(fullImageUrl, index)}
-                          crossOrigin="anonymous"
-                          referrerPolicy="no-referrer"
                         />
                       ) : (
                         <div
-                          className="w-full h-48 rounded-lg flex items-center justify-center cursor-pointer border-2 border-gray-300"
-                          style={{ backgroundColor: colors.card }}
-                          onClick={() => window.open(fullImageUrl, "_blank")}
+                          className="w-full h-24 sm:h-32 rounded-lg flex items-center justify-center border-2"
+                          style={{ backgroundColor: colors.bg }}
                         >
-                          <div className="text-center">
-                            <AlertCircle
-                              size={32}
-                              className="mx-auto mb-2 opacity-50"
-                            />
-                            <p className="text-sm opacity-75">
-                              Click to view original
-                            </p>
-                          </div>
+                          <AlertCircle size={24} className="opacity-50" />
                         </div>
                       )}
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 rounded-lg transition-all" />
                     </div>
                   );
                 })}
@@ -416,93 +334,91 @@ const ComplaintDetails = () => {
             </div>
           )}
         </div>
-        <div className="space-y-6">
-        
+
+        {/* Right Column - Info and Timeline */}
+        <div className="space-y-4 sm:space-y-6">
+          {/* Complaint Information */}
           <div
-            className="p-6 rounded-lg"
+            className="p-4 sm:p-6 rounded-lg"
             style={{
               backgroundColor: colors.card,
               border: `1px solid ${colors.border}`,
             }}
           >
-            <h2 className="text-lg font-bold mb-4">Complaint Information</h2>
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <MapPin size={18} className="opacity-75" />
+            <h2 className="text-base sm:text-lg font-bold mb-3">Information</h2>
+            
+            <div className="space-y-3 text-sm">
+              <div className="flex items-start gap-2">
+                <MapPin size={16} className="flex-shrink-0 mt-0.5 opacity-75" />
                 <span className="font-medium">{complaint.area}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Calendar size={18} className="opacity-75" />
-                <span>
-                  Created: {new Date(complaint.createdAt).toLocaleDateString()}
-                </span>
+              
+              <div className="flex items-start gap-2">
+                <Calendar size={16} className="flex-shrink-0 mt-0.5 opacity-75" />
+                <div>
+                  <div>Created: {new Date(complaint.createdAt).toLocaleDateString()}</div>
+                  {complaint.updatedAt && (
+                    <div className="text-xs opacity-75 mt-1">
+                      Updated: {new Date(complaint.updatedAt).toLocaleDateString()}
+                    </div>
+                  )}
+                </div>
               </div>
-              {complaint.updatedAt && (
-                <div className="flex items-center gap-2">
-                  <Calendar size={18} className="opacity-75" />
-                  <span>
-                    Updated:{" "}
-                    {new Date(complaint.updatedAt).toLocaleDateString()}
-                  </span>
-                </div>
-              )}
+
               {complaint.assignedTo && (
-                <div>
+                <div className="pt-2 border-t" style={{ borderColor: colors.border }}>
                   <div className="font-medium mb-1">Assigned To:</div>
-                  <div className="opacity-90">{complaint.assignedTo.name}</div>
-                  <div className="text-sm opacity-75">
-                    {complaint.assignedTo.role}
-                  </div>
+                  <div>{complaint.assignedTo.name}</div>
+                  <div className="text-xs opacity-75">{complaint.assignedTo.role}</div>
                 </div>
               )}
+
               {complaint.remarks && (
-                <div>
+                <div className="pt-2 border-t" style={{ borderColor: colors.border }}>
                   <div className="font-medium mb-1">Remarks:</div>
-                  <div className="opacity-90">{complaint.remarks}</div>
+                  <div className="text-sm opacity-90">{complaint.remarks}</div>
                 </div>
               )}
             </div>
           </div>
 
-       
+          {/* Timeline */}
           {timeline.length > 0 && (
             <div
-              className="p-6 rounded-lg"
+              className="p-4 sm:p-6 rounded-lg"
               style={{
                 backgroundColor: colors.card,
                 border: `1px solid ${colors.border}`,
               }}
             >
-              <h2 className="text-lg font-bold mb-4">
-                Timeline ({timeline.length} events)
-              </h2>
+              <h2 className="text-base sm:text-lg font-bold mb-3">Timeline</h2>
+              
               <div className="space-y-4">
                 {timeline.map((event, index) => (
                   <div key={index} className="flex gap-3">
                     <div className="flex flex-col items-center">
                       <div
-                        className="w-3 h-3 rounded-full"
+                        className="w-2.5 h-2.5 rounded-full"
                         style={{
                           backgroundColor:
                             event.type === "status_change"
-                              ? "#3b82f6"
+                              ? colors.primary
                               : event.type === "comment"
-                                ? "#10b981"
-                                : event.type === "escalation"
-                                  ? "#ef4444"
-                                  : "#6b7280",
+                              ? colors.success
+                              : event.type === "escalation"
+                              ? colors.danger
+                              : "#6b7280",
                         }}
                       />
                       {index < timeline.length - 1 && (
                         <div className="w-0.5 h-full bg-gray-300 dark:bg-gray-700 mt-1" />
                       )}
                     </div>
+                    
                     <div className="pb-4 flex-1">
-                      <div className="font-medium">{event.event}</div>
-                      <div className="text-sm opacity-75 mb-1">
-                        {event.description}
-                      </div>
-                      <div className="text-xs opacity-60">
+                      <div className="font-medium text-sm">{event.event}</div>
+                      <div className="text-xs opacity-75 mb-1">{event.description}</div>
+                      <div className="text-xs opacity-50">
                         {new Date(event.date).toLocaleString()}
                       </div>
                     </div>
@@ -513,6 +429,29 @@ const ComplaintDetails = () => {
           )}
         </div>
       </div>
+
+      {/* Image Modal */}
+      {selectedImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+          onClick={closeImageModal}
+        >
+          <div className="relative max-w-4xl max-h-full">
+            <button
+              onClick={closeImageModal}
+              className="absolute -top-10 right-0 text-white text-sm px-4 py-2"
+            >
+              Close ✕
+            </button>
+            <img
+              src={selectedImage}
+              alt="Full size"
+              className="max-w-full max-h-[90vh] object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
