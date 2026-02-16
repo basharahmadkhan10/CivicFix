@@ -471,28 +471,30 @@ const HomePage = () => {
               ))}
             </div>
             <div className="flex flex-col space-y-3">
-              <Link 
-                to="/login" 
-                className="w-full text-center py-3 rounded-lg font-medium"
-                style={{
-                  backgroundColor: theme === "dark" ? "#333" : "#e5e5e5",
-                  color: colors.text,
-                }} 
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Sign In
-              </Link>
-              <Link 
-                to="/signup" 
-                className="w-full text-center py-3 rounded-lg font-medium"
-                style={{
-                  backgroundColor: colors.accent,
-                  color: theme === "dark" ? "#000" : "#fff",
-                }} 
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Get Started
-              </Link>
+              <a 
+  href="/login" 
+  className="w-full text-center py-3 rounded-lg font-medium block"
+  style={{
+    backgroundColor: theme === "dark" ? "#333" : "#e5e5e5",
+    color: colors.text,
+    textDecoration: 'none',
+  }} 
+  onClick={() => setMobileMenuOpen(false)}
+>
+  Sign In
+</a>
+              <a 
+  href="/signup" 
+  className="w-full text-center py-3 rounded-lg font-medium block"
+  style={{
+    backgroundColor: colors.accent,
+    color: theme === "dark" ? "#000" : "#fff",
+    textDecoration: 'none',
+  }} 
+  onClick={() => setMobileMenuOpen(false)}
+>
+  Get Started
+</a>
               <button 
                 onClick={() => { toggleTheme(); setMobileMenuOpen(false); }} 
                 className="w-full text-center py-3 rounded-lg font-medium flex items-center justify-center gap-2"
@@ -709,10 +711,20 @@ const HomePage = () => {
             </PrimaryButton>
             
             {/* ✅ FIXED: CTA section Sign In button */}
-            <SecondaryButton as={Link} to="/login" size="lg" theme={theme} className="rounded-lg md:rounded-xl px-6 sm:px-8 md:px-10 py-3 md:py-4 relative overflow-hidden group w-full sm:w-auto">
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-              <span className="relative z-10 text-sm sm:text-base">Sign In</span>
-            </SecondaryButton>
+            <a 
+  href="/login" 
+  className="rounded-lg md:rounded-xl px-6 sm:px-8 md:px-10 py-3 md:py-4 relative overflow-hidden group w-full sm:w-auto text-center block"
+  style={{
+    backgroundColor: 'transparent',
+    border: `2px solid ${colors.accent}`,
+    color: colors.accent,
+    textDecoration: 'none',
+    fontWeight: '500',
+  }}
+>
+  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+  <span className="relative z-10 text-sm sm:text-base">Sign In</span>
+</a>
           </div>
         </div>
       </section>
@@ -767,3 +779,4 @@ const HomePage = () => {
 };
 
 export default HomePage;
+
