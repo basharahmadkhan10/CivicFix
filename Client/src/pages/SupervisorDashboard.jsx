@@ -17,7 +17,6 @@ import {
   Filter,
   Shield,
   Calendar,
-  TrendingUp,
   Users,
   MessageSquare,
   Eye,
@@ -41,6 +40,8 @@ import {
   MoreVertical,
   Loader,
   AlertOctagon,
+  Menu,
+  X,
 } from "lucide-react";
 import api from "../utils/api";
 
@@ -55,6 +56,8 @@ const SupervisorDashboard = () => {
   const [complaints, setComplaints] = useState([]);
   const [pendingVerification, setPendingVerification] = useState([]);
   const [filteredComplaints, setFilteredComplaints] = useState([]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [stats, setStats] = useState({
     totalAssigned: 0,
     pendingReview: 0,
@@ -94,38 +97,31 @@ const SupervisorDashboard = () => {
       ? {
           bg: "#ffffff",
           text: "#000000",
-          card: "#e6f0ff", // Light blue tint
-          border: "#b8d4ff", // Light blue border
+          card: "#e6f0ff",
+          border: "#b8d4ff",
           accent: "#000000",
           success: "#10b981",
           warning: "#f59e0b",
           danger: "#ef4444",
-          info: "#3b82f6", // Blue for info
-          primary: "#3b82f6", // Blue primary
-          pending: "#f97316", // Orange for pending
-          supervisor: "#3b82f6", // Blue for supervisor theme
+          info: "#3b82f6",
+          primary: "#3b82f6",
+          pending: "#f97316",
+          supervisor: "#3b82f6",
         }
       : {
           bg: "#000000",
           text: "#ffffff",
-          card: "#0a1a2f", // Dark blue tint
-          border: "#1e3a8a", // Dark blue border
+          card: "#0a1a2f",
+          border: "#1e3a8a",
           accent: "#ffffff",
           success: "#10b981",
           warning: "#f59e0b",
           danger: "#ef4444",
-          info: "#60a5fa", // Light blue for info
-          primary: "#3b82f6", // Blue primary
-          pending: "#f97316", // Orange for pending
-          supervisor: "#3b82f6", // Blue for supervisor theme
+          info: "#60a5fa",
+          primary: "#3b82f6",
+          pending: "#f97316",
+          supervisor: "#3b82f6",
         };
-
-  // Theme toggle button style
-  const themeToggleStyle = {
-    backgroundColor: theme === "dark" ? "#0a0a0a" : "#f5f5f5",
-    borderColor: theme === "dark" ? "#1a1a1a" : "#e5e5e5",
-    color: theme === "dark" ? "#ffffff" : "#000000",
-  };
 
   const currentLogo = theme === "dark" ? darkLogo : lightLogo;
 
@@ -145,6 +141,16 @@ const SupervisorDashboard = () => {
     filterComplaints();
   }, [searchQuery, selectedStatusFilter, complaints]);
 
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setProfileDropdownOpen(false);
+      setMobileMenuOpen(false);
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
+
   const fetchUserProfile = async () => {
     try {
       const savedUser = localStorage.getItem("user");
@@ -152,7 +158,6 @@ const SupervisorDashboard = () => {
         setUser(JSON.parse(savedUser));
         return;
       }
-
       const response = await api.get("/v1/user/me");
       setUser(response.data?.data || null);
     } catch (error) {
@@ -292,6 +297,8 @@ const SupervisorDashboard = () => {
       duration: 1500,
     });
     navigate("/profile");
+    setProfileDropdownOpen(false);
+    setMobileMenuOpen(false);
   };
 
   const openAssignModal = (complaint) => {
@@ -484,7 +491,6 @@ const SupervisorDashboard = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Simple validation (you can implement proper validation if needed)
       if (file.size > 5 * 1024 * 1024) {
         toast.error("File size must be less than 5MB", {
           position: "top-right",
@@ -508,40 +514,26 @@ const SupervisorDashboard = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "CREATED":
-        return colors.info;
-      case "ASSIGNED":
-        return colors.warning;
-      case "IN_PROGRESS":
-        return colors.primary;
-      case "PENDING_VERIFICATION":
-        return colors.pending;
-      case "RESOLVED":
-        return colors.success;
+      case "CREATED": return colors.info;
+      case "ASSIGNED": return colors.warning;
+      case "IN_PROGRESS": return colors.primary;
+      case "PENDING_VERIFICATION": return colors.pending;
+      case "RESOLVED": return colors.success;
       case "REJECTED":
-      case "WITHDRAWN":
-        return colors.danger;
-      default:
-        return "#6b7280";
+      case "WITHDRAWN": return colors.danger;
+      default: return "#6b7280";
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case "CREATED":
-        return <AlertCircle size={16} />;
-      case "ASSIGNED":
-        return <Clock size={16} />;
-      case "IN_PROGRESS":
-        return <Target size={16} />;
-      case "PENDING_VERIFICATION":
-        return <AlertOctagon size={16} />;
-      case "RESOLVED":
-        return <CheckCircle size={16} />;
-      case "REJECTED":
-        return <XCircle size={16} />;
-      default:
-        return <AlertCircle size={16} />;
+      case "CREATED": return <AlertCircle size={14} />;
+      case "ASSIGNED": return <Clock size={14} />;
+      case "IN_PROGRESS": return <Target size={14} />;
+      case "PENDING_VERIFICATION": return <AlertOctagon size={14} />;
+      case "RESOLVED": return <CheckCircle size={14} />;
+      case "REJECTED": return <XCircle size={14} />;
+      default: return <AlertCircle size={14} />;
     }
   };
 
@@ -559,28 +551,28 @@ const SupervisorDashboard = () => {
 
   const StatCard = ({ title, value, color, icon, subtitle }) => (
     <div
-      className="p-6 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
+      className="p-4 sm:p-5 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
       style={{
         backgroundColor: colors.card,
         border: `1px solid ${colors.border}`,
       }}
     >
-      <div className="flex justify-between items-start mb-4">
+      <div className="flex justify-between items-start mb-3">
         <div
-          className="p-3 rounded-lg"
+          className="p-2 rounded-lg"
           style={{ backgroundColor: `${color}20` }}
         >
           <div style={{ color }}>{icon}</div>
         </div>
       </div>
-      <h3 className="text-3xl font-bold mb-2" style={{ color: colors.text }}>
+      <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1" style={{ color: colors.text }}>
         {value}
       </h3>
-      <p className="font-medium text-lg" style={{ color: colors.text }}>
+      <p className="text-sm sm:text-base font-medium" style={{ color: colors.text }}>
         {title}
       </p>
       {subtitle && (
-        <p className="text-sm mt-2 opacity-75" style={{ color: colors.text }}>
+        <p className="text-xs sm:text-sm mt-1 opacity-75" style={{ color: colors.text }}>
           {subtitle}
         </p>
       )}
@@ -595,10 +587,10 @@ const SupervisorDashboard = () => {
       >
         <div className="text-center">
           <Loader
-            className="animate-spin w-12 h-12 mx-auto mb-4"
+            className="animate-spin w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-4"
             style={{ color: colors.primary }}
           />
-          <p>Loading Supervisor Dashboard...</p>
+          <p className="text-sm sm:text-base">Loading Supervisor Dashboard...</p>
         </div>
       </div>
     );
@@ -609,9 +601,9 @@ const SupervisorDashboard = () => {
       className="min-h-screen"
       style={{ backgroundColor: colors.bg, color: colors.text }}
     >
-      {/* Header */}
+      {/* Header - Mobile Optimized */}
       <header
-        className="sticky top-0 z-50 border-b px-6 py-4"
+        className="sticky top-0 z-50 border-b px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4"
         style={{
           backgroundColor: colors.bg,
           borderColor: colors.border,
@@ -619,83 +611,84 @@ const SupervisorDashboard = () => {
         }}
       >
         <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-4">
+          {/* Logo */}
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <img
               src={currentLogo}
               alt="CivicFix Logo"
-              className="h-14 w-auto object-contain"
+              className="h-8 sm:h-10 md:h-12 lg:h-14 w-auto object-contain"
             />
-            <div>
+            <div className="hidden xs:block">
               <h1
-                className="text-xl font-bold"
+                className="text-sm sm:text-base md:text-lg lg:text-xl font-bold"
                 style={{ color: colors.primary }}
               >
-                Supervisor Dashboard
+                Supervisor
               </h1>
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
+          {/* Mobile Menu Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setMobileMenuOpen(!mobileMenuOpen);
+            }}
+            className="md:hidden p-2 rounded-lg"
+            style={{
+              backgroundColor: colors.card,
+              border: `1px solid ${colors.border}`,
+            }}
+          >
+            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
             <button
               onClick={toggleTheme}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl border transition-colors duration-200"
-              style={themeToggleStyle}
+              className="flex items-center gap-1 lg:gap-2 px-2 lg:px-3 py-1.5 lg:py-2 rounded-xl border transition-colors duration-200"
+              style={{
+                backgroundColor: theme === "dark" ? "#0a0a0a" : "#f5f5f5",
+                borderColor: theme === "dark" ? "#1a1a1a" : "#e5e5e5",
+                color: theme === "dark" ? "#ffffff" : "#000000",
+              }}
             >
               {theme === "dark" ? (
                 <>
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                    />
+                  <svg className="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
-                  <span className="text-sm font-medium">Light</span>
+                  <span className="text-xs lg:text-sm font-medium">Light</span>
                 </>
               ) : (
                 <>
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-                    />
+                  <svg className="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                   </svg>
-                  <span className="text-sm font-medium">Dark</span>
+                  <span className="text-xs lg:text-sm font-medium">Dark</span>
                 </>
               )}
             </button>
 
             <button
               onClick={handleRefresh}
-              className="p-3 rounded-xl transition-all duration-300 hover:scale-110"
+              className="p-2 lg:p-2.5 rounded-xl transition-all duration-300 hover:scale-110"
               style={{
                 backgroundColor: colors.card,
                 border: `1px solid ${colors.border}`,
               }}
               title="Refresh"
             >
-              <RefreshCw size={18} />
+              <RefreshCw size={16} className="lg:w-[18px] lg:h-[18px]" />
             </button>
 
             <div className="relative">
-              <button className="p-2">
-                <Bell size={20} />
+              <button className="p-1.5 lg:p-2 relative">
+                <Bell size={16} className="lg:w-[18px] lg:h-[18px]" />
                 {pendingVerification.length > 0 && (
                   <span
-                    className="absolute top-1 right-1 w-2 h-2 rounded-full"
+                    className="absolute top-0 right-0 w-2 h-2 rounded-full"
                     style={{ backgroundColor: colors.pending }}
                   />
                 )}
@@ -704,17 +697,14 @@ const SupervisorDashboard = () => {
 
             <div className="relative">
               <button
-                className="flex items-center space-x-2 p-2"
+                className="flex items-center space-x-1 lg:space-x-2 p-1 lg:p-2"
                 onClick={(e) => {
                   e.stopPropagation();
-                  const dropdown = document.getElementById("profile-dropdown");
-                  if (dropdown) {
-                    dropdown.classList.toggle("hidden");
-                  }
+                  setProfileDropdownOpen(!profileDropdownOpen);
                 }}
               >
                 <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden"
+                  className="w-6 h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center text-xs lg:text-sm"
                   style={{
                     backgroundColor: colors.primary,
                     color: "white",
@@ -722,85 +712,133 @@ const SupervisorDashboard = () => {
                 >
                   <span>{getUserInitials(user?.name)}</span>
                 </div>
-                <span className="font-medium hidden md:inline">
+                <span className="font-medium text-xs lg:text-sm hidden lg:inline">
                   {user?.name || "Supervisor"}
                 </span>
               </button>
 
-              <div
-                id="profile-dropdown"
-                className="absolute right-0 mt-2 w-44 rounded-xl hidden transition-all duration-300 z-50"
-                style={{
-                  backgroundColor: colors.card,
-                  border: `1px solid ${colors.border}`,
-                  backdropFilter: "blur(10px)",
-                  boxShadow: `0 10px 25px rgba(0, 0, 0, 0.2)`,
-                }}
-              >
-                <div className="py-2">
+              {profileDropdownOpen && (
+                <div
+                  className="absolute right-0 mt-2 w-36 lg:w-44 rounded-xl py-1 lg:py-2 z-50"
+                  style={{
+                    backgroundColor: colors.card,
+                    border: `1px solid ${colors.border}`,
+                    boxShadow: `0 10px 25px rgba(0, 0, 0, 0.2)`,
+                  }}
+                >
                   <button
                     onClick={navigateToProfile}
-                    className="flex items-center space-x-2 w-full px-4 py-3 hover:bg-opacity-80 text-left transition-colors"
-                    style={{
-                      backgroundColor: `${colors.border}10`,
-                    }}
+                    className="flex items-center space-x-2 w-full px-3 lg:px-4 py-2 hover:bg-opacity-80 text-left text-xs lg:text-sm"
+                    style={{ backgroundColor: `${colors.border}10` }}
                   >
-                    <User size={16} />
+                    <User size={14} className="lg:w-4 lg:h-4" />
                     <span>Profile</span>
                   </button>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center space-x-2 w-full px-4 py-3 hover:bg-opacity-80 text-left transition-colors"
+                    className="flex items-center space-x-2 w-full px-3 lg:px-4 py-2 hover:bg-opacity-80 text-left text-xs lg:text-sm"
                     style={{
                       color: colors.danger,
                       backgroundColor: `${colors.border}10`,
                     }}
                   >
-                    <LogOut size={16} />
+                    <LogOut size={14} className="lg:w-4 lg:h-4" />
                     <span>Logout</span>
                   </button>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex mt-4 overflow-x-auto">
-          {[
-            "overview",
-            "assigned-complaints",
-            "pending-verification",
-            "officers",
-          ].map((tab) => (
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div
+            className="md:hidden mt-3 p-3 rounded-lg animate-slideDown"
+            style={{
+              backgroundColor: colors.card,
+              border: `1px solid ${colors.border}`,
+              position: 'relative',
+              zIndex: 100,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-col space-y-2">
+              <button
+                onClick={() => {
+                  toggleTheme();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
+                style={{ backgroundColor: `${colors.border}20` }}
+              >
+                <span>{theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}</span>
+              </button>
+              
+              <button
+                onClick={() => {
+                  handleRefresh();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
+                style={{ backgroundColor: `${colors.border}20` }}
+              >
+                <span>🔄 Refresh</span>
+              </button>
+              
+              <button
+                onClick={navigateToProfile}
+                className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
+                style={{ backgroundColor: `${colors.border}20` }}
+              >
+                <span>👤 Profile</span>
+              </button>
+              
+              <button
+                onClick={handleLogout}
+                className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
+                style={{ color: colors.danger, backgroundColor: `${colors.border}20` }}
+              >
+                <span>🚪 Logout</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Tabs - Mobile Optimized */}
+        <div className="flex mt-3 overflow-x-auto hide-scrollbar">
+          {["overview", "assigned", "pending", "officers"].map((tab) => (
             <button
               key={tab}
               onClick={() => {
                 setActiveTab(tab);
-                toast.info(`Switched to ${tab.replace("-", " ")} tab`, {
+                toast.info(`Switched to ${tab} tab`, {
                   position: "top-right",
                   duration: 2000,
                 });
+                setMobileMenuOpen(false);
               }}
-              className="flex-1 min-w-28 py-3 text-sm font-medium relative group"
+              className="flex-1 min-w-16 py-2 text-xs sm:text-sm font-medium relative group"
               style={{
                 color: activeTab === tab ? colors.primary : colors.text,
                 opacity: activeTab === tab ? 1 : 0.7,
               }}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1).replace("-", " ")}
-              {tab === "pending-verification" &&
-                pendingVerification.length > 0 && (
-                  <span
-                    className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-xs flex items-center justify-center"
-                    style={{ backgroundColor: colors.pending, color: "white" }}
-                  >
-                    {pendingVerification.length}
-                  </span>
-                )}
+              {tab === "overview" && "Overview"}
+              {tab === "assigned" && "Assigned"}
+              {tab === "pending" && "Pending"}
+              {tab === "officers" && "Officers"}
+              {tab === "pending" && pendingVerification.length > 0 && (
+                <span
+                  className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-2xs flex items-center justify-center"
+                  style={{ backgroundColor: colors.pending, color: "white" }}
+                >
+                  {pendingVerification.length}
+                </span>
+              )}
               {activeTab === tab && (
                 <div
-                  className="absolute bottom-0 left-1/4 right-1/4 h-0.5 rounded-full transition-all duration-300"
+                  className="absolute bottom-0 left-1/4 right-1/4 h-0.5 rounded-full"
                   style={{ backgroundColor: colors.primary }}
                 />
               )}
@@ -809,50 +847,50 @@ const SupervisorDashboard = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="p-4 md:p-6">
+      {/* Main Content - Mobile Optimized */}
+      <main className="p-3 sm:p-4 md:p-6">
         {/* Overview Tab */}
         {activeTab === "overview" && (
           <>
-            <div className="mb-8">
+            <div className="mb-4 sm:mb-6 md:mb-8">
               <h1
-                className="text-2xl md:text-3xl font-bold mb-2"
+                className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-1"
                 style={{ color: colors.primary }}
               >
-                Welcome, Supervisor {user?.name?.split(" ")[0] || ""}
+                Welcome, {user?.name?.split(" ")[0] || "Supervisor"}
               </h1>
-              <p className="opacity-75">
+              <p className="text-xs sm:text-sm opacity-75">
                 Monitor and manage assigned complaints efficiently
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 lg:gap-6 mb-6">
               <StatCard
                 title="Total Assigned"
                 value={stats.totalAssigned || 0}
                 color={colors.info}
-                icon={<FileText size={28} />}
-                subtitle="Complaints under supervision"
+                icon={<FileText size={20} />}
+                subtitle="Under supervision"
               />
               <StatCard
                 title="Pending Review"
                 value={stats.pendingReview || 0}
                 color={colors.pending}
-                icon={<AlertOctagon size={28} />}
+                icon={<AlertOctagon size={20} />}
                 subtitle="Need verification"
               />
               <StatCard
                 title="In Progress"
                 value={stats.inProgress || 0}
                 color={colors.primary}
-                icon={<Target size={28} />}
+                icon={<Target size={20} />}
                 subtitle="Being handled"
               />
               <StatCard
                 title="Resolved"
                 value={stats.resolved || 0}
                 color={colors.success}
-                icon={<CheckCircle size={28} />}
+                icon={<CheckCircle size={20} />}
                 subtitle="Successfully closed"
               />
             </div>
@@ -860,26 +898,24 @@ const SupervisorDashboard = () => {
             {/* Pending Verification Alert */}
             {pendingVerification.length > 0 && (
               <div
-                className="mb-8 p-4 rounded-lg flex items-center justify-between"
+                className="mb-4 sm:mb-6 p-3 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                 style={{
                   backgroundColor: `${colors.pending}20`,
                   border: `1px solid ${colors.pending}`,
                 }}
               >
-                <div className="flex items-center gap-3">
-                  <AlertOctagon size={24} style={{ color: colors.pending }} />
+                <div className="flex items-center gap-2">
+                  <AlertOctagon size={20} style={{ color: colors.pending }} />
                   <div>
-                    <h3 className="font-bold">Pending Verification Required</h3>
-                    <p className="text-sm opacity-75">
-                      You have {pendingVerification.length} complaint
-                      {pendingVerification.length > 1 ? "s" : ""} waiting for
-                      your review.
+                    <h3 className="font-bold text-sm">Pending Verification</h3>
+                    <p className="text-xs opacity-75">
+                      {pendingVerification.length} complaint(s) waiting
                     </p>
                   </div>
                 </div>
                 <button
-                  onClick={() => setActiveTab("pending-verification")}
-                  className="px-4 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105"
+                  onClick={() => setActiveTab("pending")}
+                  className="w-full sm:w-auto px-3 py-2 rounded-lg font-medium text-xs"
                   style={{
                     backgroundColor: colors.pending,
                     color: "white",
@@ -890,91 +926,84 @@ const SupervisorDashboard = () => {
               </div>
             )}
 
-            <div className="mb-8">
-              <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Quick Actions */}
+            <div className="mb-6">
+              <h2 className="text-base sm:text-lg font-bold mb-3">Quick Actions</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <button
-                  onClick={() => setActiveTab("assigned-complaints")}
-                  className="p-6 rounded-xl text-left transition-all duration-300 hover:scale-[1.02]"
+                  onClick={() => setActiveTab("assigned")}
+                  className="p-4 rounded-xl text-left transition-all duration-300 hover:scale-[1.02]"
                   style={{
                     backgroundColor: colors.card,
                     border: `1px solid ${colors.border}`,
                     borderLeft: `4px solid ${colors.primary}`,
                   }}
                 >
-                  <div className="flex items-center space-x-3 mb-2">
+                  <div className="flex items-center space-x-2 mb-2">
                     <div
-                      className="p-2 rounded-lg"
+                      className="p-1.5 rounded-lg"
                       style={{ backgroundColor: `${colors.primary}20` }}
                     >
-                      <Eye size={20} style={{ color: colors.primary }} />
+                      <Eye size={16} style={{ color: colors.primary }} />
                     </div>
-                    <div className="font-medium">Review Complaints</div>
+                    <div className="font-medium text-sm">Review</div>
                   </div>
-                  <p className="text-sm opacity-75">
-                    View all assigned complaints
-                  </p>
+                  <p className="text-xs opacity-75">View assigned complaints</p>
                 </button>
 
                 <button
-                  onClick={() => setActiveTab("pending-verification")}
-                  className="p-6 rounded-xl text-left transition-all duration-300 hover:scale-[1.02]"
+                  onClick={() => setActiveTab("pending")}
+                  className="p-4 rounded-xl text-left transition-all duration-300 hover:scale-[1.02]"
                   style={{
                     backgroundColor: colors.card,
                     border: `1px solid ${colors.border}`,
                     borderLeft: `4px solid ${colors.primary}`,
                   }}
                 >
-                  <div className="flex items-center space-x-3 mb-2">
+                  <div className="flex items-center space-x-2 mb-2">
                     <div
-                      className="p-2 rounded-lg"
+                      className="p-1.5 rounded-lg"
                       style={{ backgroundColor: `${colors.primary}20` }}
                     >
-                      <AlertOctagon
-                        size={20}
-                        style={{ color: colors.primary }}
-                      />
+                      <AlertOctagon size={16} style={{ color: colors.primary }} />
                     </div>
-                    <div className="font-medium">Verify Complaints</div>
+                    <div className="font-medium text-sm">Verify</div>
                   </div>
-                  <p className="text-sm opacity-75">
-                    Review pending submissions ({pendingVerification.length})
+                  <p className="text-xs opacity-75">
+                    {pendingVerification.length} pending
                   </p>
                 </button>
 
                 <button
                   onClick={() => setActiveTab("officers")}
-                  className="p-6 rounded-xl text-left transition-all duration-300 hover:scale-[1.02]"
+                  className="p-4 rounded-xl text-left transition-all duration-300 hover:scale-[1.02]"
                   style={{
                     backgroundColor: colors.card,
                     border: `1px solid ${colors.border}`,
                     borderLeft: `4px solid ${colors.primary}`,
                   }}
                 >
-                  <div className="flex items-center space-x-3 mb-2">
+                  <div className="flex items-center space-x-2 mb-2">
                     <div
-                      className="p-2 rounded-lg"
+                      className="p-1.5 rounded-lg"
                       style={{ backgroundColor: `${colors.primary}20` }}
                     >
-                      <UserPlus size={20} style={{ color: colors.primary }} />
+                      <UserPlus size={16} style={{ color: colors.primary }} />
                     </div>
-                    <div className="font-medium">Manage Officers</div>
+                    <div className="font-medium text-sm">Officers</div>
                   </div>
-                  <p className="text-sm opacity-75">
-                    Assign and monitor officers
-                  </p>
+                  <p className="text-xs opacity-75">Manage field officers</p>
                 </button>
               </div>
             </div>
 
+            {/* Recent Assigned Complaints */}
             <div>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">
-                  Recent Assigned Complaints
-                </h2>
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="text-base sm:text-lg font-bold">Recent Assigned</h2>
                 <button
-                  onClick={() => setActiveTab("assigned-complaints")}
-                  className="text-sm opacity-75 hover:opacity-100"
+                  onClick={() => setActiveTab("assigned")}
+                  className="text-xs opacity-75 hover:opacity-100"
                   style={{ color: colors.primary }}
                 >
                   View All →
@@ -982,98 +1011,86 @@ const SupervisorDashboard = () => {
               </div>
 
               {loading ? (
-                <div className="text-center py-8 opacity-75">
-                  <Loader
-                    className="animate-spin w-6 h-6 mx-auto mb-2"
-                    style={{ color: colors.primary }}
-                  />
-                  Loading complaints...
+                <div className="text-center py-6 opacity-75">
+                  <Loader className="animate-spin w-5 h-5 mx-auto mb-2" />
+                  <p className="text-xs">Loading complaints...</p>
                 </div>
               ) : complaints.length === 0 ? (
-                <div className="text-center py-8 opacity-75">
-                  No complaints assigned yet.
+                <div className="text-center py-6 opacity-75">
+                  <p className="text-xs">No complaints assigned yet.</p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {complaints.slice(0, 5).map((complaint) => (
                     <div
                       key={complaint._id}
-                      className="p-4 rounded-xl transition-all duration-300 hover:scale-[1.01]"
+                      className="p-3 rounded-xl"
                       style={{
                         backgroundColor: colors.card,
                         border: `1px solid ${colors.border}`,
                       }}
                     >
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <span
-                              className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium"
-                              style={{
-                                backgroundColor: `${getStatusColor(complaint.status)}20`,
-                                color: getStatusColor(complaint.status),
-                              }}
-                            >
-                              {getStatusIcon(complaint.status)}
-                              <span>{complaint.status}</span>
-                            </span>
-                            <span className="text-sm opacity-75">
-                              {new Date(
-                                complaint.createdAt,
-                              ).toLocaleDateString()}
-                            </span>
-                          </div>
-                          <h3 className="font-bold text-lg mb-1">
-                            {complaint.title}
-                          </h3>
-                          <p className="opacity-75 line-clamp-2">
-                            {complaint.description}
-                          </p>
-                          <div className="flex flex-wrap items-center gap-3 mt-3">
-                            <span className="text-sm opacity-75 flex items-center">
-                              <MapPin size={14} className="mr-1" />
-                              {complaint.area}
-                            </span>
-                            <span className="text-sm px-2 py-1 rounded bg-gray-100 dark:bg-gray-800">
-                              {complaint.category}
-                            </span>
-                          </div>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-2xs font-medium"
+                            style={{
+                              backgroundColor: `${getStatusColor(complaint.status)}20`,
+                              color: getStatusColor(complaint.status),
+                            }}
+                          >
+                            {getStatusIcon(complaint.status)}
+                            <span>{complaint.status}</span>
+                          </span>
+                          <span className="text-2xs opacity-75">
+                            {new Date(complaint.createdAt).toLocaleDateString()}
+                          </span>
                         </div>
-                        <div className="flex gap-2">
+                        <h3 className="font-bold text-sm">{complaint.title}</h3>
+                        <p className="text-xs opacity-75 line-clamp-2">
+                          {complaint.description}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-2 text-2xs">
+                          <span className="flex items-center">
+                            <MapPin size={10} className="mr-1" />
+                            {complaint.area}
+                          </span>
+                          <span className="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800">
+                            {complaint.category}
+                          </span>
+                        </div>
+                        <div className="flex gap-2 mt-1">
                           {complaint.status === "PENDING_VERIFICATION" && (
                             <button
                               onClick={() => openVerifyModal(complaint)}
-                              className="px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-all duration-300 hover:scale-105"
+                              className="flex-1 px-3 py-1.5 rounded-lg font-medium text-xs"
                               style={{
                                 backgroundColor: colors.pending,
                                 color: "white",
                               }}
                             >
-                              <CheckCircle size={16} />
                               Verify
                             </button>
                           )}
                           <button
                             onClick={() => openUpdateModal(complaint)}
-                            className="px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-all duration-300 hover:scale-105"
+                            className="flex-1 px-3 py-1.5 rounded-lg font-medium text-xs"
                             style={{
                               backgroundColor: colors.card,
                               border: `1px solid ${colors.border}`,
                             }}
                           >
-                            <Edit size={16} />
                             Update
                           </button>
                           {!complaint.assignedToOfficer && (
                             <button
                               onClick={() => openAssignModal(complaint)}
-                              className="px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-all duration-300 hover:scale-105"
+                              className="flex-1 px-3 py-1.5 rounded-lg font-medium text-xs"
                               style={{
                                 backgroundColor: colors.primary,
                                 color: "white",
                               }}
                             >
-                              <Send size={16} />
                               Assign
                             </button>
                           )}
@@ -1088,27 +1105,23 @@ const SupervisorDashboard = () => {
         )}
 
         {/* Assigned Complaints Tab */}
-        {activeTab === "assigned-complaints" && (
+        {activeTab === "assigned" && (
           <div>
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <div className="flex flex-col gap-3 mb-4">
               <div>
-                <h1
-                  className="text-2xl md:text-3xl font-bold mb-2"
-                  style={{ color: colors.primary }}
-                >
+                <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-1">
                   Assigned Complaints
                 </h1>
-                <p className="opacity-75">
-                  Manage and monitor all complaints assigned to you
+                <p className="text-xs opacity-75">
+                  Manage all complaints assigned to you
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="relative">
+              <div className="flex flex-col gap-3">
+                <div className="relative w-full">
                   <Search
                     className="absolute left-3 top-1/2 transform -translate-y-1/2"
-                    size={18}
-                    style={{ color: colors.text, opacity: 0.5 }}
+                    size={14}
                   />
                   <input
                     type="text"
@@ -1116,7 +1129,7 @@ const SupervisorDashboard = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyPress={handleSearch}
-                    className="pl-10 pr-4 py-2 rounded-lg w-full"
+                    className="w-full pl-8 pr-4 py-2 text-xs rounded-lg"
                     style={{
                       backgroundColor: colors.card,
                       border: `1px solid ${colors.border}`,
@@ -1125,44 +1138,26 @@ const SupervisorDashboard = () => {
                   />
                 </div>
 
-                <div className="flex gap-2 overflow-x-auto">
+                <div className="flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
                   <button
                     onClick={() => handleFilter("ALL")}
-                    className="px-3 py-2 rounded-lg text-sm whitespace-nowrap transition-all duration-300 "
+                    className="px-2 py-1.5 rounded-lg text-2xs whitespace-nowrap flex-shrink-0"
                     style={{
-                      backgroundColor:
-                        selectedStatusFilter === "ALL"
-                          ? colors.primary
-                          : colors.card,
-                      color:
-                        selectedStatusFilter === "ALL" ? "white" : colors.text,
+                      backgroundColor: selectedStatusFilter === "ALL" ? colors.primary : colors.card,
+                      color: selectedStatusFilter === "ALL" ? "white" : colors.text,
                       border: `1px solid ${colors.border}`,
                     }}
                   >
-                    <Filter size={14} className="inline mr-1" />
                     All
                   </button>
-                  {[
-                    "CREATED",
-                    "ASSIGNED",
-                    "IN_PROGRESS",
-                    "PENDING_VERIFICATION",
-                    "RESOLVED",
-                    "REJECTED",
-                  ].map((status) => (
+                  {["CREATED", "ASSIGNED", "IN_PROGRESS", "PENDING_VERIFICATION", "RESOLVED", "REJECTED"].map((status) => (
                     <button
                       key={status}
                       onClick={() => handleFilter(status)}
-                      className="px-3 py-2 rounded-lg text-sm whitespace-nowrap transition-all duration-300 "
+                      className="px-2 py-1.5 rounded-lg text-2xs whitespace-nowrap flex-shrink-0"
                       style={{
-                        backgroundColor:
-                          selectedStatusFilter === status
-                            ? getStatusColor(status)
-                            : colors.card,
-                        color:
-                          selectedStatusFilter === status
-                            ? "white"
-                            : colors.text,
+                        backgroundColor: selectedStatusFilter === status ? getStatusColor(status) : colors.card,
+                        color: selectedStatusFilter === status ? "white" : colors.text,
                         border: `1px solid ${colors.border}`,
                       }}
                     >
@@ -1174,321 +1169,235 @@ const SupervisorDashboard = () => {
             </div>
 
             {loading ? (
-              <div className="text-center py-12 opacity-75">
-                <Loader
-                  className="animate-spin w-8 h-8 mx-auto mb-4"
-                  style={{ color: colors.primary }}
-                />
-                Loading complaints...
+              <div className="text-center py-8 opacity-75">
+                <Loader className="animate-spin w-6 h-6 mx-auto mb-2" />
+                <p className="text-xs">Loading complaints...</p>
               </div>
             ) : filteredComplaints.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="max-w-md mx-auto">
-                  <FileText size={48} className="mx-auto mb-4 opacity-50" />
-                  <h3 className="text-xl font-bold mb-2">
-                    {searchQuery || selectedStatusFilter !== "ALL"
-                      ? "No complaints match your criteria"
-                      : "No complaints assigned"}
-                  </h3>
-                  <p className="opacity-75 mb-6">
-                    {searchQuery || selectedStatusFilter !== "ALL"
-                      ? "Try changing your search or filter criteria."
-                      : "You don't have any complaints assigned to you yet."}
-                  </p>
-                </div>
+              <div className="text-center py-8">
+                <FileText size={32} className="mx-auto mb-2 opacity-50" />
+                <h3 className="text-sm font-bold mb-1">No complaints found</h3>
+                <p className="text-xs opacity-75">
+                  {searchQuery || selectedStatusFilter !== "ALL"
+                    ? "Try changing your search or filter"
+                    : "No complaints assigned yet"}
+                </p>
               </div>
             ) : (
-              <div
-                className="overflow-x-auto rounded-xl"
-                style={{ border: `1px solid ${colors.border}` }}
-              >
-                <table className="w-full">
-                  <thead>
-                    <tr style={{ backgroundColor: colors.card }}>
-                      <th className="text-left p-4 font-medium">Title</th>
-                      <th className="text-left p-4 font-medium">Category</th>
-                      <th className="text-left p-4 font-medium">Status</th>
-                      <th className="text-left p-4 font-medium">Date</th>
-                      <th className="text-left p-4 font-medium">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredComplaints.map((complaint) => (
-                      <tr
-                        key={complaint._id}
-                        style={{
-                          borderBottom: `1px solid ${colors.border}`,
-                          backgroundColor: colors.bg,
-                        }}
-                        className="hover:bg-opacity-50 transition-colors"
-                      >
-                        <td className="p-4">
-                          <div className="font-medium">{complaint.title}</div>
-                          <div className="text-sm opacity-75 mt-1 line-clamp-2">
-                            {complaint.description?.substring(0, 100)}
-                            {complaint.description?.length > 100 ? "..." : ""}
-                          </div>
-                          <div className="flex items-center gap-2 mt-1">
-                            <MapPin size={12} />
-                            <span className="text-xs opacity-75">
-                              {complaint.area}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="p-4">
-                          <span className="px-3 py-1 rounded-full text-sm bg-gray-100 dark:bg-gray-800">
-                            {complaint.category}
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <span
-                            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium"
+              <div className="space-y-3">
+                {filteredComplaints.map((complaint) => (
+                  <div
+                    key={complaint._id}
+                    className="p-3 rounded-lg"
+                    style={{
+                      backgroundColor: colors.card,
+                      border: `1px solid ${colors.border}`,
+                    }}
+                  >
+                    <div className="flex flex-col gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-2xs font-medium"
+                          style={{
+                            backgroundColor: `${getStatusColor(complaint.status)}20`,
+                            color: getStatusColor(complaint.status),
+                          }}
+                        >
+                          {getStatusIcon(complaint.status)}
+                          <span>{complaint.status.replace("_", " ")}</span>
+                        </span>
+                        <span className="text-2xs opacity-75">
+                          {new Date(complaint.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+
+                      <h3 className="font-bold text-sm">{complaint.title}</h3>
+                      
+                      <p className="text-xs opacity-75 line-clamp-2">
+                        {complaint.description?.substring(0, 100)}
+                        {complaint.description?.length > 100 ? "..." : ""}
+                      </p>
+
+                      <div className="flex flex-wrap items-center gap-2 text-2xs">
+                        <span className="flex items-center">
+                          <MapPin size={10} className="mr-1" />
+                          {complaint.area}
+                        </span>
+                        <span className="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800">
+                          {complaint.category}
+                        </span>
+                      </div>
+
+                      <div className="flex gap-2 mt-1">
+                        {complaint.status === "PENDING_VERIFICATION" && (
+                          <button
+                            onClick={() => openVerifyModal(complaint)}
+                            className="flex-1 px-2 py-1.5 rounded text-2xs font-medium"
                             style={{
-                              backgroundColor: `${getStatusColor(complaint.status)}20`,
-                              color: getStatusColor(complaint.status),
+                              backgroundColor: colors.pending,
+                              color: "white",
                             }}
                           >
-                            {getStatusIcon(complaint.status)}
-                            <span>{complaint.status.replace("_", " ")}</span>
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <div className="text-sm">
-                            {new Date(complaint.createdAt).toLocaleDateString()}
-                          </div>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex gap-2">
-                            {complaint.status === "PENDING_VERIFICATION" && (
-                              <button
-                                onClick={() => openVerifyModal(complaint)}
-                                className="px-3 py-1 rounded text-sm transition-all duration-300 hover:scale-105"
-                                style={{
-                                  backgroundColor: colors.pending,
-                                  color: "white",
-                                }}
-                              >
-                                Verify
-                              </button>
-                            )}
-                            <button
-                              onClick={() => openUpdateModal(complaint)}
-                              className="px-3 py-1 rounded text-sm transition-all duration-300 hover:scale-105"
-                              style={{
-                                backgroundColor: colors.card,
-                                border: `1px solid ${colors.border}`,
-                              }}
-                            >
-                              Update
-                            </button>
-                            {!complaint.assignedToOfficer && (
-                              <button
-                                onClick={() => openAssignModal(complaint)}
-                                className="px-3 py-1 rounded text-sm transition-all duration-300 hover:scale-105"
-                                style={{
-                                  backgroundColor: colors.primary,
-                                  color: "white",
-                                }}
-                              >
-                                Assign
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                            Verify
+                          </button>
+                        )}
+                        <button
+                          onClick={() => openUpdateModal(complaint)}
+                          className="flex-1 px-2 py-1.5 rounded text-2xs font-medium"
+                          style={{
+                            backgroundColor: colors.card,
+                            border: `1px solid ${colors.border}`,
+                          }}
+                        >
+                          Update
+                        </button>
+                        {!complaint.assignedToOfficer && (
+                          <button
+                            onClick={() => openAssignModal(complaint)}
+                            className="flex-1 px-2 py-1.5 rounded text-2xs font-medium"
+                            style={{
+                              backgroundColor: colors.primary,
+                              color: "white",
+                            }}
+                          >
+                            Assign
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
         )}
 
         {/* Pending Verification Tab */}
-        {activeTab === "pending-verification" && (
+        {activeTab === "pending" && (
           <div>
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-4">
               <div>
-                <h1
-                  className="text-2xl md:text-3xl font-bold mb-2"
-                  style={{ color: colors.primary }}
-                >
+                <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-1">
                   Pending Verification
                 </h1>
-                <p className="opacity-75">
-                  Review and verify complaints submitted by officers
+                <p className="text-xs opacity-75">
+                  Review complaints submitted by officers
                 </p>
               </div>
               <button
                 onClick={fetchPendingVerification}
-                className="p-3 rounded-xl transition-all duration-300 hover:scale-110"
+                className="p-2 rounded-lg"
                 style={{
                   backgroundColor: colors.card,
                   border: `1px solid ${colors.border}`,
                 }}
               >
-                <RefreshCw size={18} />
+                <RefreshCw size={14} />
               </button>
             </div>
 
             {loading ? (
-              <div className="text-center py-12 opacity-75">
-                <Loader
-                  className="animate-spin w-8 h-8 mx-auto mb-4"
-                  style={{ color: colors.primary }}
-                />
-                Loading pending complaints...
+              <div className="text-center py-8 opacity-75">
+                <Loader className="animate-spin w-6 h-6 mx-auto mb-2" />
+                <p className="text-xs">Loading...</p>
               </div>
             ) : pendingVerification.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="max-w-md mx-auto">
-                  <CheckCircle size={48} className="mx-auto mb-4 opacity-50" />
-                  <h3 className="text-xl font-bold mb-2">All Caught Up!</h3>
-                  <p className="opacity-75">
-                    No complaints pending verification at the moment.
-                  </p>
-                </div>
+              <div className="text-center py-8">
+                <CheckCircle size={32} className="mx-auto mb-2 opacity-50" />
+                <h3 className="text-sm font-bold mb-1">All Caught Up!</h3>
+                <p className="text-xs opacity-75">
+                  No complaints pending verification
+                </p>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-3">
                 {pendingVerification.map((complaint) => (
                   <div
                     key={complaint._id}
-                    className="p-6 rounded-xl"
+                    className="p-3 rounded-lg"
                     style={{
                       backgroundColor: colors.card,
                       border: `1px solid ${colors.border}`,
                     }}
                   >
-                    <div className="flex flex-col lg:flex-row gap-6">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-4">
-                          <span
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full font-medium"
-                            style={{
-                              backgroundColor: `${colors.pending}20`,
-                              color: colors.pending,
-                            }}
-                          >
-                            <AlertOctagon size={16} />
-                            <span>PENDING VERIFICATION</span>
-                          </span>
-                          <span className="text-sm opacity-75">
-                            {new Date(complaint.updatedAt).toLocaleDateString()}
-                          </span>
-                        </div>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-2xs font-medium"
+                          style={{
+                            backgroundColor: `${colors.pending}20`,
+                            color: colors.pending,
+                          }}
+                        >
+                          <AlertOctagon size={12} />
+                          PENDING
+                        </span>
+                      </div>
 
-                        <h3 className="text-xl font-bold mb-3">
-                          {complaint.title}
-                        </h3>
+                      <h3 className="font-bold text-sm">{complaint.title}</h3>
+                      
+                      <p className="text-xs opacity-75 line-clamp-2">
+                        {complaint.description}
+                      </p>
 
-                        <p className="opacity-90 mb-4">
-                          {complaint.description}
-                        </p>
-
-                        <div className="grid grid-cols-2 gap-4 mb-4">
-                          <div>
-                            <p className="text-sm opacity-75">Category</p>
-                            <p className="font-medium">{complaint.category}</p>
+                      {/* Image Preview */}
+                      <div className="flex gap-2">
+                        {complaint.images?.citizen?.length > 0 && (
+                          <div className="flex-1">
+                            <img
+                              src={complaint.images.citizen[0]}
+                              alt="Citizen"
+                              className="w-full h-20 object-cover rounded-lg"
+                              onError={(e) => {
+                                e.target.src = "https://via.placeholder.com/100?text=No+Image";
+                              }}
+                            />
                           </div>
-                          <div>
-                            <p className="text-sm opacity-75">Area</p>
-                            <p className="font-medium">{complaint.area}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm opacity-75">Reported By</p>
-                            <p className="font-medium">
-                              {complaint.user?.name || "Anonymous"}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm opacity-75">
-                              Assigned Officer
-                            </p>
-                            <p className="font-medium">
-                              {complaint.assignedToOfficer?.name ||
-                                "Not assigned"}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Image Preview Section */}
-                        <div className="flex gap-3 mb-4">
-                          {complaint.images?.citizen?.length > 0 && (
-                            <div className="flex-1">
-                              <p className="text-sm font-medium mb-2">
-                                Citizen Image:
-                              </p>
-                              <img
-                                src={complaint.images.citizen[0]}
-                                alt="Citizen"
-                                className="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-90"
-                                onClick={() => openDetailsModal(complaint)}
-                                onError={(e) => {
-                                  e.target.src =
-                                    "https://via.placeholder.com/150?text=No+Image";
-                                }}
-                              />
-                            </div>
-                          )}
-                          {complaint.images?.officer && (
-                            <div className="flex-1">
-                              <p className="text-sm font-medium mb-2">
-                                Officer Image:
-                              </p>
-                              <img
-                                src={complaint.images.officer}
-                                alt="Officer"
-                                className="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-90"
-                                onClick={() => openDetailsModal(complaint)}
-                                onError={(e) => {
-                                  e.target.src =
-                                    "https://via.placeholder.com/150?text=No+Image";
-                                }}
-                              />
-                            </div>
-                          )}
-                        </div>
-
-                        {complaint.remarks && (
-                          <div
-                            className="p-3 rounded-lg"
-                            style={{ backgroundColor: `${colors.border}20` }}
-                          >
-                            <p className="text-sm font-medium mb-1">
-                              Officer's Remarks:
-                            </p>
-                            <p className="text-sm opacity-75">
-                              {complaint.remarks}
-                            </p>
+                        )}
+                        {complaint.images?.officer && (
+                          <div className="flex-1">
+                            <img
+                              src={complaint.images.officer}
+                              alt="Officer"
+                              className="w-full h-20 object-cover rounded-lg"
+                              onError={(e) => {
+                                e.target.src = "https://via.placeholder.com/100?text=No+Image";
+                              }}
+                            />
                           </div>
                         )}
                       </div>
 
-                      <div className="lg:w-80 space-y-3">
+                      {complaint.remarks && (
+                        <div
+                          className="p-2 rounded-lg text-xs"
+                          style={{ backgroundColor: `${colors.border}20` }}
+                        >
+                          <span className="font-medium">Officer's Remarks:</span>
+                          <p className="text-xs opacity-75 mt-1">{complaint.remarks}</p>
+                        </div>
+                      )}
+
+                      <div className="flex gap-2 mt-2">
                         <button
                           onClick={() => openVerifyModal(complaint)}
-                          className="w-full px-6 py-4 rounded-xl font-medium flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105"
+                          className="flex-1 px-3 py-2 rounded-lg font-medium text-xs"
                           style={{
                             backgroundColor: colors.primary,
                             color: "white",
                           }}
                         >
-                          <CheckCircle size={20} />
                           Review & Verify
                         </button>
-
                         <button
                           onClick={() => openDetailsModal(complaint)}
-                          className="w-full px-6 py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105"
+                          className="px-3 py-2 rounded-lg font-medium text-xs"
                           style={{
                             backgroundColor: colors.card,
                             border: `1px solid ${colors.border}`,
-                            color: colors.text,
                           }}
                         >
-                          <Eye size={18} />
-                          View Full Details
+                          <Eye size={14} />
                         </button>
                       </div>
                     </div>
@@ -1502,18 +1411,15 @@ const SupervisorDashboard = () => {
         {/* Officers Tab */}
         {activeTab === "officers" && (
           <div>
-            <h1
-              className="text-2xl md:text-3xl font-bold mb-6"
-              style={{ color: colors.primary }}
-            >
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-4">
               Field Officers
             </h1>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {officers.length === 0 ? (
-                <div className="col-span-full text-center py-12">
-                  <UserPlus size={48} className="mx-auto mb-4 opacity-50" />
-                  <h3 className="text-xl font-bold mb-2">No officers found</h3>
-                  <p className="opacity-75">
+                <div className="col-span-full text-center py-8">
+                  <UserPlus size={32} className="mx-auto mb-2 opacity-50" />
+                  <h3 className="text-sm font-bold mb-1">No officers found</h3>
+                  <p className="text-xs opacity-75">
                     There are no field officers available.
                   </p>
                 </div>
@@ -1521,44 +1427,38 @@ const SupervisorDashboard = () => {
                 officers.map((officer) => (
                   <div
                     key={officer._id}
-                    className="p-6 rounded-xl transition-all duration-300 hover:scale-[1.02]"
+                    className="p-3 rounded-lg"
                     style={{
                       backgroundColor: colors.card,
                       border: `1px solid ${colors.border}`,
                       borderLeft: `4px solid ${colors.primary}`,
                     }}
                   >
-                    <div className="flex items-center gap-4 mb-4">
+                    <div className="flex items-center gap-3 mb-3">
                       <div
-                        className="w-12 h-12 rounded-full flex items-center justify-center"
+                        className="w-10 h-10 rounded-full flex items-center justify-center"
                         style={{
                           backgroundColor: colors.primary,
                           color: "white",
                         }}
                       >
-                        <User size={20} />
+                        <User size={16} />
                       </div>
-                      <div>
-                        <h3 className="font-bold text-lg">{officer.name}</h3>
-                        <p className="text-sm opacity-75">{officer.email}</p>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-bold text-sm truncate">{officer.name}</h3>
+                        <p className="text-xs opacity-75 truncate">{officer.email}</p>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="opacity-75">Department:</span>
-                        <span className="font-medium">
-                          {officer.department || "Field Operations"}
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <span className="opacity-75">Dept:</span>
+                        <span className="ml-1 font-medium">
+                          {officer.department || "Field Ops"}
                         </span>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="opacity-75">Role:</span>
-                        <span className="font-medium">Field Officer</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
+                      <div>
                         <span className="opacity-75">Status:</span>
-                        <span className="font-medium text-green-600">
-                          Active
-                        </span>
+                        <span className="ml-1 font-medium text-green-600">Active</span>
                       </div>
                     </div>
                   </div>
@@ -1569,51 +1469,45 @@ const SupervisorDashboard = () => {
         )}
       </main>
 
-      {/* Assign Complaint Modal */}
+      {/* Modals - Mobile Optimized */}
       {showAssignModal && selectedComplaint && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div
-            className="rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto"
+            className="rounded-xl p-4 max-w-md w-full"
             style={{
               backgroundColor: colors.card,
               border: `1px solid ${colors.border}`,
             }}
           >
-            <h3 className="text-xl font-bold mb-4">Assign Complaint</h3>
-            <div className="mb-4">
-              <p className="font-medium mb-2">
-                Complaint: {selectedComplaint.title}
-              </p>
-              <p className="text-sm opacity-75">
-                {selectedComplaint.description?.substring(0, 100)}...
+            <h3 className="text-base font-bold mb-3">Assign to Officer</h3>
+            <div className="mb-3">
+              <p className="text-xs opacity-75 line-clamp-2">
+                {selectedComplaint.title}
               </p>
             </div>
 
-            <div className="mb-6">
-              <label className="block mb-2 font-medium">Select Officer</label>
-              <select
-                value={assignOfficer}
-                onChange={(e) => setAssignOfficer(e.target.value)}
-                className="w-full p-3 rounded-lg"
-                style={{
-                  backgroundColor: colors.bg,
-                  border: `1px solid ${colors.border}`,
-                  color: colors.text,
-                }}
-              >
-                <option value="">Select an officer</option>
-                {officers.map((officer) => (
-                  <option key={officer._id} value={officer._id}>
-                    {officer.name} - {officer.department || "Field Officer"}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={assignOfficer}
+              onChange={(e) => setAssignOfficer(e.target.value)}
+              className="w-full p-2.5 text-sm rounded-lg mb-4"
+              style={{
+                backgroundColor: colors.bg,
+                border: `1px solid ${colors.border}`,
+                color: colors.text,
+              }}
+            >
+              <option value="">Select officer</option>
+              {officers.map((officer) => (
+                <option key={officer._id} value={officer._id}>
+                  {officer.name}
+                </option>
+              ))}
+            </select>
 
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <button
                 onClick={() => setShowAssignModal(false)}
-                className="flex-1 p-3 rounded-lg font-medium transition-all duration-300 hover:scale-105"
+                className="flex-1 p-2.5 rounded-lg font-medium text-sm"
                 style={{
                   backgroundColor: colors.card,
                   border: `1px solid ${colors.border}`,
@@ -1624,121 +1518,89 @@ const SupervisorDashboard = () => {
               <button
                 onClick={handleAssignSubmit}
                 disabled={updating || !assignOfficer}
-                className="flex-1 p-3 rounded-lg font-medium text-white transition-all duration-300 hover:scale-105 disabled:opacity-50"
+                className="flex-1 p-2.5 rounded-lg font-medium text-sm text-white disabled:opacity-50"
                 style={{ backgroundColor: colors.primary }}
               >
-                {updating ? (
-                  <span className="flex items-center justify-center">
-                    <Loader className="animate-spin w-4 h-4 mr-2" />
-                    Assigning...
-                  </span>
-                ) : (
-                  "Assign Complaint"
-                )}
+                {updating ? "..." : "Assign"}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Update Complaint Modal */}
       {showUpdateModal && selectedComplaint && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div
-            className="rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto"
+            className="rounded-xl p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
             style={{
               backgroundColor: colors.card,
               border: `1px solid ${colors.border}`,
             }}
           >
-            <h3 className="text-xl font-bold mb-4">Update Complaint</h3>
-            <div className="mb-4">
-              <p className="font-medium mb-2">
-                Complaint: {selectedComplaint.title}
-              </p>
-            </div>
+            <h3 className="text-base font-bold mb-3">Update Complaint</h3>
+            <div className="space-y-3">
+              <select
+                value={updateData.status}
+                onChange={(e) => setUpdateData({ ...updateData, status: e.target.value })}
+                className="w-full p-2.5 text-sm rounded-lg"
+                style={{
+                  backgroundColor: colors.bg,
+                  border: `1px solid ${colors.border}`,
+                  color: colors.text,
+                }}
+              >
+                <option value="">Select status</option>
+                {statusOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block mb-2 font-medium">Status</label>
-                <select
-                  value={updateData.status}
-                  onChange={(e) =>
-                    setUpdateData({ ...updateData, status: e.target.value })
-                  }
-                  className="w-full p-3 rounded-lg"
-                  style={{
-                    backgroundColor: colors.bg,
-                    border: `1px solid ${colors.border}`,
-                    color: colors.text,
-                  }}
-                >
-                  <option value="">Select status</option>
-                  {statusOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block mb-2 font-medium">Remarks</label>
-                <textarea
-                  value={updateData.remarks}
-                  onChange={(e) =>
-                    setUpdateData({ ...updateData, remarks: e.target.value })
-                  }
-                  placeholder="Add remarks or notes..."
-                  rows="3"
-                  className="w-full p-3 rounded-lg"
-                  style={{
-                    backgroundColor: colors.bg,
-                    border: `1px solid ${colors.border}`,
-                    color: colors.text,
-                  }}
-                />
-              </div>
+              <textarea
+                value={updateData.remarks}
+                onChange={(e) => setUpdateData({ ...updateData, remarks: e.target.value })}
+                placeholder="Remarks..."
+                rows="2"
+                className="w-full p-2.5 text-sm rounded-lg"
+                style={{
+                  backgroundColor: colors.bg,
+                  border: `1px solid ${colors.border}`,
+                  color: colors.text,
+                }}
+              />
 
               <div>
-                <label className="block mb-2 font-medium">
-                  Upload Image (Optional)
-                </label>
+                <label className="block mb-2 text-xs">Image (Optional)</label>
                 <div
-                  className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors hover:border-solid"
+                  className="border-2 border-dashed rounded-lg p-3 text-center cursor-pointer"
                   style={{ borderColor: colors.border }}
-                  onClick={() =>
-                    document.getElementById("image-upload").click()
-                  }
+                  onClick={() => document.getElementById("update-image").click()}
                 >
                   <input
                     type="file"
-                    id="image-upload"
+                    id="update-image"
                     accept="image/*"
                     onChange={handleImageChange}
                     className="hidden"
                   />
-                  <Upload className="mx-auto mb-2" size={24} />
-                  <p className="text-sm">Click to upload image</p>
-                  <p className="text-xs opacity-75 mt-1">Supports JPG, PNG</p>
+                  <Upload className="mx-auto mb-1" size={20} />
+                  <p className="text-xs">Click to upload</p>
                 </div>
                 {updateData.imagePreview && (
-                  <div className="mt-3">
-                    <p className="text-sm mb-2">Preview:</p>
-                    <img
-                      src={updateData.imagePreview}
-                      alt="Preview"
-                      className="w-32 h-32 object-cover rounded-lg"
-                    />
-                  </div>
+                  <img
+                    src={updateData.imagePreview}
+                    alt="Preview"
+                    className="w-16 h-16 object-cover rounded-lg mt-2"
+                  />
                 )}
               </div>
             </div>
 
-            <div className="flex gap-3 mt-6">
+            <div className="flex gap-2 mt-4">
               <button
                 onClick={() => setShowUpdateModal(false)}
-                className="flex-1 p-3 rounded-lg font-medium transition-all duration-300 hover:scale-105"
+                className="flex-1 p-2.5 rounded-lg font-medium text-sm"
                 style={{
                   backgroundColor: colors.card,
                   border: `1px solid ${colors.border}`,
@@ -1749,178 +1611,87 @@ const SupervisorDashboard = () => {
               <button
                 onClick={handleUpdateSubmit}
                 disabled={updating || !updateData.status}
-                className="flex-1 p-3 rounded-lg font-medium text-white transition-all duration-300 hover:scale-105 disabled:opacity-50"
+                className="flex-1 p-2.5 rounded-lg font-medium text-sm text-white disabled:opacity-50"
                 style={{ backgroundColor: colors.primary }}
               >
-                {updating ? (
-                  <span className="flex items-center justify-center">
-                    <Loader className="animate-spin w-4 h-4 mr-2" />
-                    Updating...
-                  </span>
-                ) : (
-                  "Update Complaint"
-                )}
+                {updating ? "..." : "Update"}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Verify Complaint Modal */}
       {showVerifyModal && selectedComplaint && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div
-            className="rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto"
+            className="rounded-xl p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
             style={{
               backgroundColor: colors.card,
               border: `1px solid ${colors.border}`,
             }}
           >
-            <h3 className="text-xl font-bold mb-4">Verify Complaint</h3>
-            <div className="mb-4">
-              <p className="font-medium mb-2">
-                Complaint: {selectedComplaint.title}
-              </p>
-              <p className="text-sm opacity-75 mb-2">
-                Reported by: {selectedComplaint.user?.name || "Anonymous"}
-              </p>
-              <p className="text-sm opacity-75">
-                Handled by:{" "}
-                {selectedComplaint.assignedToOfficer?.name || "Unknown Officer"}
-              </p>
-            </div>
-
-            {/* Image Comparison */}
-            <div className="mb-6">
-              <h4
-                className="font-medium mb-3"
-                style={{ color: colors.primary }}
-              >
-                Image Comparison
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h3 className="text-base font-bold mb-3">Verify Complaint</h3>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-2">
                 {selectedComplaint.images?.citizen?.length > 0 && (
-                  <div>
-                    <p className="text-sm font-medium mb-2">Original Image:</p>
-                    <img
-                      src={selectedComplaint.images.citizen[0]}
-                      alt="Original"
-                      className="w-full h-40 object-cover rounded-lg border-2"
-                      style={{ borderColor: colors.info }}
-                      onError={(e) => {
-                        e.target.src =
-                          "https://via.placeholder.com/200x150?text=Original";
-                      }}
-                    />
-                  </div>
+                  <img
+                    src={selectedComplaint.images.citizen[0]}
+                    alt="Original"
+                    className="w-full h-20 object-cover rounded-lg"
+                  />
                 )}
                 {selectedComplaint.images?.officer && (
-                  <div>
-                    <p className="text-sm font-medium mb-2">
-                      Resolution Image:
-                    </p>
-                    <img
-                      src={selectedComplaint.images.officer}
-                      alt="Resolution"
-                      className="w-full h-40 object-cover rounded-lg border-2"
-                      style={{ borderColor: colors.warning }}
-                      onError={(e) => {
-                        e.target.src =
-                          "https://via.placeholder.com/200x150?text=Resolution";
-                      }}
-                    />
-                  </div>
+                  <img
+                    src={selectedComplaint.images.officer}
+                    alt="Resolution"
+                    className="w-full h-20 object-cover rounded-lg"
+                  />
                 )}
               </div>
-            </div>
 
-            {selectedComplaint.remarks && (
-              <div
-                className="mb-4 p-3 rounded-lg"
-                style={{ backgroundColor: `${colors.border}20` }}
-              >
-                <p className="text-sm font-medium mb-1">Officer's Remarks:</p>
-                <p className="text-sm opacity-75">
-                  {selectedComplaint.remarks}
-                </p>
-              </div>
-            )}
-
-            <div className="space-y-4 mb-6">
-              <div>
-                <label className="block mb-2 font-medium">Decision</label>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() =>
-                      setVerifyData({ ...verifyData, action: "verify" })
-                    }
-                    className="flex-1 p-3 rounded-lg font-medium transition-all duration-300"
-                    style={{
-                      backgroundColor:
-                        verifyData.action === "verify"
-                          ? colors.success
-                          : colors.card,
-                      color:
-                        verifyData.action === "verify" ? "white" : colors.text,
-                      border: `1px solid ${colors.border}`,
-                    }}
-                  >
-                    <CheckCircle size={16} className="inline mr-1" />
-                    Verify
-                  </button>
-                  <button
-                    onClick={() =>
-                      setVerifyData({ ...verifyData, action: "reject" })
-                    }
-                    className="flex-1 p-3 rounded-lg font-medium transition-all duration-300"
-                    style={{
-                      backgroundColor:
-                        verifyData.action === "reject"
-                          ? colors.danger
-                          : colors.card,
-                      color:
-                        verifyData.action === "reject" ? "white" : colors.text,
-                      border: `1px solid ${colors.border}`,
-                    }}
-                  >
-                    <XCircle size={16} className="inline mr-1" />
-                    Reject
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block mb-2 font-medium">
-                  {verifyData.action === "verify"
-                    ? "Verification Remarks (Optional)"
-                    : "Rejection Reason (Required)"}
-                </label>
-                <textarea
-                  value={verifyData.remarks}
-                  onChange={(e) =>
-                    setVerifyData({ ...verifyData, remarks: e.target.value })
-                  }
-                  placeholder={
-                    verifyData.action === "verify"
-                      ? "Add any verification notes..."
-                      : "Please provide reason for rejection..."
-                  }
-                  rows="3"
-                  className="w-full p-3 rounded-lg"
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setVerifyData({ ...verifyData, action: "verify" })}
+                  className="flex-1 p-2 rounded-lg text-xs font-medium"
                   style={{
-                    backgroundColor: colors.bg,
+                    backgroundColor: verifyData.action === "verify" ? colors.success : colors.card,
+                    color: verifyData.action === "verify" ? "white" : colors.text,
                     border: `1px solid ${colors.border}`,
-                    color: colors.text,
                   }}
-                  required={verifyData.action === "reject"}
-                />
+                >
+                  Verify
+                </button>
+                <button
+                  onClick={() => setVerifyData({ ...verifyData, action: "reject" })}
+                  className="flex-1 p-2 rounded-lg text-xs font-medium"
+                  style={{
+                    backgroundColor: verifyData.action === "reject" ? colors.danger : colors.card,
+                    color: verifyData.action === "reject" ? "white" : colors.text,
+                    border: `1px solid ${colors.border}`,
+                  }}
+                >
+                  Reject
+                </button>
               </div>
+
+              <textarea
+                value={verifyData.remarks}
+                onChange={(e) => setVerifyData({ ...verifyData, remarks: e.target.value })}
+                placeholder={verifyData.action === "verify" ? "Verification notes..." : "Rejection reason..."}
+                rows="2"
+                className="w-full p-2.5 text-sm rounded-lg"
+                style={{
+                  backgroundColor: colors.bg,
+                  border: `1px solid ${colors.border}`,
+                  color: colors.text,
+                }}
+              />
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-2 mt-4">
               <button
                 onClick={() => setShowVerifyModal(false)}
-                className="flex-1 p-3 rounded-lg font-medium transition-all duration-300 hover:scale-105"
+                className="flex-1 p-2.5 rounded-lg font-medium text-sm"
                 style={{
                   backgroundColor: colors.card,
                   border: `1px solid ${colors.border}`,
@@ -1930,244 +1701,88 @@ const SupervisorDashboard = () => {
               </button>
               <button
                 onClick={handleVerifySubmit}
-                disabled={
-                  updating ||
-                  (verifyData.action === "reject" && !verifyData.remarks.trim())
-                }
-                className="flex-1 p-3 rounded-lg font-medium text-white transition-all duration-300 hover:scale-105 disabled:opacity-50"
+                disabled={updating || (verifyData.action === "reject" && !verifyData.remarks.trim())}
+                className="flex-1 p-2.5 rounded-lg font-medium text-sm text-white disabled:opacity-50"
                 style={{
-                  backgroundColor:
-                    verifyData.action === "verify"
-                      ? colors.success
-                      : colors.danger,
+                  backgroundColor: verifyData.action === "verify" ? colors.success : colors.danger,
                 }}
               >
-                {updating ? (
-                  <span className="flex items-center justify-center">
-                    <Loader className="animate-spin w-4 h-4 mr-2" />
-                    Processing...
-                  </span>
-                ) : verifyData.action === "verify" ? (
-                  "Verify & Resolve"
-                ) : (
-                  "Reject & Send Back"
-                )}
+                {updating ? "..." : verifyData.action === "verify" ? "Verify" : "Reject"}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Details Modal */}
       {showDetailsModal && selectedComplaint && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div
-            className="rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            className="rounded-xl p-4 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             style={{
               backgroundColor: colors.card,
               border: `1px solid ${colors.border}`,
             }}
           >
-            <div className="flex justify-between items-center mb-6">
-              <h3
-                className="text-2xl font-bold"
-                style={{ color: colors.primary }}
-              >
-                Complaint Details
-              </h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-base font-bold">Complaint Details</h3>
               <button
                 onClick={() => setShowDetailsModal(false)}
-                className="p-2 rounded-lg hover:bg-opacity-50"
+                className="p-1 rounded-lg"
                 style={{ backgroundColor: `${colors.border}20` }}
               >
-                <XCircle size={20} />
+                <X size={16} />
               </button>
             </div>
 
-            <div className="space-y-6">
-              {/* Status Badge */}
-              <div className="flex items-center gap-3">
-                <span
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full font-medium"
-                  style={{
-                    backgroundColor: `${getStatusColor(selectedComplaint.status)}20`,
-                    color: getStatusColor(selectedComplaint.status),
-                  }}
-                >
-                  {getStatusIcon(selectedComplaint.status)}
-                  <span>{selectedComplaint.status}</span>
-                </span>
-                <span className="text-sm opacity-75">
-                  Created:{" "}
-                  {new Date(selectedComplaint.createdAt).toLocaleString()}
-                </span>
-              </div>
+            <div className="space-y-4">
+              <span
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-2xs"
+                style={{
+                  backgroundColor: `${getStatusColor(selectedComplaint.status)}20`,
+                  color: getStatusColor(selectedComplaint.status),
+                }}
+              >
+                {getStatusIcon(selectedComplaint.status)}
+                {selectedComplaint.status}
+              </span>
 
-              {/* Title and Description */}
-              <div>
-                <h4 className="text-xl font-bold mb-2">
-                  {selectedComplaint.title}
-                </h4>
-                <p className="opacity-90">{selectedComplaint.description}</p>
-              </div>
+              <h4 className="font-bold text-base">{selectedComplaint.title}</h4>
+              <p className="text-sm opacity-90">{selectedComplaint.description}</p>
 
-              {/* Details Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-3 text-xs">
                 <div>
-                  <p className="text-sm opacity-75">Category</p>
+                  <span className="opacity-75">Category:</span>
                   <p className="font-medium">{selectedComplaint.category}</p>
                 </div>
                 <div>
-                  <p className="text-sm opacity-75">Area</p>
+                  <span className="opacity-75">Area:</span>
                   <p className="font-medium">{selectedComplaint.area}</p>
                 </div>
                 <div>
-                  <p className="text-sm opacity-75">Priority</p>
-                  <p className="font-medium">
-                    {selectedComplaint.priority || "Normal"}
-                  </p>
+                  <span className="opacity-75">Reported By:</span>
+                  <p className="font-medium">{selectedComplaint.user?.name || "Anonymous"}</p>
                 </div>
                 <div>
-                  <p className="text-sm opacity-75">Reported By</p>
-                  <p className="font-medium">
-                    {selectedComplaint.user?.name || "Anonymous"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm opacity-75">Assigned Officer</p>
-                  <p className="font-medium">
-                    {selectedComplaint.assignedToOfficer?.name ||
-                      "Not assigned"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm opacity-75">Last Updated</p>
-                  <p className="font-medium">
-                    {new Date(selectedComplaint.updatedAt).toLocaleString()}
-                  </p>
+                  <span className="opacity-75">Officer:</span>
+                  <p className="font-medium">{selectedComplaint.assignedToOfficer?.name || "Not assigned"}</p>
                 </div>
               </div>
 
-              {/* Image Gallery */}
-              <div>
-                <h4 className="font-bold mb-4 text-lg">Image Gallery</h4>
-
-                {/* Citizen Images */}
-                {selectedComplaint.images?.citizen?.length > 0 && (
-                  <div className="mb-6">
-                    <p className="font-medium mb-3 flex items-center gap-2">
-                      <Camera size={18} style={{ color: colors.info }} />
-                      Citizen Uploaded Images
-                    </p>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {selectedComplaint.images.citizen.map((img, index) => (
-                        <div key={index} className="relative group">
-                          <img
-                            src={img}
-                            alt={`Citizen ${index + 1}`}
-                            className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                            onClick={() => window.open(img, "_blank")}
-                            onError={(e) => {
-                              e.target.src =
-                                "https://via.placeholder.com/150?text=Image+Error";
-                            }}
-                          />
-                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                            <button
-                              onClick={() => window.open(img, "_blank")}
-                              className="text-white text-sm"
-                            >
-                              View Full Size
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+              {selectedComplaint.images?.citizen?.length > 0 && (
+                <div>
+                  <p className="text-xs font-medium mb-2">Images:</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {selectedComplaint.images.citizen.map((img, i) => (
+                      <img
+                        key={i}
+                        src={img}
+                        alt={`Image ${i + 1}`}
+                        className="w-full h-16 object-cover rounded-lg"
+                      />
+                    ))}
                   </div>
-                )}
-
-                {/* Officer Images */}
-                {selectedComplaint.images?.officer && (
-                  <div className="mb-6">
-                    <p className="font-medium mb-3 flex items-center gap-2">
-                      <Camera size={18} style={{ color: colors.warning }} />
-                      Officer Uploaded Images
-                    </p>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div className="relative group">
-                        <img
-                          src={selectedComplaint.images.officer}
-                          alt="Officer"
-                          className="w-full h-32 object-cover rounded-lg cursor-pointer"
-                          onClick={() =>
-                            window.open(
-                              selectedComplaint.images.officer,
-                              "_blank",
-                            )
-                          }
-                          onError={(e) => {
-                            e.target.src =
-                              "https://via.placeholder.com/150?text=Image+Error";
-                          }}
-                        />
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                          <button
-                            onClick={() =>
-                              window.open(
-                                selectedComplaint.images.officer,
-                                "_blank",
-                              )
-                            }
-                            className="text-white text-sm"
-                          >
-                            View Full Size
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Remarks */}
-              {selectedComplaint.remarks && (
-                <div
-                  className="p-4 rounded-lg"
-                  style={{ backgroundColor: `${colors.border}20` }}
-                >
-                  <p className="font-medium mb-2">Remarks:</p>
-                  <p className="opacity-75">{selectedComplaint.remarks}</p>
                 </div>
               )}
-
-              {/* Action Buttons */}
-              <div className="flex gap-3 pt-4">
-                {selectedComplaint.status === "PENDING_VERIFICATION" && (
-                  <button
-                    onClick={() => {
-                      setShowDetailsModal(false);
-                      openVerifyModal(selectedComplaint);
-                    }}
-                    className="flex-1 py-3 rounded-lg font-medium transition-all duration-300 hover:scale-105"
-                    style={{
-                      backgroundColor: colors.primary,
-                      color: "white",
-                    }}
-                  >
-                    Verify This Complaint
-                  </button>
-                )}
-                <button
-                  onClick={() => setShowDetailsModal(false)}
-                  className="flex-1 py-3 rounded-lg font-medium transition-all duration-300 hover:scale-105"
-                  style={{
-                    backgroundColor: colors.card,
-                    border: `1px solid ${colors.border}`,
-                  }}
-                >
-                  Close
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -2175,38 +1790,47 @@ const SupervisorDashboard = () => {
 
       {/* Footer */}
       <footer
-        className="mt-12 py-8 px-6 border-t"
+        className="mt-8 py-4 px-3 border-t"
         style={{
           borderColor: colors.border,
           backgroundColor: colors.bg,
         }}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <div className="flex items-center space-x-3">
-                <img
-                  src={currentLogo}
-                  alt="CivicFix Logo"
-                  className="h-14 w-auto object-contain"
-                />
-                <span
-                  className="font-bold text-lg"
-                  style={{ color: colors.primary }}
-                >
-                  CivicFix Supervisor
-                </span>
-              </div>
-              <p className="text-sm opacity-75 mt-2">
-                Supervisor Complaint Management System
-              </p>
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div className="flex items-center space-x-2">
+              <img
+                src={currentLogo}
+                alt="CivicFix Logo"
+                className="h-8 w-auto object-contain"
+              />
+              <span className="text-xs font-bold" style={{ color: colors.primary }}>
+                CivicFix Supervisor
+              </span>
             </div>
-            <div className="text-sm opacity-75">
-              © {new Date().getFullYear()} CivicFix. All rights reserved.
+            <div className="text-2xs opacity-75">
+              © {new Date().getFullYear()} All rights reserved
             </div>
           </div>
         </div>
       </footer>
+
+      <style jsx>{`
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slideDown {
+          animation: slideDown 0.3s ease-out;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 };
