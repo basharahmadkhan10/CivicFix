@@ -1,24 +1,20 @@
 import nodemailer from "nodemailer";
 
 export const sendEmail = async ({ to, subject, text }) => {
-  // Automatically set secure based on port
-  const port = parseInt(process.env.EMAIL_PORT || '587');
-  const secure = port === 465; // true for 465, false for 587
-  
-  console.log(`📧 Sending email via ${process.env.EMAIL_HOST}:${port} (secure: ${secure})`);
+  console.log(`📧 Attempting to send email to: ${to}`);
   
   const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
-    port: port,
-    secure: secure,
+    port: parseInt(process.env.EMAIL_PORT || '587'),
+    secure: false, // true for 465, false for other ports
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
-    // Add timeout to prevent hanging
-    connectionTimeout: 30000, // 30 seconds
-    greetingTimeout: 30000,
-    socketTimeout: 30000,
+    // Add timeouts to prevent hanging
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
   });
 
   try {
@@ -32,12 +28,14 @@ export const sendEmail = async ({ to, subject, text }) => {
     console.log(`✅ Email sent successfully: ${info.messageId}`);
     return info;
   } catch (error) {
-    console.error("❌ Email failed:", {
+    console.error("❌ Email error:", {
       message: error.message,
       code: error.code,
-      command: error.command,
-      response: error.response
+      command: error.command
     });
-    throw error;
+    
+    // Don't throw - just log and continue
+    // This way login doesn't fail if email fails
+    return { error: true, message: error.message };
   }
 };
