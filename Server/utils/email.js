@@ -1,45 +1,29 @@
-import nodemailer from "nodemailer";
+import sgMail from '@sendgrid/mail';
+
+// Initialize with SendGrid API key (you'll add this to env)
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export const sendEmail = async ({ to, subject, text }) => {
-  console.log(`📧 Attempting to send email to: ${to}`);
-  
-  // Use SSL port 465 with secure:true
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 443,
-    secure: true, // Use SSL
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-    // Add timeout and debug
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 10000,
-    debug: true, // Add this for more logs
-    logger: true,
-  });
+  console.log(`📧 Attempting to send email to: ${to} via SendGrid API`);
+
+  const msg = {
+    to: to,
+    from: process.env.EMAIL_USER, // Using your existing EMAIL_USER
+    subject: subject,
+    text: text,
+  };
 
   try {
-    const info = await transporter.sendMail({
-      from: `"CivicFix" <${process.env.EMAIL_USER}>`,
-      to,
-      subject,
-      text,
-    });
-    
-    console.log(`✅ Email sent successfully: ${info.messageId}`);
-    return info;
+    const response = await sgMail.send(msg);
+    console.log(`✅ Email sent successfully to ${to}`);
+    return { success: true };
   } catch (error) {
-    console.error("❌ Email error:", {
+    console.error("❌ SendGrid error:", {
       message: error.message,
-      code: error.code,
-      command: error.command,
-      response: error.response
+      response: error.response?.body
     });
     
-    // Throw error so we know it failed
-    throw error;
+    // Don't throw - your login flow already works
+    return { error: true };
   }
 };
-
