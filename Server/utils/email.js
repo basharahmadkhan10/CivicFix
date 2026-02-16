@@ -3,18 +3,21 @@ import nodemailer from "nodemailer";
 export const sendEmail = async ({ to, subject, text }) => {
   console.log(`📧 Attempting to send email to: ${to}`);
   
+  // Use SSL port 465 with secure:true
   const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-    port: parseInt(process.env.EMAIL_PORT || '587'),
-    secure: false, // true for 465, false for other ports
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // Use SSL
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
-    // Add timeouts to prevent hanging
-    connectionTimeout: 10000, // 10 seconds
+    // Add timeout and debug
+    connectionTimeout: 10000,
     greetingTimeout: 10000,
     socketTimeout: 10000,
+    debug: true, // Add this for more logs
+    logger: true,
   });
 
   try {
@@ -31,11 +34,11 @@ export const sendEmail = async ({ to, subject, text }) => {
     console.error("❌ Email error:", {
       message: error.message,
       code: error.code,
-      command: error.command
+      command: error.command,
+      response: error.response
     });
     
-    // Don't throw - just log and continue
-    // This way login doesn't fail if email fails
-    return { error: true, message: error.message };
+    // Throw error so we know it failed
+    throw error;
   }
 };
