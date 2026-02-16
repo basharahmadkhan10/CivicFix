@@ -1,12 +1,13 @@
 const PrimaryButton = ({
+  as: Component = "button",
   children,
-  type = "button",
+  type,
   loading = false,
   fullWidth = false,
-  onClick,
   disabled,
   className = "",
   theme = "light",
+  ...props
 }) => {
   const baseClasses =
     "px-4 py-2.5 lg:px-6 lg:py-3.5 rounded-lg font-medium transition-all duration-200 flex items-center justify-center text-sm lg:text-base";
@@ -14,7 +15,7 @@ const PrimaryButton = ({
   const widthClass = fullWidth ? "w-full" : "";
   const disabledClass =
     disabled || loading
-      ? "opacity-60 cursor-not-allowed"
+      ? "opacity-60 cursor-not-allowed pointer-events-none"
       : "hover:shadow-xl active:scale-[0.98]";
 
   const themeClasses =
@@ -22,18 +23,16 @@ const PrimaryButton = ({
       ? "bg-white text-black hover:bg-gray-100"
       : "bg-black text-white hover:bg-gray-900";
 
+  // Only pass type when it's a real button
+  const componentProps =
+    Component === "button"
+      ? { type: type || "button", disabled: disabled || loading, ...props }
+      : { ...props };
+
   return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled || loading}
-      className={`
-        ${baseClasses}
-        ${widthClass}
-        ${disabledClass}
-        ${themeClasses}
-        ${className}
-      `}
+    <Component
+      {...componentProps}
+      className={`${baseClasses} ${widthClass} ${disabledClass} ${themeClasses} ${className}`}
     >
       {loading ? (
         <>
@@ -62,7 +61,7 @@ const PrimaryButton = ({
       ) : (
         children
       )}
-    </button>
+    </Component>
   );
 };
 
