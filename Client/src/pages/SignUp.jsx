@@ -16,7 +16,7 @@ const Signup = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "CITIZEN", // Default role as per schema
+    role: "CITIZEN",
   });
 
   const [loading, setLoading] = useState(false);
@@ -132,7 +132,6 @@ const Signup = () => {
     }
   };
 
-  // Signup.jsx - Update the handleSignup function
   const handleSignup = async (e) => {
     e.preventDefault();
 
@@ -153,15 +152,13 @@ const Signup = () => {
 
       console.log("Attempting registration with data:", userData);
 
-      // Call the register function from AuthContext
-      const result = await signup(userData); // This now calls /auth/register
+      const result = await signup(userData);
 
       console.log("Registration result:", result);
 
       if (result.success) {
         alert(result.message || "✅ Account created successfully!");
 
-        // Check if user was auto-logged in
         if (result.token && result.user) {
           console.log("Auto-login successful, redirecting to dashboard...");
           setTimeout(() => {
@@ -185,6 +182,7 @@ const Signup = () => {
       setLoading(false);
     }
   };
+
   // Define colors based on theme
   const getThemeColors = () => {
     if (theme === "light") {
@@ -234,26 +232,35 @@ const Signup = () => {
 
   return (
     <div
-      className="min-h-screen flex overflow-hidden"
+      className="min-h-screen flex flex-col lg:flex-row overflow-hidden"
       style={{ backgroundColor: colors.background }}
     >
-      {/* Theme toggle */}
-      <div className="absolute top-4 right-4 lg:top-6 lg:right-6 z-10">
+      {/* Back to Home Button - Mobile */}
+      <div className="absolute top-4 left-4 z-20 lg:hidden">
+        <button
+          onClick={() => navigate('/')}
+          className="p-2 rounded-lg flex items-center justify-center"
+          style={{
+            backgroundColor: theme === "dark" ? "#1a1a1a" : "#f5f5f5",
+            color: theme === "dark" ? "#ffffff" : "#000000",
+          }}
+          aria-label="Go back to home"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Theme toggle - Mobile Adjusted */}
+      <div className="absolute top-4 right-4 z-20 lg:top-6 lg:right-6">
         <button
           onClick={toggleTheme}
-          className="flex items-center gap-2 px-3 py-1.5 lg:px-4 lg:py-2 rounded-lg border transition-colors duration-200"
+          className="flex items-center gap-1 lg:gap-2 px-2 py-1 lg:px-4 lg:py-2 rounded-lg border transition-colors duration-200"
           style={{
             backgroundColor: theme === "dark" ? "#0a0a0a" : "#f5f5f5",
             borderColor: theme === "dark" ? "#1a1a1a" : "#e5e5e5",
             color: theme === "dark" ? "#ffffff" : "#000000",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor =
-              theme === "dark" ? "#1a1a1a" : "#e5e5e5";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor =
-              theme === "dark" ? "#0a0a0a" : "#f5f5f5";
           }}
           aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
         >
@@ -264,16 +271,15 @@ const Signup = () => {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
               >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
                   d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                ></path>
+                />
               </svg>
-              <span className="text-xs lg:text-sm font-medium">Light Mode</span>
+              <span className="text-xs lg:text-sm font-medium hidden xs:inline">Light</span>
             </>
           ) : (
             <>
@@ -282,37 +288,36 @@ const Signup = () => {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
               >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
                   d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-                ></path>
+                />
               </svg>
-              <span className="text-xs lg:text-sm font-medium">Dark Mode</span>
+              <span className="text-xs lg:text-sm font-medium hidden xs:inline">Dark</span>
             </>
           )}
         </button>
       </div>
 
       {/* Left Side - Signup Form */}
-      <div className="w-full lg:w-180 flex flex-col items-center justify-center p-4 lg:p-8 relative">
+      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center min-h-screen p-4 lg:p-8 relative order-2 lg:order-1">
         {/* Signup Card */}
         <div
-          className="w-120 lg:h-180 rounded-xl lg:rounded-2xl border p-6 lg:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.1)]"
+          className="w-full max-w-md rounded-xl lg:rounded-2xl border p-5 lg:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.1)]"
           style={{
             backgroundColor: colors.cardBackground,
             borderColor: colors.border,
           }}
         >
           {/* Signup Form Container */}
-          <div className="w-full max-w-md">
+          <div className="w-full">
             {/* Logo/Brand */}
-            <div className="text-center mb-6 lg:mb-8">
+            <div className="text-center mb-4 lg:mb-6">
               <h1
-                className="text-2xl lg:text-3xl font-bold mb-2 tracking-tight"
+                className="text-xl sm:text-2xl lg:text-2xl xl:text-3xl font-bold mb-1 tracking-tight"
                 style={{ color: colors.text }}
               >
                 Create Account
@@ -325,11 +330,11 @@ const Signup = () => {
               </p>
             </div>
 
-            <form onSubmit={handleSignup} className="space-y-4 lg:space-y-6">
+            <form onSubmit={handleSignup} className="space-y-3 lg:space-y-4">
               {/* Name Input */}
               <div>
                 <label
-                  className="block text-xs lg:text-sm font-medium mb-1 lg:mb-2"
+                  className="block text-xs lg:text-sm font-medium mb-1"
                   style={{ color: colors.text }}
                 >
                   Full Name *
@@ -343,7 +348,7 @@ const Signup = () => {
                     onChange={handleInputChange}
                     onFocus={() => setIsFocused({ ...isFocused, name: true })}
                     onBlur={() => setIsFocused({ ...isFocused, name: false })}
-                    className={`w-full px-3 py-2.5 lg:px-3 lg:py-3.5 border rounded-lg focus:outline-none transition-all duration-200 text-sm lg:text-base ${
+                    className={`w-full px-3 py-2 lg:px-3 lg:py-3 border rounded-lg focus:outline-none transition-all duration-200 text-sm lg:text-base ${
                       errors.name ? "border-red-500" : ""
                     }`}
                     style={{
@@ -368,7 +373,7 @@ const Signup = () => {
               {/* Email Input */}
               <div>
                 <label
-                  className="block text-xs lg:text-sm font-medium mb-1 lg:mb-2"
+                  className="block text-xs lg:text-sm font-medium mb-1"
                   style={{ color: colors.text }}
                 >
                   Email Address *
@@ -382,7 +387,7 @@ const Signup = () => {
                     onChange={handleInputChange}
                     onFocus={() => setIsFocused({ ...isFocused, email: true })}
                     onBlur={() => setIsFocused({ ...isFocused, email: false })}
-                    className={`w-full px-2 py-1.5 lg:px-3 lg:py-2.5  border rounded-lg focus:outline-none transition-all duration-200 text-sm lg:text-base ${
+                    className={`w-full px-3 py-2 lg:px-3 lg:py-3 border rounded-lg focus:outline-none transition-all duration-200 text-sm lg:text-base ${
                       errors.email ? "border-red-500" : ""
                     }`}
                     style={{
@@ -407,7 +412,7 @@ const Signup = () => {
               {/* Password Input with Strength Meter */}
               <div>
                 <label
-                  className="block text-xs lg:text-sm font-medium mb-1 lg:mb-2"
+                  className="block text-xs lg:text-sm font-medium mb-1"
                   style={{ color: colors.text }}
                 >
                   Password *
@@ -425,7 +430,7 @@ const Signup = () => {
                     onBlur={() =>
                       setIsFocused({ ...isFocused, password: false })
                     }
-                    className={`w-full px-3 py-2.5 lg:px-3 lg:py-3.5 lg:py-2.5  border rounded-lg focus:outline-none transition-all duration-200 text-sm lg:text-base ${
+                    className={`w-full px-3 py-2 lg:px-3 lg:py-3 border rounded-lg focus:outline-none transition-all duration-200 text-sm lg:text-base ${
                       errors.password ? "border-red-500" : ""
                     }`}
                     style={{
@@ -469,18 +474,16 @@ const Signup = () => {
                           width: `${passwordStrength}%`,
                           backgroundColor: getStrengthColor(passwordStrength),
                         }}
-                      ></div>
+                      />
                     </div>
                     <div
-                      className="mt-1 text-xs"
+                      className="mt-1 text-xs space-y-0.5"
                       style={{ color: colors.mutedText }}
                     >
-                      • At least 8 characters
-                      <br />
-                      • Include uppercase letter
-                      <br />
-                      • Include number
-                      <br />• Include special character
+                      <p>• At least 8 characters</p>
+                      <p>• Include uppercase letter</p>
+                      <p>• Include number</p>
+                      <p>• Include special character</p>
                     </div>
                   </div>
                 )}
@@ -495,7 +498,7 @@ const Signup = () => {
               {/* Confirm Password Input */}
               <div>
                 <label
-                  className="block text-xs lg:text-sm font-medium mb-1 lg:mb-2"
+                  className="block text-xs lg:text-sm font-medium mb-1"
                   style={{ color: colors.text }}
                 >
                   Confirm Password *
@@ -513,7 +516,7 @@ const Signup = () => {
                     onBlur={() =>
                       setIsFocused({ ...isFocused, confirmPassword: false })
                     }
-                    className={`w-full px-3 py-2.5 lg:px-3 lg:py-3.5 border rounded-lg focus:outline-none transition-all duration-200 text-sm lg:text-base ${
+                    className={`w-full px-3 py-2 lg:px-3 lg:py-3 border rounded-lg focus:outline-none transition-all duration-200 text-sm lg:text-base ${
                       errors.confirmPassword ? "border-red-500" : ""
                     }`}
                     style={{
@@ -554,7 +557,7 @@ const Signup = () => {
                 type="submit"
                 loading={loading}
                 fullWidth
-                className="text-sm lg:text-base"
+                className="text-sm lg:text-base py-2 lg:py-3"
                 style={{
                   backgroundColor: colors.buttonBg,
                   color: colors.buttonText,
@@ -570,7 +573,7 @@ const Signup = () => {
               </PrimaryButton>
 
               {/* Already have account link */}
-              <div className="text-center pt-2">
+              <div className="text-center pt-1">
                 <p
                   className="text-xs lg:text-sm"
                   style={{ color: colors.mutedText }}
@@ -588,25 +591,23 @@ const Signup = () => {
             </form>
 
             {/* Footer */}
-            <div className="mt-4 lg:mt-6 text-center">
+            <div className="mt-3 lg:mt-4 text-center">
               <p
                 className="text-xs lg:text-sm"
                 style={{ color: colors.mutedText }}
               >
-                By creating an account, you agree to our Terms and Privacy
-                Policy
+                By creating an account, you agree to our Terms and Privacy Policy
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Right Side - Background Image */}
-      <div className="hidden lg:block lg:w-200 h-150 top-22 right-15 relative p-4">
-        {/* Background Image Container */}
-        <div className="w-full h-full rounded-xl lg:rounded-2xl overflow-hidden relative">
+      {/* Right Side - Background Image (Hidden on Mobile) */}
+      <div className="hidden lg:block lg:w-1/2 relative order-1 lg:order-2">
+        <div className="w-full h-full min-h-screen overflow-hidden relative">
           <div
-            className="w-full h-full"
+            className="w-full h-full absolute inset-0"
             style={{
               backgroundImage: `url(${backgroundImage})`,
               backgroundSize: "cover",
@@ -623,10 +624,10 @@ const Signup = () => {
                     ? "rgba(0,0,0,0.3)"
                     : "rgba(255,255,255,0.1)",
               }}
-            ></div>
+            />
 
             {/* Text Overlay */}
-            <div className="absolute bottom-0 left-0 top-95 right-40 p-6 lg:p-8 bg-gradient-to-t from-black/80 via-black/60 to-transparent rounded-xl lg:rounded-2xl">
+            <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 bg-gradient-to-t from-black/80 via-black/60 to-transparent">
               <div className="max-w-lg mx-auto">
                 {/* Typing Text Effect */}
                 <div className="mb-4">
