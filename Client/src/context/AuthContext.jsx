@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const API_BASE_URL = "http://localhost:5000/api"; 
+  const API_BASE_URL = "https://civicfix-backend01.onrender.com/api"; 
 
   useEffect(() => {
     console.log("AuthProvider: Checking localStorage for user data");
@@ -140,4 +140,5 @@ const signup = async (userData) => {
     isAuthenticated: !!user,
   });
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+
 };
