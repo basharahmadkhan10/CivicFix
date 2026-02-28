@@ -5,6 +5,7 @@ import { useTheme } from "../context/ThemeContext";
 import bgDark from "../assets/images/image_03.png";
 import bgLight from "../assets/images/image_04.png";
 import PrimaryButton from "../components/ui/PrimaryButton";
+import { Eye, EyeOff, ArrowLeft, AlertCircle, CheckCircle } from "lucide-react";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -21,6 +22,8 @@ const Signup = () => {
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isFocused, setIsFocused] = useState({
     name: false,
     email: false,
@@ -42,7 +45,47 @@ const Signup = () => {
   ];
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
 
-  // Password strength checker
+  const getThemeColors = () => {
+    const accentColor = "#97AB33";
+    
+    if (theme === "light") {
+      return {
+        background: "#FFFFFF",
+        cardBackground: "#FFFFFF",
+        border: "#E2E8F0",
+        text: "#1A202C",
+        mutedText: "#718096",
+        inputBackground: "#F7FAFC",
+        buttonBg: accentColor,
+        buttonText: "#FFFFFF",
+        buttonHover: "#8A9E2E",
+        error: "#E53E3E",
+        success: "#38A169",
+        accent: accentColor,
+        accentLight: "rgba(151, 171, 51, 0.1)",
+        gradient: "linear-gradient(135deg, #FFFFFF 0%, #F7FAFC 100%)",
+      };
+    }
+    return {
+      background: "#0A0A0A",
+      cardBackground: "#111111",
+      border: "#2D3748",
+      text: "#FFFFFF",
+      mutedText: "#A0AEC0",
+      inputBackground: "#1A1A1A",
+      buttonBg: accentColor,
+      buttonText: "#000000",
+      buttonHover: "#A8C03E",
+      error: "#FC8181",
+      success: "#68D391",
+      accent: accentColor,
+      accentLight: "rgba(151, 171, 51, 0.15)",
+      gradient: "linear-gradient(135deg, #0A0A0A 0%, #111111 100%)",
+    };
+  };
+
+  const colors = getThemeColors();
+
   const checkPasswordStrength = (password) => {
     let strength = 0;
     if (password.length >= 8) strength += 25;
@@ -80,9 +123,8 @@ const Signup = () => {
 
     const typingTimer = setTimeout(handleTyping, isDeleting ? 25 : 50);
     return () => clearTimeout(typingTimer);
-  }, [typingIndex, isDeleting, currentTextIndex, textOptions]);
+  }, [typingIndex, isDeleting, currentTextIndex]);
 
-  // Validation function
   const validateForm = () => {
     const newErrors = {};
 
@@ -123,7 +165,6 @@ const Signup = () => {
       [name]: value,
     }));
 
-    // Clear error for this field when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -150,31 +191,17 @@ const Signup = () => {
         role: formData.role || "CITIZEN",
       };
 
-      console.log("Attempting registration with data:", userData);
-
       const result = await signup(userData);
 
-      console.log("Registration result:", result);
-
       if (result.success) {
-        alert(result.message || "✅ Account created successfully!");
-
-        if (result.token && result.user) {
-          console.log("Auto-login successful, redirecting to dashboard...");
-          setTimeout(() => {
-            navigate("/dashboard");
-          }, 1000);
-        } else {
-          console.log("Registration successful, redirecting to login...");
-          setTimeout(() => {
-            navigate("/login");
-          }, 1000);
-        }
+        alert(result.message || "Account created successfully!");
+        setTimeout(() => {
+          navigate("/login");
+        }, 1000);
       } else {
         setErrors({ api: result.error });
       }
     } catch (error) {
-      console.error("Registration error:", error);
       setErrors({
         api: error.message || "Registration failed",
       });
@@ -183,161 +210,140 @@ const Signup = () => {
     }
   };
 
-  // Define colors based on theme
-  const getThemeColors = () => {
-    if (theme === "light") {
-      return {
-        background: "#ffffff",
-        cardBackground: "#D5D5D5",
-        border: "#B0B0B0",
-        text: "#000000",
-        mutedText: "#555555",
-        inputBackground: "#F5F5F5",
-        buttonBg: "#000000",
-        buttonText: "#ffffff",
-        buttonHover: "#333333",
-        error: "#dc2626",
-        success: "#16a34a",
-        strengthWeak: "#dc2626",
-        strengthMedium: "#f59e0b",
-        strengthStrong: "#16a34a",
-      };
-    }
-    // Dark theme (default)
-    return {
-      background: "#000000",
-      cardBackground: "#0a0a0a",
-      border: "#1a1a1a",
-      text: "#ffffff",
-      mutedText: "#adadad",
-      inputBackground: "#050505",
-      buttonBg: "#ffffff",
-      buttonText: "#000000",
-      buttonHover: "#f5f5f5",
-      error: "#ef4444",
-      success: "#22c55e",
-      strengthWeak: "#ef4444",
-      strengthMedium: "#f59e0b",
-      strengthStrong: "#22c55e",
-    };
+  const getStrengthColor = (strength) => {
+    if (strength <= 25) return colors.error;
+    if (strength <= 50) return "#F6AD55";
+    if (strength <= 75) return "#68D391";
+    return colors.success;
   };
 
-  const colors = getThemeColors();
-
-  const getStrengthColor = (strength) => {
-    if (strength <= 25) return colors.strengthWeak;
-    if (strength <= 50) return colors.strengthMedium;
-    return colors.strengthStrong;
+  const getStrengthText = (strength) => {
+    if (strength <= 25) return "Weak";
+    if (strength <= 50) return "Fair";
+    if (strength <= 75) return "Good";
+    return "Strong";
   };
 
   return (
     <div
       className="min-h-screen flex flex-col lg:flex-row overflow-hidden"
-      style={{ backgroundColor: colors.background }}
+      style={{ 
+        backgroundColor: colors.background,
+        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+      }}
     >
-      {/* Back to Home Button - Mobile */}
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+          font-family: 'Inter', sans-serif;
+        }
+        
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+        
+        .animate-slideUp {
+          animation: slideUp 0.5s ease forwards;
+        }
+        
+        .animate-pulse-slow {
+          animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+
       <div className="absolute top-4 left-4 z-20 lg:hidden">
         <button
           onClick={() => navigate('/')}
-          className="p-2 rounded-lg flex items-center justify-center"
+          className="p-2.5 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105"
           style={{
-            backgroundColor: theme === "dark" ? "#1a1a1a" : "#f5f5f5",
-            color: theme === "dark" ? "#ffffff" : "#000000",
+            backgroundColor: colors.cardBackground,
+            border: `1px solid ${colors.border}`,
+            color: colors.text,
+            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
           }}
-          aria-label="Go back to home"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
+          <ArrowLeft size={18} />
         </button>
       </div>
 
-      {/* Theme toggle - Mobile Adjusted */}
-      <div className="absolute top-4 right-4 z-20 lg:top-6 lg:right-6">
+      <div className="absolute top-4 right-4 z-20">
         <button
           onClick={toggleTheme}
-          className="flex items-center gap-1 lg:gap-2 px-2 py-1 lg:px-4 lg:py-2 rounded-lg border transition-colors duration-200"
+          className="flex items-center gap-2 px-3 py-2.5 rounded-xl transition-all duration-200 hover:scale-105"
           style={{
-            backgroundColor: theme === "dark" ? "#0a0a0a" : "#f5f5f5",
-            borderColor: theme === "dark" ? "#1a1a1a" : "#e5e5e5",
-            color: theme === "dark" ? "#ffffff" : "#000000",
+            backgroundColor: colors.cardBackground,
+            border: `1px solid ${colors.border}`,
+            color: colors.text,
+            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
           }}
-          aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
         >
           {theme === "dark" ? (
             <>
-              <svg
-                className="w-4 h-4 lg:w-5 lg:h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                />
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
-              <span className="text-xs lg:text-sm font-medium hidden xs:inline">Light</span>
+              <span className="text-xs font-medium hidden xs:inline">Light</span>
             </>
           ) : (
             <>
-              <svg
-                className="w-4 h-4 lg:w-5 lg:h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-                />
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
               </svg>
-              <span className="text-xs lg:text-sm font-medium hidden xs:inline">Dark</span>
+              <span className="text-xs font-medium hidden xs:inline">Dark</span>
             </>
           )}
         </button>
       </div>
 
-      {/* Left Side - Signup Form */}
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center min-h-screen p-4 lg:p-8 relative order-2 lg:order-1">
-        {/* Signup Card */}
-        <div
-          className="w-full max-w-md rounded-xl lg:rounded-2xl border p-5 lg:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.1)]"
-          style={{
-            backgroundColor: colors.cardBackground,
-            borderColor: colors.border,
-          }}
-        >
-          {/* Signup Form Container */}
-          <div className="w-full">
-            {/* Logo/Brand */}
-            <div className="text-center mb-4 lg:mb-6">
+      <div className="w-full lg:w-1/2 flex items-center justify-center min-h-screen p-4 lg:p-8 order-2 lg:order-1">
+        <div className="w-full max-w-md">
+          <div
+            className="rounded-2xl border p-6 lg:p-8 shadow-2xl backdrop-blur-sm animate-slideUp"
+            style={{
+              backgroundColor: colors.cardBackground,
+              borderColor: colors.border,
+            }}
+          >
+            <div className="text-center mb-6 lg:mb-8">
               <h1
-                className="text-xl sm:text-2xl lg:text-2xl xl:text-3xl font-bold mb-1 tracking-tight"
+                className="text-2xl sm:text-3xl font-bold mb-2 tracking-tight"
                 style={{ color: colors.text }}
               >
                 Create Account
               </h1>
               <p
+                className="text-sm"
                 style={{ color: colors.mutedText }}
-                className="text-xs lg:text-sm"
               >
                 Join CivicFix to make your city better
               </p>
             </div>
 
-            <form onSubmit={handleSignup} className="space-y-3 lg:space-y-4">
+            <form onSubmit={handleSignup} className="space-y-4 lg:space-y-5">
               {/* Name Input */}
               <div>
                 <label
-                  className="block text-xs lg:text-sm font-medium mb-1"
+                  className="block text-sm font-medium mb-2"
                   style={{ color: colors.text }}
                 >
-                  Full Name *
+                  Full Name
                 </label>
                 <div className="relative">
                   <input
@@ -348,7 +354,7 @@ const Signup = () => {
                     onChange={handleInputChange}
                     onFocus={() => setIsFocused({ ...isFocused, name: true })}
                     onBlur={() => setIsFocused({ ...isFocused, name: false })}
-                    className={`w-full px-3 py-2 lg:px-3 lg:py-3 border rounded-lg focus:outline-none transition-all duration-200 text-sm lg:text-base ${
+                    className={`w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 transition-all text-sm ${
                       errors.name ? "border-red-500" : ""
                     }`}
                     style={{
@@ -356,27 +362,27 @@ const Signup = () => {
                       borderColor: errors.name
                         ? colors.error
                         : isFocused.name
-                          ? colors.text
+                          ? colors.accent
                           : colors.border,
                       color: colors.text,
+                      outlineColor: colors.accent,
                     }}
                     required
                   />
                 </div>
                 {errors.name && (
-                  <p className="mt-1 text-xs" style={{ color: colors.error }}>
+                  <p className="mt-2 text-xs flex items-center gap-1" style={{ color: colors.error }}>
+                    <AlertCircle size={12} />
                     {errors.name}
                   </p>
                 )}
               </div>
-
-              {/* Email Input */}
               <div>
                 <label
-                  className="block text-xs lg:text-sm font-medium mb-1"
+                  className="block text-sm font-medium mb-2"
                   style={{ color: colors.text }}
                 >
-                  Email Address *
+                  Email Address
                 </label>
                 <div className="relative">
                   <input
@@ -387,7 +393,7 @@ const Signup = () => {
                     onChange={handleInputChange}
                     onFocus={() => setIsFocused({ ...isFocused, email: true })}
                     onBlur={() => setIsFocused({ ...isFocused, email: false })}
-                    className={`w-full px-3 py-2 lg:px-3 lg:py-3 border rounded-lg focus:outline-none transition-all duration-200 text-sm lg:text-base ${
+                    className={`w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 transition-all text-sm ${
                       errors.email ? "border-red-500" : ""
                     }`}
                     style={{
@@ -395,42 +401,39 @@ const Signup = () => {
                       borderColor: errors.email
                         ? colors.error
                         : isFocused.email
-                          ? colors.text
+                          ? colors.accent
                           : colors.border,
                       color: colors.text,
+                      outlineColor: colors.accent,
                     }}
                     required
                   />
                 </div>
                 {errors.email && (
-                  <p className="mt-1 text-xs" style={{ color: colors.error }}>
+                  <p className="mt-2 text-xs flex items-center gap-1" style={{ color: colors.error }}>
+                    <AlertCircle size={12} />
                     {errors.email}
                   </p>
                 )}
               </div>
 
-              {/* Password Input with Strength Meter */}
               <div>
                 <label
-                  className="block text-xs lg:text-sm font-medium mb-1"
+                  className="block text-sm font-medium mb-2"
                   style={{ color: colors.text }}
                 >
-                  Password *
+                  Password
                 </label>
                 <div className="relative">
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     name="password"
                     placeholder="Create a strong password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    onFocus={() =>
-                      setIsFocused({ ...isFocused, password: true })
-                    }
-                    onBlur={() =>
-                      setIsFocused({ ...isFocused, password: false })
-                    }
-                    className={`w-full px-3 py-2 lg:px-3 lg:py-3 border rounded-lg focus:outline-none transition-all duration-200 text-sm lg:text-base ${
+                    onFocus={() => setIsFocused({ ...isFocused, password: true })}
+                    onBlur={() => setIsFocused({ ...isFocused, password: false })}
+                    className={`w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 transition-all text-sm pr-12 ${
                       errors.password ? "border-red-500" : ""
                     }`}
                     style={{
@@ -438,74 +441,99 @@ const Signup = () => {
                       borderColor: errors.password
                         ? colors.error
                         : isFocused.password
-                          ? colors.text
+                          ? colors.accent
                           : colors.border,
                       color: colors.text,
+                      outlineColor: colors.accent,
                     }}
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                    style={{ color: colors.mutedText }}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
 
-                {/* Password Strength Meter */}
                 {formData.password && (
-                  <div className="mt-2">
-                    <div className="flex items-center justify-between mb-1">
-                      <span
-                        className="text-xs"
-                        style={{ color: colors.mutedText }}
-                      >
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs" style={{ color: colors.mutedText }}>
                         Password strength:
                       </span>
                       <span
-                        className="text-xs font-medium"
+                        className="text-xs font-semibold"
                         style={{ color: getStrengthColor(passwordStrength) }}
                       >
-                        {passwordStrength <= 25
-                          ? "Weak"
-                          : passwordStrength <= 50
-                            ? "Medium"
-                            : "Strong"}
+                        {getStrengthText(passwordStrength)}
                       </span>
                     </div>
-                    <div className="w-full h-1 rounded-full bg-gray-600">
+                    <div className="w-full h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
                       <div
-                        className="h-1 rounded-full transition-all duration-300"
+                        className="h-full rounded-full transition-all duration-300"
                         style={{
                           width: `${passwordStrength}%`,
                           backgroundColor: getStrengthColor(passwordStrength),
                         }}
                       />
                     </div>
-                    <div
-                      className="mt-1 text-xs space-y-0.5"
-                      style={{ color: colors.mutedText }}
-                    >
-                      <p>• At least 8 characters</p>
-                      <p>• Include uppercase letter</p>
-                      <p>• Include number</p>
-                      <p>• Include special character</p>
+                    <div className="grid grid-cols-2 gap-2 mt-3">
+                      <div className="flex items-center gap-1 text-xs" style={{ color: colors.mutedText }}>
+                        {formData.password.length >= 8 ? (
+                          <CheckCircle size={12} color={colors.success} />
+                        ) : (
+                          <div className="w-3 h-3 rounded-full border" style={{ borderColor: colors.border }} />
+                        )}
+                        <span>8+ characters</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-xs" style={{ color: colors.mutedText }}>
+                        {/[A-Z]/.test(formData.password) ? (
+                          <CheckCircle size={12} color={colors.success} />
+                        ) : (
+                          <div className="w-3 h-3 rounded-full border" style={{ borderColor: colors.border }} />
+                        )}
+                        <span>Uppercase</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-xs" style={{ color: colors.mutedText }}>
+                        {/[0-9]/.test(formData.password) ? (
+                          <CheckCircle size={12} color={colors.success} />
+                        ) : (
+                          <div className="w-3 h-3 rounded-full border" style={{ borderColor: colors.border }} />
+                        )}
+                        <span>Number</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-xs" style={{ color: colors.mutedText }}>
+                        {/[^A-Za-z0-9]/.test(formData.password) ? (
+                          <CheckCircle size={12} color={colors.success} />
+                        ) : (
+                          <div className="w-3 h-3 rounded-full border" style={{ borderColor: colors.border }} />
+                        )}
+                        <span>Special</span>
+                      </div>
                     </div>
                   </div>
                 )}
 
                 {errors.password && (
-                  <p className="mt-1 text-xs" style={{ color: colors.error }}>
+                  <p className="mt-2 text-xs flex items-center gap-1" style={{ color: colors.error }}>
+                    <AlertCircle size={12} />
                     {errors.password}
                   </p>
                 )}
               </div>
-
-              {/* Confirm Password Input */}
               <div>
                 <label
-                  className="block text-xs lg:text-sm font-medium mb-1"
+                  className="block text-sm font-medium mb-2"
                   style={{ color: colors.text }}
                 >
-                  Confirm Password *
+                  Confirm Password
                 </label>
                 <div className="relative">
                   <input
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     name="confirmPassword"
                     placeholder="Re-enter your password"
                     value={formData.confirmPassword}
@@ -516,7 +544,7 @@ const Signup = () => {
                     onBlur={() =>
                       setIsFocused({ ...isFocused, confirmPassword: false })
                     }
-                    className={`w-full px-3 py-2 lg:px-3 lg:py-3 border rounded-lg focus:outline-none transition-all duration-200 text-sm lg:text-base ${
+                    className={`w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 transition-all text-sm pr-12 ${
                       errors.confirmPassword ? "border-red-500" : ""
                     }`}
                     style={{
@@ -524,65 +552,66 @@ const Signup = () => {
                       borderColor: errors.confirmPassword
                         ? colors.error
                         : isFocused.confirmPassword
-                          ? colors.text
+                          ? colors.accent
                           : colors.border,
                       color: colors.text,
+                      outlineColor: colors.accent,
                     }}
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                    style={{ color: colors.mutedText }}
+                  >
+                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="mt-1 text-xs" style={{ color: colors.error }}>
+                  <p className="mt-2 text-xs flex items-center gap-1" style={{ color: colors.error }}>
+                    <AlertCircle size={12} />
                     {errors.confirmPassword}
                   </p>
                 )}
               </div>
 
-              {/* API Error Message */}
               {errors.api && (
                 <div
-                  className="p-3 rounded-lg text-sm"
+                  className="p-3 rounded-xl text-sm flex items-start gap-2 animate-slideUp"
                   style={{
-                    backgroundColor: theme === "dark" ? "#1a1a1a" : "#f5f5f5",
+                    backgroundColor: `${colors.error}10`,
                     color: colors.error,
-                    border: `1px solid ${colors.error}`,
+                    border: `1px solid ${colors.error}20`,
                   }}
                 >
-                  {errors.api}
+                  <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
+                  <span>{errors.api}</span>
                 </div>
               )}
 
-              {/* Create Account Button */}
               <PrimaryButton
                 type="submit"
                 loading={loading}
                 fullWidth
-                className="text-sm lg:text-base py-2 lg:py-3"
+                className="text-sm py-3.5 rounded-xl font-semibold mt-2"
                 style={{
-                  backgroundColor: colors.buttonBg,
+                  backgroundColor: colors.accent,
                   color: colors.buttonText,
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = colors.buttonHover;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = colors.buttonBg;
                 }}
               >
                 Create Account
               </PrimaryButton>
-
-              {/* Already have account link */}
-              <div className="text-center pt-1">
+              <div className="text-center pt-2">
                 <p
-                  className="text-xs lg:text-sm"
+                  className="text-sm"
                   style={{ color: colors.mutedText }}
                 >
                   Already have an account?{" "}
                   <Link
                     to="/login"
-                    className="font-medium transition-colors duration-200"
-                    style={{ color: colors.text }}
+                    className="font-semibold hover:opacity-80 transition-opacity"
+                    style={{ color: colors.accent }}
                   >
                     Sign in
                   </Link>
@@ -590,24 +619,29 @@ const Signup = () => {
               </div>
             </form>
 
-            {/* Footer */}
-            <div className="mt-3 lg:mt-4 text-center">
+            <div className="mt-6 text-center">
               <p
-                className="text-xs lg:text-sm"
+                className="text-xs"
                 style={{ color: colors.mutedText }}
               >
-                By creating an account, you agree to our Terms and Privacy Policy
+                By creating an account, you agree to our{" "}
+                <button className="underline hover:opacity-80 transition-opacity">
+                  Terms
+                </button>{" "}
+                and{" "}
+                <button className="underline hover:opacity-80 transition-opacity">
+                  Privacy Policy
+                </button>
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Right Side - Background Image (Hidden on Mobile) */}
       <div className="hidden lg:block lg:w-1/2 relative order-1 lg:order-2">
-        <div className="w-full h-full min-h-screen overflow-hidden relative">
+        <div className="w-full h-screen relative overflow-hidden">
           <div
-            className="w-full h-full absolute inset-0"
+            className="w-full h-full"
             style={{
               backgroundImage: `url(${backgroundImage})`,
               backgroundSize: "cover",
@@ -615,34 +649,51 @@ const Signup = () => {
               backgroundRepeat: "no-repeat",
             }}
           >
-            {/* Theme-aware overlay */}
+           
             <div
               className="absolute inset-0"
               style={{
-                backgroundColor:
-                  theme === "dark"
-                    ? "rgba(0,0,0,0.3)"
-                    : "rgba(255,255,255,0.1)",
+                background: theme === "dark"
+                  ? "linear-gradient(to right, rgba(10,10,10,0.9) 0%, rgba(10,10,10,0.4) 50%, transparent 100%)"
+                  : "linear-gradient(to right, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.4) 50%, transparent 100%)",
               }}
             />
 
-            {/* Text Overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 bg-gradient-to-t from-black/80 via-black/60 to-transparent">
-              <div className="max-w-lg mx-auto">
-                {/* Typing Text Effect */}
-                <div className="mb-4">
-                  <h2 className="text-lg lg:text-2xl font-bold mb-2">
-                    <span className="text-[#d9d9d9]">{typingText}</span>
-                    <span className="animate-pulse text-[#d9d9d9]">|</span>
-                  </h2>
+            <div className="absolute bottom-0 left-0 right-0 p-12">
+              <div className="max-w-lg">
+                <div className="flex items-center gap-3 mb-6">
+                  <div
+                    className="w-1 h-12 rounded-full"
+                    style={{ backgroundColor: colors.accent }}
+                  />
+                  <span
+                    className="text-sm font-semibold uppercase tracking-wider"
+                    style={{ color: colors.accent }}
+                  >
+                    Join CivicFix
+                  </span>
                 </div>
+                
+                <h2 className="text-4xl font-bold mb-4 leading-tight">
+                  <span style={{ color: colors.text }}>Make Your</span>
+                  <br />
+                  <span style={{ color: colors.accent }}>City Better</span>
+                </h2>
 
-                {/* CivicFix Description */}
-                <p className="text-sm lg:text-base mb-2 mr-5 lg:mb-6 leading-relaxed text-[#d9d9d9]">
-                  Join thousands of citizens and government agencies working
-                  together to solve local issues. Your voice matters in building
-                  a better city.
+                <p className="text-lg mb-6 leading-relaxed opacity-90 min-h-[4rem]">
+                  <span style={{ color: colors.text }}>{typingText}</span>
+                  <span className="ml-1 animate-pulse-slow" style={{ color: colors.accent }}>|</span>
                 </p>
+
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-2 h-2 rounded-full animate-pulse"
+                    style={{ backgroundColor: colors.accent }}
+                  />
+                  <span className="text-sm opacity-75" style={{ color: colors.text }}>
+                    Join thousands of citizens
+                  </span>
+                </div>
               </div>
             </div>
           </div>
