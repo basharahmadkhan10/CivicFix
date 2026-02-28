@@ -161,7 +161,6 @@ const CitizenDashboard = () => {
     }
   }, [user, pageLoaded]);
 
-  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = () => {
       setProfileDropdownOpen(false);
@@ -342,7 +341,6 @@ const CitizenDashboard = () => {
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
-      {/* Header */}
       <header
         className="sticky top-0 z-50 border-b px-3 sm:px-4 md:px-6 py-2 sm:py-3"
         style={{
@@ -351,13 +349,34 @@ const CitizenDashboard = () => {
           backdropFilter: "blur(10px)",
         }}
       >
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <img src={currentLogo} alt="CivicFix" className="h-8 sm:h-10 w-auto object-contain" />
-            <span className="font-bold text-lg sm:text-xl" style={{ color: colors.accent }}>
-              CivicFix
-            </span>
-          </div>
+       <div
+  onClick={() => scrollToSection(0)}
+  style={{
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+  }}
+>
+  <span style={{
+    fontFamily: "'Inter', sans-serif",
+    fontSize: "24px",
+    fontWeight: "700",
+    letterSpacing: "-0.5px",
+    color: t.text,
+  }}>
+    CIVIC
+  </span>
+  <span style={{
+    fontFamily: "'Inter', sans-serif",
+    fontSize: "24px",
+    fontWeight: "700",
+    letterSpacing: "-0.5px",
+    color: t.accent,
+  }}>
+    FIX
+  </span>
+</div>
 
           <button
             onClick={(e) => { e.stopPropagation(); setMobileMenuOpen(!mobileMenuOpen); }}
@@ -745,3 +764,4 @@ const CitizenDashboard = () => {
 };
 
 export default CitizenDashboard;
+
