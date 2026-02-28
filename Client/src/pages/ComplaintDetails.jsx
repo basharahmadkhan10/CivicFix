@@ -37,8 +37,8 @@ const ComplaintDetails = () => {
         bg: "#FFFFFF",
         text: "#1A202C",
         card: "#FFFFFF",
+        cardHover: "#F7FAFC",
         border: "#E2E8F0",
-        borderAccent: `2px solid ${accentColor}`,
         accent: accentColor,
         accentLight: "rgba(151, 171, 51, 0.1)",
         success: "#38A169",
@@ -52,8 +52,8 @@ const ComplaintDetails = () => {
       bg: "#0A0A0A",
       text: "#FFFFFF",
       card: "#111111",
+      cardHover: "#1A1A1A",
       border: "#2D3748",
-      borderAccent: `2px solid ${accentColor}`,
       accent: accentColor,
       accentLight: "rgba(151, 171, 51, 0.15)",
       success: "#68D391",
@@ -65,6 +65,7 @@ const ComplaintDetails = () => {
   };
 
   const colors = getThemeColors();
+  const isDark = theme === "dark";
 
   const getFullImageUrl = (imagePath) => {
     if (!imagePath) return "";
@@ -161,7 +162,7 @@ const ComplaintDetails = () => {
         <h1 className="text-xl font-bold mb-2">Complaint Not Found</h1>
         <p className="text-sm mb-4 text-center" style={{ color: colors.muted }}>The requested complaint does not exist or you don't have access to it.</p>
         <button onClick={() => navigate("/dashboard")} className="px-6 py-3 rounded-lg flex items-center"
-          style={{ backgroundColor: colors.accent, color: theme === "dark" ? "#000" : "#FFF" }}>
+          style={{ backgroundColor: colors.accent, color: isDark ? "#000" : "#FFF" }}>
           <ArrowLeft size={18} className="mr-2" /> Go to Dashboard
         </button>
       </div>
@@ -172,40 +173,74 @@ const ComplaintDetails = () => {
     <div className="min-h-screen p-3 sm:p-4 md:p-6" style={{ backgroundColor: colors.bg, color: colors.text, fontFamily: "'Inter', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap'); * { font-family: 'Inter', sans-serif; }`}</style>
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-6">
-        <button onClick={() => navigate("/dashboard")} className="flex items-center text-sm w-fit px-3 py-2 rounded-lg"
-          style={{ color: colors.text, border: `2px solid ${colors.accent}`, backgroundColor: colors.card }}>
+      {/* Header with theme toggle like dashboard */}
+      <div className="flex justify-between items-center mb-6">
+        <button 
+          onClick={() => navigate("/dashboard")} 
+          className="flex items-center text-sm px-3 py-2 rounded-lg transition-all hover:opacity-80"
+          style={{ backgroundColor: colors.cardHover, color: colors.text }}
+        >
           <ArrowLeft size={18} className="mr-1" /> Back
         </button>
-        <button onClick={toggleTheme} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm w-fit"
-          style={{ border: `2px solid ${colors.accent}`, backgroundColor: colors.card, color: colors.text }}>
-          {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
+        
+        <button
+          onClick={toggleTheme}
+          className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:opacity-80"
+          style={{ backgroundColor: colors.cardHover, color: colors.text }}
+        >
+          {isDark ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+          ) : (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+          )}
         </button>
       </div>
 
       {/* Title and Status */}
-      <div className="mb-4 sm:mb-6">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">{complaint.title}</h1>
-        <div className="flex flex-wrap items-center gap-2 mb-2">
-          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium"
-            style={{ backgroundColor: `${getStatusColor(complaint.status)}20`, color: getStatusColor(complaint.status), border: `2px solid ${getStatusColor(complaint.status)}` }}>
+      <div className="mb-6">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3">{complaint.title}</h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <span 
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium"
+            style={{ backgroundColor: `${getStatusColor(complaint.status)}20`, color: getStatusColor(complaint.status) }}
+          >
             {getStatusIcon(complaint.status)} {complaint.status}
           </span>
-          <span className="text-xs sm:text-sm px-3 py-1.5 rounded-full" style={{ backgroundColor: colors.card, border: `2px solid ${colors.accent}`, color: colors.text }}>
+          <span 
+            className="text-xs sm:text-sm px-3 py-1.5 rounded-full" 
+            style={{ backgroundColor: colors.cardHover, color: colors.text }}
+          >
             {complaint.category}
           </span>
         </div>
 
         {/* Action Buttons */}
         {["CREATED", "ASSIGNED"].includes(complaint.status) && (
-          <div className="flex gap-2 mt-3">
-            <button onClick={() => navigate(`/complaints/${id}/edit`)} className="flex-1 sm:flex-none px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-sm"
-              style={{ backgroundColor: colors.card, border: `2px solid ${colors.accent}`, color: colors.text }}>
+          <div className="flex gap-2 mt-4">
+            <button 
+              onClick={() => navigate(`/complaints/${id}/edit`)} 
+              className="flex-1 sm:flex-none px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-sm transition-all hover:opacity-80"
+              style={{ backgroundColor: colors.cardHover, color: colors.text }}
+            >
               <Edit size={16} /> Edit
             </button>
-            <button onClick={handleWithdrawComplaint} className="flex-1 sm:flex-none px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-sm"
-              style={{ backgroundColor: colors.danger, color: "#FFF" }}>
+            <button 
+              onClick={handleWithdrawComplaint} 
+              className="flex-1 sm:flex-none px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-sm transition-all hover:opacity-80"
+              style={{ backgroundColor: colors.danger, color: "#FFF" }}
+            >
               <Trash2 size={16} /> Withdraw
             </button>
           </div>
@@ -213,31 +248,35 @@ const ComplaintDetails = () => {
       </div>
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column */}
-        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+        <div className="lg:col-span-2 space-y-6">
           {/* Description */}
-          <div className="p-4 sm:p-6 rounded-lg" style={{ backgroundColor: colors.card, border: `2px solid ${colors.accent}` }}>
+          <div className="p-6 rounded-lg" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
             <h2 className="text-base sm:text-lg font-bold mb-3" style={{ color: colors.accent }}>Description</h2>
             <p className="text-sm sm:text-base whitespace-pre-wrap" style={{ color: colors.muted }}>{complaint.description}</p>
           </div>
 
           {/* Images */}
           {complaint.images?.citizen && complaint.images.citizen.length > 0 && (
-            <div className="p-4 sm:p-6 rounded-lg" style={{ backgroundColor: colors.card, border: `2px solid ${colors.accent}` }}>
+            <div className="p-6 rounded-lg" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
               <h2 className="text-base sm:text-lg font-bold mb-3 flex items-center" style={{ color: colors.accent }}>
                 <ImageIcon size={18} className="mr-2" /> Complaint Images ({complaint.images.citizen.length})
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {complaint.images.citizen.map((imagePath, index) => {
                   const fullImageUrl = getFullImageUrl(imagePath);
                   return (
                     <div key={index} className="relative group cursor-pointer" onClick={() => openImageModal(fullImageUrl)}>
                       {!imageErrors[index] ? (
-                        <img src={fullImageUrl} alt={`Evidence ${index + 1}`} className="w-full h-24 sm:h-32 object-cover rounded-lg border-2 transition-all"
-                          style={{ borderColor: colors.accent }} onError={() => handleImageError(fullImageUrl, index)} />
+                        <img 
+                          src={fullImageUrl} 
+                          alt={`Evidence ${index + 1}`} 
+                          className="w-full h-24 sm:h-32 object-cover rounded-lg transition-all group-hover:opacity-90"
+                          onError={() => handleImageError(fullImageUrl, index)} 
+                        />
                       ) : (
-                        <div className="w-full h-24 sm:h-32 rounded-lg flex items-center justify-center border-2" style={{ backgroundColor: colors.bg, borderColor: colors.accent }}>
+                        <div className="w-full h-24 sm:h-32 rounded-lg flex items-center justify-center" style={{ backgroundColor: colors.cardHover }}>
                           <AlertCircle size={24} style={{ color: colors.muted }} />
                         </div>
                       )}
@@ -250,9 +289,9 @@ const ComplaintDetails = () => {
         </div>
 
         {/* Right Column */}
-        <div className="space-y-4 sm:space-y-6">
+        <div className="space-y-6">
           {/* Information */}
-          <div className="p-4 sm:p-6 rounded-lg" style={{ backgroundColor: colors.card, border: `2px solid ${colors.accent}` }}>
+          <div className="p-6 rounded-lg" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
             <h2 className="text-base sm:text-lg font-bold mb-3" style={{ color: colors.accent }}>Information</h2>
             <div className="space-y-3 text-sm">
               <div className="flex items-start gap-2">
@@ -286,13 +325,13 @@ const ComplaintDetails = () => {
 
           {/* Timeline */}
           {timeline.length > 0 && (
-            <div className="p-4 sm:p-6 rounded-lg" style={{ backgroundColor: colors.card, border: `2px solid ${colors.accent}` }}>
+            <div className="p-6 rounded-lg" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
               <h2 className="text-base sm:text-lg font-bold mb-3" style={{ color: colors.accent }}>Timeline</h2>
               <div className="space-y-4">
                 {timeline.map((event, index) => (
                   <div key={index} className="flex gap-3">
                     <div className="flex flex-col items-center">
-                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: colors.accent }} />
+                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colors.accent }} />
                       {index < timeline.length - 1 && <div className="w-0.5 h-full mt-1" style={{ backgroundColor: colors.border }} />}
                     </div>
                     <div className="pb-4 flex-1">
@@ -313,7 +352,7 @@ const ComplaintDetails = () => {
         <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4" onClick={closeImageModal}>
           <div className="relative max-w-4xl max-h-full">
             <button onClick={closeImageModal} className="absolute -top-10 right-0 text-white text-sm px-4 py-2">Close ✕</button>
-            <img src={selectedImage} alt="Full size" className="max-w-full max-h-[90vh] object-contain rounded-lg border-4" style={{ borderColor: colors.accent }} />
+            <img src={selectedImage} alt="Full size" className="max-w-full max-h-[90vh] object-contain rounded-lg" />
           </div>
         </div>
       )}
