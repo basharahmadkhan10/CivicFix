@@ -529,8 +529,8 @@ const CitizenDashboard = () => {
                   width: "36px",
                   height: "36px",
                   borderRadius: "6px",
-                  border: `1px solid ${t.border}`,
-                  backgroundColor: t.toggleBg,
+                  border: `1px solid ${colors.border}`,
+                  backgroundColor: colors.toggleBg,
                   color: t.text,
                   cursor: "pointer",
                   display: "flex",
@@ -927,5 +927,6 @@ const CitizenDashboard = () => {
 };
 
 export default CitizenDashboard;
+
 
 
