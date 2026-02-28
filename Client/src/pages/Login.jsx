@@ -601,8 +601,7 @@ const Login = () => {
                 </form>
               </div>
             ) : (
-              <div className="w-full h-1/2" 
-}} >
+              <div className="w-full h-1/2">
                 <div className="text-center mb-8">
                   <h1
                     className="text-4xl font-bold mb-2 tracking-tight"
@@ -847,6 +846,7 @@ const Login = () => {
 };
 
 export default Login;
+
 
 
 
