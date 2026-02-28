@@ -5,7 +5,15 @@ import { useTheme } from "../context/ThemeContext";
 import bgDark from "../assets/images/image_01.png";
 import bgLight from "../assets/images/image_02.png";
 import PrimaryButton from "../components/ui/PrimaryButton";
-import { ArrowLeft, Mail, RefreshCw, Shield, AlertCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  Mail,
+  RefreshCw,
+  Shield,
+  AlertCircle,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 
 const Login = () => {
   const { login, user } = useAuth();
@@ -24,11 +32,34 @@ const Login = () => {
   const [pendingLoginData, setPendingLoginData] = useState(null);
   const [countdown, setCountdown] = useState(60);
   const [canResendOtp, setCanResendOtp] = useState(false);
-
-  const backgroundImage = theme === "dark" ? bgDark : bgLight;
   const [displayText, setDisplayText] = useState("");
   const [textIndex, setTextIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
+
+  const backgroundImage = theme === "dark" ? bgDark : bgLight;
+
+  const roleMessages = {
+    citizen: [
+      "Report issues in your city instantly.",
+      "Track complaints in real time.",
+      "Be the voice of your community.",
+    ],
+    officer: [
+      "Manage assigned complaints efficiently.",
+      "Coordinate with departments smoothly.",
+      "Resolve issues faster with CivicFix.",
+    ],
+    supervisor: [
+      "Monitor complaint workflows live.",
+      "Ensure timely resolution of issues.",
+      "Lead your team with smart oversight.",
+    ],
+    admin: [
+      "Control the entire CivicFix system.",
+      "Manage users and permissions.",
+      "Maintain operational transparency.",
+    ],
+  };
 
   useEffect(() => {
     if (showOtpVerification && countdown > 0) {
@@ -38,45 +69,84 @@ const Login = () => {
       setCanResendOtp(true);
     }
   }, [showOtpVerification, countdown]);
-  
+
+  // Typing effect
+  useEffect(() => {
+    const messages = roleMessages[activeTab];
+    const currentMessage = messages[textIndex];
+
+    const typingSpeed = 100;
+    const pauseTime = 1500;
+
+    let timeout;
+
+    if (charIndex < currentMessage.length) {
+      timeout = setTimeout(() => {
+        setDisplayText((prev) => prev + currentMessage[charIndex]);
+        setCharIndex(charIndex + 1);
+      }, typingSpeed);
+    } else {
+      timeout = setTimeout(() => {
+        setDisplayText("");
+        setCharIndex(0);
+        setTextIndex((prev) => (prev + 1) % messages.length);
+      }, pauseTime);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [charIndex, textIndex, activeTab]);
+
+  useEffect(() => {
+    setDisplayText("");
+    setCharIndex(0);
+    setTextIndex(0);
+  }, [activeTab]);
+
+  // Modern theme with #97AB33 accent
   const getThemeColors = () => {
+    const accentColor = "#97AB33";
+
     if (theme === "light") {
       return {
-        background: "#ffffff",
-        cardBackground: "#cad4f3",
-        border: "#B0B0B0",
-        text: "#000000",
-        mutedText: "#555555",
-        inputBackground: "#F5F5F5",
-        buttonBg: "#000000",
-        buttonText: "#ffffff",
-        buttonHover: "#111111",
-        error: "#dc2626",
-        success: "#16a34a",
-        tabActiveBg: "#000000",
-        tabActiveText: "#ffffff",
-        tabInactiveBg: "#F5F5F5",
-        tabInactiveText: "#666666",
-        accent: "#000000",
+        background: "#FFFFFF",
+        cardBackground: "#FFFFFF",
+        border: "#E5E7EB",
+        text: "#111827",
+        mutedText: "#6B7280",
+        inputBackground: "#F9FAFB",
+        buttonBg: accentColor,
+        buttonText: "#FFFFFF",
+        buttonHover: "#8A9E2E",
+        error: "#DC2626",
+        success: "#10B981",
+        tabActiveBg: accentColor,
+        tabActiveText: "#FFFFFF",
+        tabInactiveBg: "#F3F4F6",
+        tabInactiveText: "#4B5563",
+        accent: accentColor,
+        accentLight: "rgba(151, 171, 51, 0.1)",
+        gradient: "linear-gradient(135deg, #FFFFFF 0%, #F9FAFB 100%)",
       };
     }
     return {
-      background: "#000000",
-      cardBackground: "#0a0a0a",
-      border: "#1a1a1a",
-      text: "#ffffff",
-      mutedText: "#adadad",
-      inputBackground: "#050505",
-      buttonBg: "#ffffff",
+      background: "#0A0A0A",
+      cardBackground: "#111111",
+      border: "#1F1F1F",
+      text: "#FFFFFF",
+      mutedText: "#9CA3AF",
+      inputBackground: "#1A1A1A",
+      buttonBg: accentColor,
       buttonText: "#000000",
-      buttonHover: "#f5f5f5",
-      error: "#ef4444",
-      success: "#22c55e",
-      tabActiveBg: "#ffffff",
+      buttonHover: "#A8C03E",
+      error: "#EF4444",
+      success: "#10B981",
+      tabActiveBg: accentColor,
       tabActiveText: "#000000",
-      tabInactiveBg: "#1a1a1a",
-      tabInactiveText: "#adadad",
-      accent: "#ffffff",
+      tabInactiveBg: "#1F1F1F",
+      tabInactiveText: "#9CA3AF",
+      accent: accentColor,
+      accentLight: "rgba(151, 171, 51, 0.15)",
+      gradient: "linear-gradient(135deg, #0A0A0A 0%, #111111 100%)",
     };
   };
 
@@ -111,60 +181,6 @@ const Login = () => {
         return "/dashboard";
     }
   };
-  
-  const roleMessages = {
-    citizen: [
-      "Report issues in your city instantly.",
-      "Track complaints in real time.",
-      "Be the voice of your community.",
-    ],
-    officer: [
-      "Manage assigned complaints efficiently.",
-      "Coordinate with departments smoothly.",
-      "Resolve issues faster with CivicFix.",
-    ],
-    supervisor: [
-      "Monitor complaint workflows live.",
-      "Ensure timely resolution of issues.",
-      "Lead your team with smart oversight.",
-    ],
-    admin: [
-      "Control the entire CivicFix system.",
-      "Manage users and permissions.",
-      "Maintain operational transparency.",
-    ],
-  };
-  
-  useEffect(() => {
-    const messages = roleMessages[activeTab];
-    const currentMessage = messages[textIndex];
-
-    const typingSpeed = 100;
-    const pauseTime = 1500;
-
-    let timeout;
-
-    if (charIndex < currentMessage.length) {
-      timeout = setTimeout(() => {
-        setDisplayText((prev) => prev + currentMessage[charIndex]);
-        setCharIndex(charIndex + 1);
-      }, typingSpeed);
-    } else {
-      timeout = setTimeout(() => {
-        setDisplayText("");
-        setCharIndex(0);
-        setTextIndex((prev) => (prev + 1) % messages.length);
-      }, pauseTime);
-    }
-
-    return () => clearTimeout(timeout);
-  }, [charIndex, textIndex, activeTab]);
-  
-  useEffect(() => {
-    setDisplayText("");
-    setCharIndex(0);
-    setTextIndex(0);
-  }, [activeTab]);
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -181,26 +197,20 @@ const Login = () => {
     try {
       const role = getRoleFromTab(activeTab);
 
-      console.log("Login attempt with:", { email, role });
-
-      const response = await fetch("https://civicfix-backend01.onrender.com/api/v1/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        "https://civicfix-backend01.onrender.com/api/v1/auth/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: email.toLowerCase().trim(),
+            password,
+            role: role,
+          }),
         },
-        body: JSON.stringify({
-          email: email.toLowerCase().trim(),
-          password,
-          role: role,
-        }),
-      });
+      );
 
       const data = await response.json();
-      
-      console.log("🔴 FULL LOGIN RESPONSE:", {
-        status: response.status,
-        data: data
-      });
 
       if (!response.ok) {
         throw new Error(
@@ -209,8 +219,9 @@ const Login = () => {
       }
 
       if (data.success) {
-        const otpRequired = data.data?.otpRequired || data.otpRequired || data.requiresOtp;
-        
+        const otpRequired =
+          data.data?.otpRequired || data.otpRequired || data.requiresOtp;
+
         if (otpRequired) {
           setPendingLoginData({
             email: email.toLowerCase().trim(),
@@ -235,32 +246,24 @@ const Login = () => {
             };
 
           login(token, userData);
-
           const dashboardRoute = getDashboardRoute(userData.role || role);
-          console.log("Redirecting to:", dashboardRoute);
-
-          setTimeout(() => {
-            navigate(dashboardRoute);
-          }, 100);
+          setTimeout(() => navigate(dashboardRoute), 100);
         }
       } else {
         setError(data.message || "Login failed");
       }
     } catch (err) {
-      console.error("❌ Login error details:", err);
       setError(err.message || "An unexpected error occurred");
     } finally {
       setLoading(false);
     }
   };
-  
+
   const handleOtpChange = (index, value) => {
     if (!/^\d*$/.test(value)) return;
-
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
-
     if (value && index < 5) {
       document.getElementById(`otp-${index + 1}`)?.focus();
     }
@@ -268,7 +271,6 @@ const Login = () => {
 
   const handleOtpSubmit = async (e) => {
     if (e) e.preventDefault();
-
     const otpString = otp.join("");
     if (otpString.length !== 6) {
       setError("Please enter 6-digit OTP");
@@ -279,14 +281,11 @@ const Login = () => {
     setError("");
 
     try {
-      
       const response = await fetch(
         "https://civicfix-backend01.onrender.com/api/v1/auth/login/verify-otp",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             email: email.toLowerCase().trim(),
             otp: otpString,
@@ -295,14 +294,12 @@ const Login = () => {
       );
 
       const data = await response.json();
-      console.log("OTP verification response:", data);
 
       if (!response.ok) {
         throw new Error(data.message || "OTP verification failed");
       }
 
       if (data.success) {
-        
         const token = data?.data?.token;
         const userData = data?.data?.user;
 
@@ -312,11 +309,8 @@ const Login = () => {
 
         login(token, userData);
         setMessage("OTP verified! Redirecting...");
-
         const dashboardRoute = getDashboardRoute(userData.role);
-        setTimeout(() => {
-          navigate(dashboardRoute);
-        }, 1000);
+        setTimeout(() => navigate(dashboardRoute), 1000);
       } else {
         setError(data.message || "Invalid OTP");
       }
@@ -329,22 +323,16 @@ const Login = () => {
 
   const handleResendOtp = async () => {
     if (!canResendOtp) return;
-
     setLoading(true);
     setError("");
 
     try {
-      
       const response = await fetch(
         "https://civicfix-backend01.onrender.com/api/v1/auth/login/resend-otp",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: email.toLowerCase().trim(),
-          }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email.toLowerCase().trim() }),
         },
       );
 
@@ -359,10 +347,7 @@ const Login = () => {
         setOtp(["", "", "", "", "", ""]);
         setCountdown(60);
         setCanResendOtp(false);
-
-        setTimeout(() => {
-          document.getElementById("otp-0")?.focus();
-        }, 100);
+        setTimeout(() => document.getElementById("otp-0")?.focus(), 100);
       } else {
         setError(data.message || "Failed to resend OTP");
       }
@@ -381,55 +366,60 @@ const Login = () => {
     setPendingLoginData(null);
   };
 
-  const getTabColor = (tab) => {
-    switch (tab) {
-      case "citizen":
-        return "#10b981";
-      case "officer":
-        return "#f59e0b";
-      case "supervisor":
-        return "#3b82f6";
-      case "admin":
-        return "#8b5cf6";
-      default:
-        return colors.tabActiveBg;
-    }
-  };
+  const getTabColor = () => colors.accent; 
 
   return (
     <div
       className="min-h-screen flex flex-col lg:flex-row overflow-hidden"
-      style={{ backgroundColor: colors.background }}
+      style={{
+        backgroundColor: colors.background,
+        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+      }}
     >
-      {/* Mobile Back Button - Adjusted for mobile */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+          font-family: 'Inter', sans-serif;
+        }
+        
+        @keyframes blink {
+          50% { opacity: 0; }
+        }
+        
+        .animate-blink {
+          animation: blink 1s step-end infinite;
+        }
+      `}</style>
+
       <div className="absolute top-4 left-4 z-20 lg:hidden">
         <button
           onClick={() => navigate(`/`)}
-          className="p-2 rounded-lg flex items-center justify-center hover:opacity-90 transition-opacity"
+          className="p-2 rounded-lg flex items-center justify-center transition-all duration-200 hover:opacity-80"
           style={{
-            backgroundColor: theme === "dark" ? "#1a1a1a" : "#f5f5f5",
-            color: theme === "dark" ? "#ffffff" : "#000000",
+            backgroundColor: colors.cardBackground,
+            border: `1px solid ${colors.border}`,
+            color: colors.text,
           }}
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={18} />
         </button>
       </div>
 
-      {/* Theme toggle - Adjusted for mobile */}
       <div className="absolute top-4 right-4 z-20 lg:top-6 lg:right-6">
         <button
           onClick={toggleTheme}
-          className="flex items-center gap-1 lg:gap-2 px-2 py-1 lg:px-4 lg:py-2 rounded-lg border transition-colors duration-200"
+          className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 hover:opacity-80"
           style={{
-            backgroundColor: theme === "dark" ? "#0a0a0a" : "#f5f5f5",
-            borderColor: theme === "dark" ? "#1a1a1a" : "#e5e5e5",
-            color: theme === "dark" ? "#ffffff" : "#000000",
+            backgroundColor: colors.cardBackground,
+            border: `1px solid ${colors.border}`,
+            color: colors.text,
           }}
         >
           {theme === "dark" ? (
             <>
               <svg
-                className="w-4 h-4 lg:w-5 lg:h-5"
+                className="w-4 h-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -441,12 +431,12 @@ const Login = () => {
                   d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
                 />
               </svg>
-              <span className="text-xs lg:text-sm font-medium hidden xs:inline">Light</span>
+              <span className="text-xs font-medium">Light</span>
             </>
           ) : (
             <>
               <svg
-                className="w-4 h-4 lg:w-5 lg:h-5"
+                className="w-4 h-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -458,391 +448,389 @@ const Login = () => {
                   d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
                 />
               </svg>
-              <span className="text-xs lg:text-sm font-medium hidden xs:inline">Dark</span>
+              <span className="text-xs font-medium">Dark</span>
             </>
           )}
         </button>
       </div>
 
-      {/* Login Form Section - Full width on mobile */}
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center min-h-screen p-4 lg:p-8 relative order-2 lg:order-1">
-        
-        <div
-          className="w-full max-w-md rounded-xl lg:rounded-2xl border p-5 lg:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.1)]"
-          style={{
-            backgroundColor: colors.cardBackground,
-            borderColor: colors.border,
-          }}
-        >
-          {/* OTP Verification View */}
-          {showOtpVerification ? (
-            <div className="w-full">
-              <div className="text-center mb-4 lg:mb-6">
-                <div
-                  className="inline-flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 rounded-full mb-3 lg:mb-4"
-                  style={{
-                    backgroundColor: `${getTabColor(activeTab)}20`,
-                    color: getTabColor(activeTab),
-                  }}
-                >
-                  <Shield size={20} className="lg:w-6 lg:h-6" />
+      <div className="w-full lg:w-1/2 flex items-center justify-center min-h-screen p-4 lg:p-8 order-2 lg:order-1">
+        <div className="w-full max-w-md">
+          <div
+            className="rounded-2xl border p-6 lg:p-8 shadow-xl backdrop-blur-sm"
+            style={{
+              backgroundColor: colors.cardBackground,
+              borderColor: colors.border,
+            }}
+          >
+         
+            {showOtpVerification ? (
+              <div className="w-full">
+                <div className="text-center mb-6">
+                  <div
+                    className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-4"
+                    style={{
+                      backgroundColor: colors.accentLight,
+                      color: colors.accent,
+                    }}
+                  >
+                    <Shield size={20} />
+                  </div>
+                  <h1
+                    className="text-2xl font-bold mb-2"
+                    style={{ color: colors.text }}
+                  >
+                    Verify OTP
+                  </h1>
+                  <p
+                    className="text-sm mb-2"
+                    style={{ color: colors.mutedText }}
+                  >
+                    Enter the 6-digit code sent to
+                  </p>
+                  <p
+                    className="text-sm font-medium"
+                    style={{ color: colors.accent }}
+                  >
+                    {email}
+                  </p>
                 </div>
-                <h1
-                  className="text-xl lg:text-2xl xl:text-3xl font-bold mb-1 lg:mb-2"
-                  style={{ color: colors.text }}
-                >
-                  Verify OTP
-                </h1>
-                <p
-                  style={{ color: colors.mutedText }}
-                  className="text-xs lg:text-sm px-2"
-                >
-                  Enter the 6-digit code sent to your email
-                </p>
-                <p
-                  className="text-sm lg:text-base font-medium mt-2 break-all px-2"
-                  style={{ color: getTabColor(activeTab) }}
-                >
-                  {email}
-                </p>
-                <p className="text-xs mt-1" style={{ color: colors.mutedText }}>
-                  {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Account
-                </p>
-              </div>
 
-              {error && (
-                <div
-                  className="mb-3 p-2 lg:p-3 rounded-lg text-xs lg:text-sm flex items-start gap-1"
-                  style={{
-                    backgroundColor: `${colors.error}10`,
-                    color: colors.error,
-                    border: `1px solid ${colors.error}`,
-                  }}
-                >
-                  <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
-                  <span>{error}</span>
-                </div>
-              )}
+                {error && (
+                  <div
+                    className="mb-4 p-3 rounded-lg text-sm flex items-start gap-2"
+                    style={{
+                      backgroundColor: `${colors.error}10`,
+                      color: colors.error,
+                      border: `1px solid ${colors.error}20`,
+                    }}
+                  >
+                    <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
+                    <span>{error}</span>
+                  </div>
+                )}
 
-              {message && (
-                <div
-                  className="mb-3 p-2 lg:p-3 rounded-lg text-xs lg:text-sm"
-                  style={{
-                    backgroundColor: `${colors.success}10`,
-                    color: colors.success,
-                    border: `1px solid ${colors.success}`,
-                  }}
-                >
-                  {message}
-                </div>
-              )}
+                {message && (
+                  <div
+                    className="mb-4 p-3 rounded-lg text-sm"
+                    style={{
+                      backgroundColor: `${colors.success}10`,
+                      color: colors.success,
+                      border: `1px solid ${colors.success}20`,
+                    }}
+                  >
+                    {message}
+                  </div>
+                )}
 
-              <form onSubmit={handleOtpSubmit} className="space-y-4 lg:space-y-6">
-                <div className="flex justify-center gap-1 sm:gap-2 mb-4 lg:mb-6">
-                  {[0, 1, 2, 3, 4, 5].map((index) => (
-                    <input
-                      key={index}
-                      id={`otp-${index}`}
-                      type="text"
-                      maxLength="1"
-                      value={otp[index]}
-                      onChange={(e) => handleOtpChange(index, e.target.value)}
-                      className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 text-center text-base sm:text-lg lg:text-xl rounded-lg border focus:outline-none focus:ring-2"
+                <form onSubmit={handleOtpSubmit} className="space-y-6">
+                  <div className="flex justify-center gap-2">
+                    {[0, 1, 2, 3, 4, 5].map((index) => (
+                      <input
+                        key={index}
+                        id={`otp-${index}`}
+                        type="text"
+                        maxLength="1"
+                        value={otp[index]}
+                        onChange={(e) => handleOtpChange(index, e.target.value)}
+                        className="w-12 h-12 text-center text-lg rounded-lg border focus:outline-none focus:ring-2 transition-all"
+                        style={{
+                          backgroundColor: colors.inputBackground,
+                          borderColor: colors.border,
+                          color: colors.text,
+                          outlineColor: colors.accent,
+                        }}
+                        required
+                        disabled={loading}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="space-y-4">
+                    <PrimaryButton
+                      type="submit"
+                      loading={loading}
+                      fullWidth
+                      className="text-sm py-3 rounded-lg font-semibold"
                       style={{
-                        backgroundColor: colors.inputBackground,
-                        borderColor: colors.border,
-                        color: colors.text,
-                        focusRingColor: getTabColor(activeTab),
+                        backgroundColor: colors.accent,
+                        color: colors.buttonText,
                       }}
-                      required
-                      disabled={loading}
-                    />
+                    >
+                      Verify OTP
+                    </PrimaryButton>
+
+                    <div className="flex justify-between items-center">
+                      <button
+                        type="button"
+                        onClick={handleBackToLogin}
+                        className="text-sm flex items-center gap-1 hover:opacity-80 transition-opacity"
+                        style={{ color: colors.mutedText }}
+                        disabled={loading}
+                      >
+                        <ArrowLeft size={14} />
+                        Back
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleResendOtp}
+                        disabled={!canResendOtp || loading}
+                        className={`text-sm flex items-center gap-1 ${
+                          canResendOtp
+                            ? "hover:opacity-80"
+                            : "opacity-50 cursor-not-allowed"
+                        } transition-opacity`}
+                        style={{ color: colors.accent }}
+                      >
+                        {canResendOtp ? (
+                          <>
+                            <RefreshCw size={14} />
+                            Resend
+                          </>
+                        ) : (
+                          `Resend in ${countdown}s`
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            ) : (
+              <div className="w-full h-1/2">
+                <div className="text-center mb-8">
+                  <h1
+                    className="text-4xl font-bold mb-2 tracking-tight"
+                    style={{ color: colors.text }}
+                  >
+                    Welcome Back
+                  </h1>
+                  <p className="text-md" style={{ color: colors.mutedText }}>
+                    Sign in to continue to CivicFix
+                  </p>
+                </div>
+
+                <div
+                  className="grid grid-cols-4 gap-2 p-1 rounded-lg mb-8"
+                  style={{ backgroundColor: colors.tabInactiveBg }}
+                >
+                  {[
+                    { id: "citizen", label: "Citizen" },
+                    { id: "officer", label: "Officer" },
+                    { id: "supervisor", label: "Supervisor" },
+                    { id: "admin", label: "Admin" },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className="py-2 px-1 text-xm font-medium rounded-md transition-all duration-200"
+                      style={{
+                        backgroundColor:
+                          activeTab === tab.id ? colors.accent : "transparent",
+                        color:
+                          activeTab === tab.id
+                            ? colors.buttonText
+                            : colors.tabInactiveText,
+                      }}
+                    >
+                      {tab.label}
+                    </button>
                   ))}
                 </div>
 
-                <div className="space-y-3 lg:space-y-4">
-                  <PrimaryButton
-                    type="submit"
-                    loading={loading}
-                    fullWidth
-                    className="text-sm lg:text-base py-2 lg:py-3"
+                {error && (
+                  <div
+                    className="mb-4 p-3 rounded-lg text-sm flex items-start gap-2"
                     style={{
-                      backgroundColor: getTabColor(activeTab),
-                      color: colors.buttonText,
+                      backgroundColor: `${colors.error}10`,
+                      color: colors.error,
+                      border: `1px solid ${colors.error}20`,
                     }}
                   >
-                    Verify OTP
-                  </PrimaryButton>
-
-                  <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
-                    <button
-                      type="button"
-                      onClick={handleBackToLogin}
-                      className="text-xs sm:text-sm flex items-center gap-1 order-2 sm:order-1"
-                      style={{ color: colors.mutedText }}
-                      disabled={loading}
-                    >
-                      <ArrowLeft size={14} />
-                      Back to Login
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleResendOtp}
-                      disabled={!canResendOtp || loading}
-                      className={`text-xs sm:text-sm order-1 sm:order-2 ${canResendOtp ? "" : "opacity-50 cursor-not-allowed"}`}
-                      style={{ color: getTabColor(activeTab) }}
-                    >
-                      {canResendOtp ? (
-                        <span className="flex items-center gap-1">
-                          <RefreshCw size={14} />
-                          <span className="hidden xs:inline">Resend OTP</span>
-                          <span className="xs:hidden">Resend</span>
-                        </span>
-                      ) : (
-                        <span>Resend in {countdown}s</span>
-                      )}
-                    </button>
+                    <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
+                    <span>{error}</span>
                   </div>
-                </div>
-              </form>
-            </div>
-          ) : (
-            // Login Form
-            <div className="w-full">
-              <div className="text-center mb-4 lg:mb-6">
-                <h1
-                  className="text-xl sm:text-2xl lg:text-2xl xl:text-3xl font-bold mb-1 tracking-tight"
-                  style={{ color: colors.text }}
-                >
-                  Welcome Back
-                </h1>
-                <p
-                  style={{ color: colors.mutedText }}
-                  className="text-xs lg:text-sm"
-                >
-                  Sign in to your CivicFix account
-                </p>
-              </div>
+                )}
 
-              {/* Role Tabs - Grid for mobile */}
-              <div
-                className="grid grid-cols-2 gap-2 sm:gap-4 mb-4 lg:mb-6 rounded-lg p-1"
-                style={{ backgroundColor: colors.tabInactiveBg }}
-              >
-                {[
-                  { id: "citizen", label: "Citizen" },
-                  { id: "officer", label: "Officer" },
-                  { id: "supervisor", label: "Supervisor" },
-                  { id: "admin", label: "Admin" },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`py-2 px-1 sm:px-2 text-xs sm:text-sm font-medium rounded-md transition-all duration-200 ${
-                      activeTab === tab.id ? "" : "opacity-80"
-                    }`}
+                {message && (
+                  <div
+                    className="mb-4 p-3 rounded-lg text-sm"
                     style={{
-                      backgroundColor:
-                        activeTab === tab.id
-                          ? getTabColor(tab.id)
-                          : "transparent",
-                      color:
-                        activeTab === tab.id
-                          ? colors.tabActiveText
-                          : colors.tabInactiveText,
+                      backgroundColor: `${colors.success}10`,
+                      color: colors.success,
+                      border: `1px solid ${colors.success}20`,
                     }}
                   >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
+                    {message}
+                  </div>
+                )}
 
-              {error && (
-                <div
-                  className="mb-3 p-2 lg:p-3 rounded-lg text-xs lg:text-sm flex items-start gap-1"
-                  style={{
-                    backgroundColor: `${colors.error}10`,
-                    color: colors.error,
-                    border: `1px solid ${colors.error}`,
-                  }}
-                >
-                  <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
-                  <span>{error}</span>
-                </div>
-              )}
-
-              {message && (
-                <div
-                  className="mb-3 p-2 lg:p-3 rounded-lg text-xs lg:text-sm"
-                  style={{
-                    backgroundColor: `${colors.success}10`,
-                    color: colors.success,
-                    border: `1px solid ${colors.success}`,
-                  }}
-                >
-                  {message}
-                </div>
-              )}
-
-              <form
-                onSubmit={handleLoginSubmit}
-                className="space-y-3 lg:space-y-4"
-              >
-                <div>
-                  <label
-                    className="block text-xs lg:text-sm font-medium mb-1"
-                    style={{ color: colors.text }}
-                  >
-                    Email Address *
-                  </label>
-                  <div className="relative">
+                <form onSubmit={handleLoginSubmit} className="space-y-5">
+                  <div>
+                    <label
+                      className="block text-sm font-medium mb-2"
+                      style={{ color: colors.text }}
+                    >
+                      Email Address
+                    </label>
                     <input
                       type="email"
                       placeholder={`Enter your ${activeTab} email`}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-3 py-2 lg:px-3 lg:py-3 border rounded-lg focus:outline-none transition-all duration-200 text-sm lg:text-base"
+                      className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all text-sm"
                       style={{
                         backgroundColor: colors.inputBackground,
                         borderColor: colors.border,
                         color: colors.text,
+                        outlineColor: colors.accent,
                       }}
                       required
                       disabled={loading}
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label
-                    className="block text-xs lg:text-sm font-medium mb-1"
-                    style={{ color: colors.text }}
-                  >
-                    Password *
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-3 py-2 lg:px-3 lg:py-3 border rounded-lg focus:outline-none transition-all duration-200 text-sm lg:text-base pr-10"
-                      style={{
-                        backgroundColor: colors.inputBackground,
-                        borderColor: colors.border,
-                        color: colors.text,
-                      }}
-                      required
-                      disabled={loading}
-                    />
-                    <button
-                      type="button"
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs"
-                      onClick={() => setShowPassword(!showPassword)}
-                      style={{ color: colors.mutedText }}
+                  <div>
+                    <label
+                      className="block text-sm font-medium mb-2"
+                      style={{ color: colors.text }}
                     >
-                      {showPassword ? "Hide" : "Show"}
-                    </button>
-                  </div>
-                </div>
-
-                <PrimaryButton
-                  type="submit"
-                  loading={loading}
-                  fullWidth
-                  className="text-sm lg:text-base mt-2 py-2 lg:py-3"
-                  style={{
-                    backgroundColor: getTabColor(activeTab),
-                    color: colors.buttonText,
-                  }}
-                >
-                  Sign In as{" "}
-                  {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-                </PrimaryButton>
-
-                {/* Sign up link - only for citizens */}
-                {activeTab === "citizen" && (
-                  <div className="text-center pt-1">
-                    <p
-                      className="text-xs lg:text-sm"
-                      style={{ color: colors.mutedText }}
-                    >
-                      Don't have an account?{" "}
-                      <Link
-                        to="/signup"
-                        className="font-medium"
-                        style={{ color: colors.text }}
+                      Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all text-sm pr-12"
+                        style={{
+                          backgroundColor: colors.inputBackground,
+                          borderColor: colors.border,
+                          color: colors.text,
+                          outlineColor: colors.accent,
+                        }}
+                        required
+                        disabled={loading}
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={{ color: colors.mutedText }}
                       >
-                        Sign up
-                      </Link>
-                    </p>
+                        {showPassword ? (
+                          <EyeOff size={18} />
+                        ) : (
+                          <Eye size={18} />
+                        )}
+                      </button>
+                    </div>
                   </div>
-                )}
-              </form>
 
-              <div className="mt-3 lg:mt-4 text-center">
-                <p
-                  className="text-xs lg:text-sm"
-                  style={{ color: colors.mutedText }}
-                >
-                  © {new Date().getFullYear()} CivicFix. All rights reserved.
-                </p>
+                  <PrimaryButton
+                    type="submit"
+                    loading={loading}
+                    fullWidth
+                    className="text-sm py-3 rounded-lg font-semibold mt-2"
+                    style={{
+                      backgroundColor: colors.accent,
+                      color: colors.buttonText,
+                    }}
+                  >
+                    Sign In as{" "}
+                    {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                  </PrimaryButton>
+                  {activeTab === "citizen" && (
+                    <div className="text-center pt-2">
+                      <p
+                        className="text-sm"
+                        style={{ color: colors.mutedText }}
+                      >
+                        Don't have an account?{" "}
+                        <Link
+                          to="/signup"
+                          className="font-medium hover:opacity-80 transition-opacity"
+                          style={{ color: colors.accent }}
+                        >
+                          Sign up
+                        </Link>
+                      </p>
+                    </div>
+                  )}
+                </form>
+
+                <div className="mt-6 text-center">
+                  <p className="text-xs" style={{ color: colors.mutedText }}>
+                    © {new Date().getFullYear()} CivicFix. All rights reserved.
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
-
-      {/* Right Side Image - Hidden on mobile, visible on desktop */}
-      <div className="hidden lg:block lg:w-1/2 relative order-1 lg:order-2">
-        <div className="w-full h-full min-h-screen overflow-hidden relative">
+      <div className="hidden lg:block lg:w-1/2 relative order-1 lg:order-2 rounded-2xl">
+        <div className="w-full h-screen relative overflow-hidden">
           <div
-            className="w-full h-full absolute inset-0"
+            className="w-215 h-full rounded-2xl"
             style={{
               backgroundImage: `url(${backgroundImage})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
+              filter: theme === "dark" ? "brightness(0.7)" : "brightness(0.9)",
             }}
           >
             <div
               className="absolute inset-0"
               style={{
-                backgroundColor:
+                background:
                   theme === "dark"
-                    ? "rgba(0,0,0,0.3)"
-                    : "rgba(255,255,255,0.1)",
+                    ? "linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)"
+                    : "linear-gradient(to right, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)",
               }}
             />
-
-            <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 bg-gradient-to-t from-black/80 via-black/60 to-transparent">
-              <div className="max-w-lg mx-auto">
-                <h2 className="text-lg lg:text-xl xl:text-2xl font-bold mb-2">
-                  <span className="text-[#d9d9d9]">
-                    {showOtpVerification
-                      ? "Secure OTP Verification"
-                      : `Welcome to ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Portal`}
+            <div className="absolute bottom-0 left-0 right-0 p-12">
+              <div className="max-w-lg">
+                <div className="flex items-center gap-2 mb-4">
+                  <div
+                    className="w-1 h-8 rounded-full"
+                    style={{ backgroundColor: colors.accent }}
+                  />
+                  <span className="text-sm font-medium uppercase tracking-wider text-white">
+                    {activeTab} Portal
                   </span>
-                </h2>
+                </div>
 
-                <p className="text-sm lg:text-base mb-2 lg:mb-6 leading-relaxed font-bold text-[#d9d9d9]">
+                <h2 className="text-3xl font-bold mb-3 leading-tight text-white">
+                  {showOtpVerification ? (
+                    "Secure Your Account"
+                  ) : (
+                    <>
+                      Welcome to the{" "}
+                      <span style={{ color: colors.accent }}>
+                        {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                      </span>{" "}
+                      Dashboard
+                    </>
+                  )}
+                </h2>
+                <p className="text-lg mb-6 leading-relaxed text-white/90">
                   <span>{displayText}</span>
-                  <span className="animate-pulse">|</span>
+                  <span className="ml-1 animate-blink">|</span>
                 </p>
 
-                <div className="flex items-center gap-2 mt-4">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-2 h-2 rounded-full"
-                      style={{ backgroundColor: getTabColor(activeTab) }}
-                    />
-                    <span className="text-xs lg:text-sm text-[#d9d9d9]">
-                      {showOtpVerification
-                        ? "OTP Verification"
-                        : `${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Login`}
-                    </span>
-                  </div>
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: colors.accent }}
+                  />
+                  <span className="text-sm text-white/75">
+                    {showOtpVerification
+                      ? "Secure 2FA Verification"
+                      : `${activeTab}-specific access`}
+                  </span>
                 </div>
               </div>
             </div>
