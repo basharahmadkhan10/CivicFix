@@ -21,10 +21,6 @@ import {
   Eye,
   Menu,
   X,
-  Home,
-  FileText,
-  BarChart3,
-  Settings,
 } from "lucide-react";
 import api from "../utils/api";
 import Preloader from "../components/Preloader";
@@ -63,7 +59,6 @@ const CitizenDashboard = () => {
         card: "#FFFFFF",
         cardHover: "#F7FAFC",
         border: "#E2E8F0",
-        borderAccent: `2px solid ${accentColor}`,
         accent: accentColor,
         accentLight: "rgba(151, 171, 51, 0.1)",
         accentHover: "#8A9E2E",
@@ -84,7 +79,6 @@ const CitizenDashboard = () => {
       card: "#111111",
       cardHover: "#1A1A1A",
       border: "#2D3748",
-      borderAccent: `2px solid ${accentColor}`,
       accent: accentColor,
       accentLight: "rgba(151, 171, 51, 0.15)",
       accentHover: "#A8C03E",
@@ -102,6 +96,7 @@ const CitizenDashboard = () => {
 
   const colors = getThemeColors();
   const currentLogo = theme === "dark" ? darkLogo : lightLogo;
+  const isDark = theme === "dark";
 
   const getProfileImageUrl = (imagePath) => {
     if (!imagePath) return null;
@@ -359,6 +354,11 @@ const CitizenDashboard = () => {
               gap: "8px",
             }}
           >
+            <img
+              src={currentLogo}
+              alt="CivicFix"
+              style={{ height: "32px", width: "auto", objectFit: "contain" }}
+            />
             <span style={{
               fontFamily: "'Inter', sans-serif",
               fontSize: "20px",
@@ -376,68 +376,59 @@ const CitizenDashboard = () => {
             onClick={(e) => { e.stopPropagation(); setMobileMenuOpen(!mobileMenuOpen); }}
             className="md:hidden p-2 rounded-lg"
             style={{
-              backgroundColor: colors.card,
+              backgroundColor: colors.cardHover,
             }}
           >
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
 
-          {/* Desktop Actions - No borders */}
+          {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-2">
             <button
-                onClick={toggleTheme}
-                style={{
-                  width: "36px",
-                  height: "36px",
-                  borderRadius: "6px",
-                  border: `1px solid ${colors.border}`,
-                  backgroundColor: colors.toggleBg,
-                  color: colors.text,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: "all 0.2s ease",
-                }}
-              >
-                {isDark ? (
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <circle cx="12" cy="12" r="5" />
-                    <line x1="12" y1="1" x2="12" y2="3" />
-                    <line x1="12" y1="21" x2="12" y2="23" />
-                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                    <line x1="1" y1="12" x2="3" y2="12" />
-                    <line x1="21" y1="12" x2="23" y2="12" />
-                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                  </svg>
-                ) : (
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                  </svg>
-                )}
-              </button>
+              onClick={toggleTheme}
+              style={{
+                width: "36px",
+                height: "36px",
+                borderRadius: "8px",
+                backgroundColor: colors.cardHover,
+                color: colors.text,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "all 0.2s ease",
+                border: "none",
+              }}
+            >
+              {isDark ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="5" />
+                  <line x1="12" y1="1" x2="12" y2="3" />
+                  <line x1="12" y1="21" x2="12" y2="23" />
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                  <line x1="1" y1="12" x2="3" y2="12" />
+                  <line x1="21" y1="12" x2="23" y2="12" />
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+              )}
+            </button>
 
             <button
               onClick={handleRefresh}
-              className="p-2 rounded-lg transition-all duration-200 hover:bg-opacity-80"
+              className="p-2 rounded-lg transition-all duration-200 hover:opacity-80"
               style={{
                 backgroundColor: colors.cardHover,
+                width: "36px",
+                height: "36px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
               <RefreshCw size={18} />
@@ -448,7 +439,8 @@ const CitizenDashboard = () => {
               className="px-4 py-2 rounded-lg font-medium flex items-center space-x-2 transition-all duration-200 hover:opacity-90"
               style={{
                 backgroundColor: colors.accent,
-                color: theme === "dark" ? "#000" : "#FFF",
+                color: isDark ? "#000" : "#FFF",
+                height: "36px",
               }}
             >
               <Plus size={18} />
@@ -463,21 +455,22 @@ const CitizenDashboard = () => {
                 onClick={(e) => { e.stopPropagation(); setProfileDropdownOpen(!profileDropdownOpen); }}
                 style={{
                   backgroundColor: colors.cardHover,
+                  height: "36px",
                 }}
               >
                 <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden"
+                  className="w-7 h-7 rounded-full flex items-center justify-center overflow-hidden"
                   style={{ backgroundColor: colors.accent }}
                 >
                   {user?.profileImage ? (
                     <img src={getProfileImageUrl(user.profileImage)} alt={user.name} className="w-full h-full object-cover" />
                   ) : (
-                    <span style={{ color: theme === "dark" ? "#000" : "#FFF" }}>
+                    <span style={{ color: isDark ? "#000" : "#FFF", fontSize: "12px", fontWeight: "600" }}>
                       {getUserInitials(user?.name)}
                     </span>
                   )}
                 </div>
-                <span className="font-medium hidden lg:inline">{user?.name?.split(" ")[0] || "User"}</span>
+                <span className="font-medium hidden lg:inline text-sm">{user?.name?.split(" ")[0] || "User"}</span>
               </button>
 
               {profileDropdownOpen && (
@@ -525,72 +518,31 @@ const CitizenDashboard = () => {
             <div className="flex flex-col space-y-2">
               <button
                 onClick={toggleTheme}
-                style={{
-                  width: "36px",
-                  height: "36px",
-                  borderRadius: "6px",
-                  border: `1px solid ${colors.border}`,
-                  backgroundColor: colors.toggleBg,
-                  color: t.text,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: "all 0.2s ease",
-                }}
+                className="w-full text-left py-3 px-4 rounded-lg flex items-center gap-2"
+                style={{ backgroundColor: colors.cardHover, color: colors.text }}
               >
-                {isDark ? (
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <circle cx="12" cy="12" r="5" />
-                    <line x1="12" y1="1" x2="12" y2="3" />
-                    <line x1="12" y1="21" x2="12" y2="23" />
-                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                    <line x1="1" y1="12" x2="3" y2="12" />
-                    <line x1="21" y1="12" x2="23" y2="12" />
-                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                  </svg>
-                ) : (
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                  </svg>
-                )}
+                {isDark ? "☀️ Light Mode" : "🌙 Dark Mode"}
               </button>
               <button 
                 onClick={() => { handleRefresh(); setMobileMenuOpen(false); }}
                 className="w-full text-left py-3 px-4 rounded-lg"
-                style={{ backgroundColor: colors.cardHover }}
+                style={{ backgroundColor: colors.cardHover, color: colors.text }}
               >
-                <span style={{ color: colors.text }}>🔄 Refresh</span>
+                <span>🔄 Refresh</span>
               </button>
               <button 
                 onClick={() => { navigateToNewComplaint(); setMobileMenuOpen(false); }}
                 className="w-full text-left py-3 px-4 rounded-lg"
-                style={{ backgroundColor: colors.accent, color: theme === "dark" ? "#000" : "#FFF" }}
+                style={{ backgroundColor: colors.accent, color: isDark ? "#000" : "#FFF" }}
               >
                 <span>➕ New Complaint</span>
               </button>
               <button 
                 onClick={navigateToProfile}
                 className="w-full text-left py-3 px-4 rounded-lg"
-                style={{ backgroundColor: colors.cardHover }}
+                style={{ backgroundColor: colors.cardHover, color: colors.text }}
               >
-                <span style={{ color: colors.text }}>👤 Profile</span>
+                <span>👤 Profile</span>
               </button>
               <button 
                 onClick={handleLogout}
@@ -603,7 +555,7 @@ const CitizenDashboard = () => {
           </div>
         )}
 
-        {/* Tabs - Clean with accent color for active */}
+        {/* Tabs */}
         <div className="flex mt-4 space-x-1">
           {["overview", "my-complaints"].map((tab) => (
             <button
@@ -612,7 +564,7 @@ const CitizenDashboard = () => {
               className="flex-1 py-2.5 text-sm font-medium rounded-lg transition-all"
               style={{
                 backgroundColor: activeTab === tab ? colors.accent : "transparent",
-                color: activeTab === tab ? (theme === "dark" ? "#000" : "#FFF") : colors.muted,
+                color: activeTab === tab ? (isDark ? "#000" : "#FFF") : colors.muted,
               }}
             >
               {tab === "overview" ? "Overview" : "My Complaints"}
@@ -646,7 +598,7 @@ const CitizenDashboard = () => {
               <StatCard title="Resolved" value={stats.resolved} color={colors.success} icon={<CheckCircle size={20} />} subtitle={`${stats.total > 0 ? Math.round((stats.resolved / stats.total) * 100) : 0}%`} />
             </div>
 
-            {/* Quick Actions - Clean cards with subtle borders */}
+            {/* Quick Actions */}
             <div className="grid grid-cols-2 gap-3 mb-6 sm:mb-8">
               <button 
                 onClick={navigateToNewComplaint}
@@ -734,7 +686,7 @@ const CitizenDashboard = () => {
                   <button 
                     onClick={navigateToNewComplaint} 
                     className="px-6 py-3 rounded-lg font-medium text-sm"
-                    style={{ backgroundColor: colors.accent, color: theme === "dark" ? "#000" : "#FFF" }}
+                    style={{ backgroundColor: colors.accent, color: isDark ? "#000" : "#FFF" }}
                   >
                     Create First Complaint
                   </button>
@@ -774,7 +726,7 @@ const CitizenDashboard = () => {
                         <button 
                           onClick={() => navigateToComplaintDetails(complaint._id)}
                           className="w-full sm:w-auto px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2 text-sm"
-                          style={{ backgroundColor: colors.accent, color: theme === "dark" ? "#000" : "#FFF" }}
+                          style={{ backgroundColor: colors.accent, color: isDark ? "#000" : "#FFF" }}
                         >
                           <Eye size={14} /> View
                         </button>
@@ -820,7 +772,7 @@ const CitizenDashboard = () => {
                     className="px-3 py-2 rounded-lg text-xs whitespace-nowrap transition-all flex-shrink-0"
                     style={{ 
                       backgroundColor: selectedStatusFilter === "ALL" ? colors.accent : colors.cardHover, 
-                      color: selectedStatusFilter === "ALL" ? (theme === "dark" ? "#000" : "#FFF") : colors.text, 
+                      color: selectedStatusFilter === "ALL" ? (isDark ? "#000" : "#FFF") : colors.text, 
                     }}
                   >
                     <Filter size={12} className="inline mr-1" /> All
@@ -854,7 +806,7 @@ const CitizenDashboard = () => {
                   <button 
                     onClick={navigateToNewComplaint} 
                     className="px-6 py-3 rounded-lg font-medium text-sm"
-                    style={{ backgroundColor: colors.accent, color: theme === "dark" ? "#000" : "#FFF" }}
+                    style={{ backgroundColor: colors.accent, color: isDark ? "#000" : "#FFF" }}
                   >
                     Create Your First Complaint
                   </button>
@@ -891,7 +843,7 @@ const CitizenDashboard = () => {
                         <button 
                           onClick={() => navigateToComplaintDetails(complaint._id)} 
                           className="flex-1 px-3 py-2 rounded text-xs font-medium"
-                          style={{ backgroundColor: colors.accent, color: theme === "dark" ? "#000" : "#FFF" }}
+                          style={{ backgroundColor: colors.accent, color: isDark ? "#000" : "#FFF" }}
                         >
                           View Details
                         </button>
@@ -914,7 +866,7 @@ const CitizenDashboard = () => {
         )}
       </main>
 
-      {/* Clean Footer - No border */}
+      {/* Clean Footer */}
       <footer className="mt-8 py-6 px-3 sm:px-4">
         <div className="max-w-7xl mx-auto text-center">
           <p className="text-xs" style={{ color: colors.muted }}>
@@ -927,7 +879,3 @@ const CitizenDashboard = () => {
 };
 
 export default CitizenDashboard;
-
-
-
-
