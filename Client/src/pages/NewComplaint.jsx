@@ -6,7 +6,7 @@ import { ArrowLeft, Upload, X, AlertCircle, Loader2 } from "lucide-react";
 import api from "../utils/api";
 
 const NewComplaint = () => {
-  const { theme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const toast = useToast();
   const [loading, setLoading] = useState(false);
@@ -28,7 +28,6 @@ const NewComplaint = () => {
     { value: "CRITICAL", label: "Critical Priority" },
   ];
 
-  // Modern theme with #97AB33
   const getThemeColors = () => {
     const accentColor = "#97AB33";
     
@@ -39,17 +38,9 @@ const NewComplaint = () => {
         card: "#FFFFFF",
         cardHover: "#F7FAFC",
         border: "#E2E8F0",
-        borderAccent: `2px solid ${accentColor}`,
         accent: accentColor,
         accentLight: "rgba(151, 171, 51, 0.1)",
-        accentHover: "#8A9E2E",
-        success: "#38A169",
-        warning: "#F6AD55",
-        danger: "#FC8181",
-        info: "#4299E1",
-        primary: accentColor,
         muted: "#718096",
-        shadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
       };
     }
     return {
@@ -58,21 +49,14 @@ const NewComplaint = () => {
       card: "#111111",
       cardHover: "#1A1A1A",
       border: "#2D3748",
-      borderAccent: `2px solid ${accentColor}`,
       accent: accentColor,
       accentLight: "rgba(151, 171, 51, 0.15)",
-      accentHover: "#A8C03E",
-      success: "#68D391",
-      warning: "#FBD38D",
-      danger: "#FC8181",
-      info: "#63B3ED",
-      primary: accentColor,
       muted: "#A0AEC0",
-      shadow: "0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)",
     };
   };
 
   const colors = getThemeColors();
+  const isDark = theme === "dark";
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -112,7 +96,6 @@ const NewComplaint = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
     if (!formData.title || !formData.description || !formData.category || !formData.area) {
       toast.error("Please fill all required fields");
       return;
@@ -128,7 +111,6 @@ const NewComplaint = () => {
       return;
     }
 
-    // Confirm no images
     if (images.length === 0) {
       const confirmed = window.confirm(
         "No images added. Submitting without images may reduce resolution chances. Continue anyway?"
@@ -181,19 +163,41 @@ const NewComplaint = () => {
         * { font-family: 'Inter', sans-serif; }
       `}</style>
 
-      {/* Back Button */}
-      <button
-        onClick={() => navigate("/dashboard")}
-        className="mb-4 flex items-center text-sm px-3 py-2 rounded-lg transition-all hover:scale-105"
-        style={{
-          backgroundColor: colors.card,
-          border: `2px solid ${colors.accent}`,
-          color: colors.text,
-        }}
-      >
-        <ArrowLeft size={18} className="mr-1" />
-        Back to Dashboard
-      </button>
+      {/* Header with theme toggle */}
+      <div className="flex justify-between items-center mb-6">
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="flex items-center text-sm px-3 py-2 rounded-lg transition-all hover:opacity-80"
+          style={{ backgroundColor: colors.cardHover, color: colors.text }}
+        >
+          <ArrowLeft size={18} className="mr-1" />
+          Back
+        </button>
+        
+        <button
+          onClick={toggleTheme}
+          className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:opacity-80"
+          style={{ backgroundColor: colors.cardHover, color: colors.text }}
+        >
+          {isDark ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+          ) : (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+          )}
+        </button>
+      </div>
 
       {/* Header */}
       <header className="mb-6 text-center">
@@ -218,13 +222,8 @@ const NewComplaint = () => {
             value={formData.title}
             onChange={handleInputChange}
             placeholder="Brief title (min. 10 characters)"
-            className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-2 transition-all"
-            style={{
-              backgroundColor: colors.card,
-              border: `2px solid ${colors.accent}`,
-              color: colors.text,
-              outlineColor: colors.accent,
-            }}
+            className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-1 transition-all"
+            style={{ backgroundColor: colors.cardHover, border: `1px solid ${colors.border}`, color: colors.text }}
             required
           />
           <div className="text-xs mt-1" style={{ color: colors.muted }}>
@@ -242,13 +241,8 @@ const NewComplaint = () => {
               name="category"
               value={formData.category}
               onChange={handleInputChange}
-              className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-2 transition-all"
-              style={{
-                backgroundColor: colors.card,
-                border: `2px solid ${colors.accent}`,
-                color: colors.text,
-                outlineColor: colors.accent,
-              }}
+              className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-1 transition-all"
+              style={{ backgroundColor: colors.cardHover, border: `1px solid ${colors.border}`, color: colors.text }}
               required
             >
               <option value="">Select Category</option>
@@ -268,13 +262,8 @@ const NewComplaint = () => {
               value={formData.area}
               onChange={handleInputChange}
               placeholder="e.g., Main Street"
-              className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-2 transition-all"
-              style={{
-                backgroundColor: colors.card,
-                border: `2px solid ${colors.accent}`,
-                color: colors.text,
-                outlineColor: colors.accent,
-              }}
+              className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-1 transition-all"
+              style={{ backgroundColor: colors.cardHover, border: `1px solid ${colors.border}`, color: colors.text }}
               required
             />
           </div>
@@ -287,13 +276,8 @@ const NewComplaint = () => {
               name="priority"
               value={formData.priority}
               onChange={handleInputChange}
-              className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-2 transition-all"
-              style={{
-                backgroundColor: colors.card,
-                border: `2px solid ${colors.accent}`,
-                color: colors.text,
-                outlineColor: colors.accent,
-              }}
+              className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-1 transition-all"
+              style={{ backgroundColor: colors.cardHover, border: `1px solid ${colors.border}`, color: colors.text }}
               required
             >
               {priorities.map((p) => (
@@ -314,13 +298,8 @@ const NewComplaint = () => {
             onChange={handleInputChange}
             placeholder="Detailed description (min. 50 characters)"
             rows="5"
-            className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-2 transition-all"
-            style={{
-              backgroundColor: colors.card,
-              border: `2px solid ${colors.accent}`,
-              color: colors.text,
-              outlineColor: colors.accent,
-            }}
+            className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-1 transition-all"
+            style={{ backgroundColor: colors.cardHover, border: `1px solid ${colors.border}`, color: colors.text }}
             required
           />
           <div className="text-xs mt-1" style={{ color: colors.muted }}>
@@ -337,13 +316,9 @@ const NewComplaint = () => {
           <div className="mb-3">
             <label
               className={`inline-flex items-center px-4 py-2 rounded-lg cursor-pointer text-sm transition-all ${
-                images.length >= 5 ? "opacity-50 cursor-not-allowed" : "hover:scale-105 hover:shadow-lg"
+                images.length >= 5 ? "opacity-50 cursor-not-allowed" : "hover:opacity-80"
               }`}
-              style={{
-                backgroundColor: colors.card,
-                border: `2px solid ${colors.accent}`,
-                color: colors.text,
-              }}
+              style={{ backgroundColor: colors.cardHover }}
             >
               <Upload size={16} className="mr-2" style={{ color: colors.accent }} />
               Upload Images
@@ -369,8 +344,7 @@ const NewComplaint = () => {
                   <img
                     src={URL.createObjectURL(image)}
                     alt={`Preview ${index + 1}`}
-                    className="w-full h-16 sm:h-20 object-cover rounded-lg border-2"
-                    style={{ borderColor: colors.accent }}
+                    className="w-full h-16 sm:h-20 object-cover rounded-lg"
                   />
                   <button
                     type="button"
@@ -391,20 +365,16 @@ const NewComplaint = () => {
         {/* Important Notes */}
         <div
           className="mb-4 p-4 rounded-lg"
-          style={{
-            backgroundColor: colors.card,
-            border: `2px solid ${colors.accent}`,
-          }}
+          style={{ backgroundColor: colors.cardHover }}
         >
           <div className="flex items-start gap-2">
-            <AlertCircle size={16} style={{ color: colors.accent }} className="flex-shrink-0 mt-0.5" />
+            <AlertCircle size={16} style={{ color: colors.accent }} />
             <div>
               <h3 className="font-medium mb-1" style={{ color: colors.accent }}>Important</h3>
               <ul className="text-xs space-y-1" style={{ color: colors.muted }}>
                 <li>• Review within 24-48 hours</li>
                 <li>• Clear images help with faster resolution</li>
                 <li>• Track your complaint progress in dashboard</li>
-                <li>• You'll receive notifications on status updates</li>
               </ul>
             </div>
           </div>
@@ -415,24 +385,16 @@ const NewComplaint = () => {
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="flex-1 px-4 py-3 rounded-lg font-medium text-sm transition-all hover:scale-105"
-            style={{
-              backgroundColor: colors.card,
-              border: `2px solid ${colors.accent}`,
-              color: colors.text,
-            }}
+            className="flex-1 px-4 py-3 rounded-lg font-medium text-sm transition-all hover:opacity-80"
+            style={{ backgroundColor: colors.cardHover, color: colors.text }}
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 px-4 py-3 rounded-lg font-medium text-sm disabled:opacity-50 transition-all hover:scale-105 flex items-center justify-center"
-            style={{
-              backgroundColor: colors.accent,
-              color: theme === "dark" ? "#000" : "#FFF",
-              border: `2px solid ${colors.accent}`,
-            }}
+            className="flex-1 px-4 py-3 rounded-lg font-medium text-sm disabled:opacity-50 transition-all hover:opacity-90 flex items-center justify-center"
+            style={{ backgroundColor: colors.accent, color: isDark ? "#000" : "#FFF" }}
           >
             {loading ? (
               <>
