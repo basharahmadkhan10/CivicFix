@@ -336,7 +336,10 @@ const Signup = () => {
               </p>
             </div>
 
-            <form onSubmit={handleSignup} className="space-y-4 lg:space-y-5">
+            <form onSubmit={handleSignup} className="space-y-4 lg:space-y-5" style={{
+  border: `2px solid ${colors.accent}`, 
+  boxShadow: `0 8px 30px ${colors.accent}20`, 
+}}>
               {/* Name Input */}
               <div>
                 <label
@@ -704,3 +707,4 @@ const Signup = () => {
 };
 
 export default Signup;
+
