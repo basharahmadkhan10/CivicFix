@@ -312,16 +312,17 @@ const Signup = () => {
         </button>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center min-h-screen p-4 lg:p-8 order-2 lg:order-1" style={{border: `2px solid ${colors.accent}`, boxShadow: `0 8px 30px ${colors.accent}20`}}>
+      <div className="w-full lg:w-1/2 flex items-center justify-center min-h-screen p-4 lg:p-8 order-2 lg:order-1" >
         <div className="w-full max-w-md">
           <div
             className="rounded-2xl border p-6 lg:p-8 shadow-2xl backdrop-blur-sm animate-slideUp"
             style={{
               backgroundColor: colors.cardBackground,
-              borderColor: colors.border,
+              border: `2px solid ${colors.accent}`, 
+              boxShadow: `0 8px 30px ${colors.accent}20`, 
             }}
           >
-            <div className="text-center mb-6 lg:mb-8">
+            <div className="text-center mb-6 lg:mb-8" >
               <h1
                 className="text-2xl sm:text-3xl font-bold mb-2 tracking-tight"
                 style={{ color: colors.text }}
@@ -704,5 +705,6 @@ const Signup = () => {
 };
 
 export default Signup;
+
 
 
