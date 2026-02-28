@@ -460,7 +460,8 @@ const Login = () => {
             className="rounded-2xl border p-6 lg:p-8 shadow-xl backdrop-blur-sm"
             style={{
               backgroundColor: colors.cardBackground,
-              borderColor: colors.border,
+              border: `2px solid ${colors.accent}`, 
+              boxShadow: `0 8px 30px ${colors.accent}20`, 
             }}
           >
          
@@ -600,9 +601,7 @@ const Login = () => {
                 </form>
               </div>
             ) : (
-              <div className="w-full h-1/2" style={{
-  border: `2px solid ${colors.accent}`, 
-  boxShadow: `0 8px 30px ${colors.accent}20`, 
+              <div className="w-full h-1/2" 
 }} >
                 <div className="text-center mb-8">
                   <h1
@@ -848,5 +847,6 @@ const Login = () => {
 };
 
 export default Login;
+
 
 
