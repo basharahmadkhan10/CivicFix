@@ -108,9 +108,6 @@ const Preloader = ({ isLoading = true }) => {
       {/* soft radial glow with accent color */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{
-          background: palette.glow,
-        }}
       />
 
       <div className="relative flex flex-col items-center gap-8 fade-in">
@@ -195,7 +192,6 @@ const Preloader = ({ isLoading = true }) => {
             <circle cx="50" cy="50" r="8" fill={palette.accent} opacity="0.2" />
           </svg>
 
-          {/* center hub with accent glow */}
           <div
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full pulse-dot"
             style={{
@@ -239,3 +235,4 @@ const Preloader = ({ isLoading = true }) => {
 };
 
 export default Preloader;
+
