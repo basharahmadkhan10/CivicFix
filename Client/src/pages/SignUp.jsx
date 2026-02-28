@@ -312,7 +312,7 @@ const Signup = () => {
         </button>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center min-h-screen p-4 lg:p-8 order-2 lg:order-1">
+      <div className="w-full lg:w-1/2 flex items-center justify-center min-h-screen p-4 lg:p-8 order-2 lg:order-1" style={{border: `2px solid ${colors.accent}`, boxShadow: `0 8px 30px ${colors.accent}20`}}>
         <div className="w-full max-w-md">
           <div
             className="rounded-2xl border p-6 lg:p-8 shadow-2xl backdrop-blur-sm animate-slideUp"
@@ -336,10 +336,7 @@ const Signup = () => {
               </p>
             </div>
 
-            <form onSubmit={handleSignup} className="space-y-4 lg:space-y-5" style={{
-  border: `2px solid ${colors.accent}`, 
-  boxShadow: `0 8px 30px ${colors.accent}20`, 
-}}>
+            <form onSubmit={handleSignup} className="space-y-4 lg:space-y-5">
               {/* Name Input */}
               <div>
                 <label
@@ -707,4 +704,5 @@ const Signup = () => {
 };
 
 export default Signup;
+
 
