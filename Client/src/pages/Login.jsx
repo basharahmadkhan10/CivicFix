@@ -459,9 +459,7 @@ const Login = () => {
           <div
             className="rounded-2xl border p-6 lg:p-8 shadow-xl backdrop-blur-sm"
             style={{
-              backgroundColor: colors.cardBackground,
-              border: `2px solid ${colors.accent}`, 
-              boxShadow: `0 8px 30px ${colors.accent}20`, 
+              backgroundColor: colors.cardBackground
             }}
           >
          
@@ -524,10 +522,7 @@ const Login = () => {
                   </div>
                 )}
 
-                <form onSubmit={handleOtpSubmit} className="space-y-6" style={{
-  border: `2px solid ${colors.accent}`, 
-  boxShadow: `0 8px 30px ${colors.accent}20`, 
-}}>
+                <form onSubmit={handleOtpSubmit} className="space-y-6">
                   <div className="flex justify-center gap-2">
                     {[0, 1, 2, 3, 4, 5].map((index) => (
                       <input
@@ -846,6 +841,7 @@ const Login = () => {
 };
 
 export default Login;
+
 
 
 
