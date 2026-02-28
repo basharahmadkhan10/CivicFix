@@ -9,7 +9,7 @@ import Preloader from "../components/Preloader";
 const EditComplaint = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { theme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [pageLoaded, setPageLoaded] = useState(false);
@@ -34,8 +34,8 @@ const EditComplaint = () => {
         bg: "#FFFFFF",
         text: "#1A202C",
         card: "#FFFFFF",
+        cardHover: "#F7FAFC",
         border: "#E2E8F0",
-        borderAccent: `2px solid ${accentColor}`,
         accent: accentColor,
         accentLight: "rgba(151, 171, 51, 0.1)",
         danger: "#FC8181",
@@ -47,8 +47,8 @@ const EditComplaint = () => {
       bg: "#0A0A0A",
       text: "#FFFFFF",
       card: "#111111",
+      cardHover: "#1A1A1A",
       border: "#2D3748",
-      borderAccent: `2px solid ${accentColor}`,
       accent: accentColor,
       accentLight: "rgba(151, 171, 51, 0.15)",
       danger: "#FC8181",
@@ -58,6 +58,7 @@ const EditComplaint = () => {
   };
 
   const colors = getThemeColors();
+  const isDark = theme === "dark";
 
   useEffect(() => {
     fetchComplaintDetails();
@@ -180,11 +181,40 @@ const EditComplaint = () => {
     <div className="min-h-screen p-3 sm:p-4 md:p-6" style={{ backgroundColor: colors.bg, color: colors.text, fontFamily: "'Inter', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap'); * { font-family: 'Inter', sans-serif; }`}</style>
 
-      {/* Back Button */}
-      <button onClick={() => navigate(`/complaints/${id}`)} className="mb-4 flex items-center text-sm px-3 py-2 rounded-lg"
-        style={{ border: `2px solid ${colors.accent}`, backgroundColor: colors.card, color: colors.text }}>
-        <ArrowLeft size={18} className="mr-1" /> Back
-      </button>
+      {/* Header with theme toggle */}
+      <div className="flex justify-between items-center mb-6">
+        <button 
+          onClick={() => navigate(`/complaints/${id}`)} 
+          className="flex items-center text-sm px-3 py-2 rounded-lg transition-all hover:opacity-80"
+          style={{ backgroundColor: colors.cardHover, color: colors.text }}
+        >
+          <ArrowLeft size={18} className="mr-1" /> Back
+        </button>
+        
+        <button
+          onClick={toggleTheme}
+          className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:opacity-80"
+          style={{ backgroundColor: colors.cardHover, color: colors.text }}
+        >
+          {isDark ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+          ) : (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+          )}
+        </button>
+      </div>
 
       {/* Header */}
       <header className="mb-6 text-center">
@@ -197,36 +227,62 @@ const EditComplaint = () => {
         {/* Title */}
         <div className="mb-4">
           <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>Title <span className="text-red-500">*</span></label>
-          <input type="text" name="title" value={formData.title} onChange={handleInputChange} placeholder="Brief title of the issue"
-            className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-2"
-            style={{ backgroundColor: colors.card, border: `2px solid ${colors.accent}`, color: colors.text, outlineColor: colors.accent }} required />
+          <input 
+            type="text" 
+            name="title" 
+            value={formData.title} 
+            onChange={handleInputChange} 
+            placeholder="Brief title of the issue"
+            className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-1 transition-all"
+            style={{ backgroundColor: colors.cardHover, border: `1px solid ${colors.border}`, color: colors.text }} 
+            required 
+          />
         </div>
 
         {/* Category and Area */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>Category <span className="text-red-500">*</span></label>
-            <select name="category" value={formData.category} onChange={handleInputChange}
-              className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-2"
-              style={{ backgroundColor: colors.card, border: `2px solid ${colors.accent}`, color: colors.text, outlineColor: colors.accent }} required>
+            <select 
+              name="category" 
+              value={formData.category} 
+              onChange={handleInputChange}
+              className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-1 transition-all"
+              style={{ backgroundColor: colors.cardHover, border: `1px solid ${colors.border}`, color: colors.text }} 
+              required
+            >
               <option value="">Select Category</option>
               {categories.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
             </select>
           </div>
           <div>
             <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>Area <span className="text-red-500">*</span></label>
-            <input type="text" name="area" value={formData.area} onChange={handleInputChange} placeholder="e.g., Main Street"
-              className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-2"
-              style={{ backgroundColor: colors.card, border: `2px solid ${colors.accent}`, color: colors.text, outlineColor: colors.accent }} required />
+            <input 
+              type="text" 
+              name="area" 
+              value={formData.area} 
+              onChange={handleInputChange} 
+              placeholder="e.g., Main Street"
+              className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-1 transition-all"
+              style={{ backgroundColor: colors.cardHover, border: `1px solid ${colors.border}`, color: colors.text }} 
+              required 
+            />
           </div>
         </div>
 
         {/* Description */}
         <div className="mb-4">
           <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>Description <span className="text-red-500">*</span></label>
-          <textarea name="description" value={formData.description} onChange={handleInputChange} placeholder="Detailed description of the issue..." rows="5"
-            className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-2"
-            style={{ backgroundColor: colors.card, border: `2px solid ${colors.accent}`, color: colors.text, outlineColor: colors.accent }} required />
+          <textarea 
+            name="description" 
+            value={formData.description} 
+            onChange={handleInputChange} 
+            placeholder="Detailed description of the issue..." 
+            rows="5"
+            className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-1 transition-all"
+            style={{ backgroundColor: colors.cardHover, border: `1px solid ${colors.border}`, color: colors.text }} 
+            required 
+          />
         </div>
 
         {/* Existing Images */}
@@ -234,13 +290,17 @@ const EditComplaint = () => {
           <div className="mb-4">
             <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>Existing Images</label>
             {removedImages.length > 0 && (
-              <div className="mb-3 p-3 rounded-lg" style={{ backgroundColor: `${colors.danger}20`, border: `2px solid ${colors.danger}` }}>
+              <div className="mb-3 p-3 rounded-lg" style={{ backgroundColor: `${colors.danger}20` }}>
                 <p className="text-xs font-medium mb-2" style={{ color: colors.danger }}>Images marked for removal:</p>
                 <div className="flex flex-wrap gap-2">
                   {removedImages.map((img, index) => (
                     <div key={index} className="relative group">
-                      <img src={getFullImageUrl(img)} alt={`Removed ${index + 1}`} className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded opacity-50 border-2" style={{ borderColor: colors.danger }} />
-                      <button type="button" onClick={() => restoreExistingImage(img)} className="absolute inset-0 bg-green-500 bg-opacity-70 text-white rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs">
+                      <img src={getFullImageUrl(img)} alt={`Removed ${index + 1}`} className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded opacity-50" />
+                      <button 
+                        type="button" 
+                        onClick={() => restoreExistingImage(img)} 
+                        className="absolute inset-0 bg-green-500 bg-opacity-70 text-white rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                      >
                         Restore
                       </button>
                     </div>
@@ -252,8 +312,12 @@ const EditComplaint = () => {
               <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                 {existingImages.map((img, index) => (
                   <div key={index} className="relative group">
-                    <img src={getFullImageUrl(img)} alt={`Existing ${index + 1}`} className="w-full h-16 sm:h-20 object-cover rounded-lg border-2" style={{ borderColor: colors.accent }} />
-                    <button type="button" onClick={() => removeExistingImage(index)} className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 transition-colors">
+                    <img src={getFullImageUrl(img)} alt={`Existing ${index + 1}`} className="w-full h-16 sm:h-20 object-cover rounded-lg" />
+                    <button 
+                      type="button" 
+                      onClick={() => removeExistingImage(index)} 
+                      className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 transition-colors"
+                    >
                       <X size={14} />
                     </button>
                   </div>
@@ -267,10 +331,22 @@ const EditComplaint = () => {
         <div className="mb-4">
           <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>Add More Images (Optional)</label>
           <div className="mb-3">
-            <label className={`inline-flex items-center px-4 py-2 rounded-lg cursor-pointer transition-colors text-sm ${existingImages.length + newImages.length >= 5 ? "opacity-50 cursor-not-allowed" : "hover:opacity-80"}`}
-              style={{ backgroundColor: colors.card, border: `2px solid ${colors.accent}`, color: colors.text }}>
-              <Upload size={16} className="mr-2" /> Upload Images
-              <input type="file" accept="image/*" multiple onChange={handleNewImageUpload} className="hidden" disabled={existingImages.length + newImages.length >= 5} />
+            <label 
+              className={`inline-flex items-center px-4 py-2 rounded-lg cursor-pointer text-sm transition-all ${
+                existingImages.length + newImages.length >= 5 ? "opacity-50 cursor-not-allowed" : "hover:opacity-80"
+              }`}
+              style={{ backgroundColor: colors.cardHover }}
+            >
+              <Upload size={16} className="mr-2" style={{ color: colors.accent }} />
+              Upload Images
+              <input 
+                type="file" 
+                accept="image/*" 
+                multiple 
+                onChange={handleNewImageUpload} 
+                className="hidden" 
+                disabled={existingImages.length + newImages.length >= 5} 
+              />
             </label>
             <p className="text-xs mt-1" style={{ color: colors.muted }}>{existingImages.length + newImages.length} / 5 images</p>
           </div>
@@ -280,8 +356,12 @@ const EditComplaint = () => {
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
               {newImages.map((image, index) => (
                 <div key={index} className="relative group">
-                  <img src={URL.createObjectURL(image)} alt={`New ${index + 1}`} className="w-full h-16 sm:h-20 object-cover rounded-lg border-2" style={{ borderColor: colors.accent }} />
-                  <button type="button" onClick={() => removeNewImage(index)} className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 transition-colors">
+                  <img src={URL.createObjectURL(image)} alt={`New ${index + 1}`} className="w-full h-16 sm:h-20 object-cover rounded-lg" />
+                  <button 
+                    type="button" 
+                    onClick={() => removeNewImage(index)} 
+                    className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 transition-colors"
+                  >
                     <X size={14} />
                   </button>
                   <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white text-xs p-1 text-center">New</div>
@@ -292,7 +372,7 @@ const EditComplaint = () => {
         </div>
 
         {/* Image Summary */}
-        <div className="mb-4 p-3 rounded-lg" style={{ backgroundColor: colors.card, border: `2px solid ${colors.accent}` }}>
+        <div className="mb-4 p-3 rounded-lg" style={{ backgroundColor: colors.cardHover }}>
           <h3 className="font-medium mb-2" style={{ color: colors.accent }}>Image Summary</h3>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div style={{ color: colors.muted }}>Original images:</div><div className="font-medium" style={{ color: colors.text }}>{originalImages.length}</div>
@@ -306,7 +386,7 @@ const EditComplaint = () => {
         </div>
 
         {/* Important Notes */}
-        <div className="mb-4 p-3 rounded-lg" style={{ backgroundColor: colors.card, border: `2px solid ${colors.accent}` }}>
+        <div className="mb-4 p-3 rounded-lg" style={{ backgroundColor: colors.cardHover }}>
           <div className="flex items-start gap-2">
             <AlertCircle size={16} style={{ color: colors.accent }} />
             <div>
@@ -322,12 +402,20 @@ const EditComplaint = () => {
 
         {/* Action Buttons */}
         <div className="flex gap-3">
-          <button type="button" onClick={() => navigate(`/complaints/${id}`)} className="flex-1 px-4 py-3 rounded-lg font-medium text-sm"
-            style={{ backgroundColor: colors.card, border: `2px solid ${colors.accent}`, color: colors.text }}>
+          <button 
+            type="button" 
+            onClick={() => navigate(`/complaints/${id}`)} 
+            className="flex-1 px-4 py-3 rounded-lg font-medium text-sm transition-all hover:opacity-80"
+            style={{ backgroundColor: colors.cardHover, color: colors.text }}
+          >
             Cancel
           </button>
-          <button type="submit" disabled={updating} className="flex-1 px-4 py-3 rounded-lg font-medium text-sm text-white disabled:opacity-50 flex items-center justify-center"
-            style={{ backgroundColor: colors.accent }}>
+          <button 
+            type="submit" 
+            disabled={updating} 
+            className="flex-1 px-4 py-3 rounded-lg font-medium text-sm disabled:opacity-50 transition-all hover:opacity-90 flex items-center justify-center"
+            style={{ backgroundColor: colors.accent, color: isDark ? "#000" : "#FFF" }}
+          >
             {updating ? <><Loader2 className="animate-spin mr-2" size={16} /> Updating...</> : "Update Complaint"}
           </button>
         </div>
