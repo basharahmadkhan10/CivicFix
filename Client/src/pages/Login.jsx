@@ -523,7 +523,10 @@ const Login = () => {
                   </div>
                 )}
 
-                <form onSubmit={handleOtpSubmit} className="space-y-6">
+                <form onSubmit={handleOtpSubmit} className="space-y-6" style={{
+  border: `2px solid ${colors.accent}`, 
+  boxShadow: `0 8px 30px ${colors.accent}20`, 
+}}>
                   <div className="flex justify-center gap-2">
                     {[0, 1, 2, 3, 4, 5].map((index) => (
                       <input
@@ -842,3 +845,4 @@ const Login = () => {
 };
 
 export default Login;
+
