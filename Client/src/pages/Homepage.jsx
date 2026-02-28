@@ -1,95 +1,333 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
-import PrimaryButton from "../components/ui/PrimaryButton";
-import SecondaryButton from "../components/ui/SecondaryButton";
 import Preloader from "../components/Preloader";
-import lightLogo from "../assets/images/img01.png";
-import darkLogo from "../assets/images/img02.png";
-import imgReport from "../assets/images/img03.png";
-import imgTrack from "../assets/images/img04.png";
+import lightLogo from "../assets/images/img01.png"; 
+import darkLogo from "../assets/images/img02.png"; 
+import imgRepDark from "../assets/images/img03.png"; 
+import imgRepLight from "../assets/images/img03.png"; 
+import imgTrkDark from "../assets/images/img04.png"; 
+import imgTrkLight from "../assets/images/img04.png"; 
 import imgGov from "../assets/images/img05.png";
-import imgCommunity from "../assets/images/img06.png";
+import imgComm from "../assets/images/img06.png"; 
+const FONT_HREF =
+  "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap";
+
+function injectFont() {
+  if (!document.querySelector(`link[href="${FONT_HREF}"]`)) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = FONT_HREF;
+    document.head.appendChild(link);
+  }
+}
+
+const TYPING_PHRASES = [
+  "Report Issues Instantly",
+  "Track Progress Live",
+  "Connect with Officials",
+  "Build Better Communities",
+  "Make Your Voice Heard",
+];
+
+const SECTIONS = [
+  {
+    title: "Your City, Your Voice",
+    subtitle: "Empowering Citizens to Be Heard",
+    description:
+      "CivicFix gives every citizen a simple and transparent way to raise local issues, ensuring their voices reach the right authorities without friction or delay.",
+    reverse: false,
+    tagColor: "#97AB33",
+    tagLabel: "Citizens First",
+  },
+  {
+    title: "Track Every Issue",
+    subtitle: "From Report to Resolution",
+    description:
+      "Stay informed at every step with real-time updates, clear timelines, and full visibility into how reported issues are reviewed, assigned, and resolved.",
+    reverse: true,
+    tagColor: "#97AB33",
+    tagLabel: "Real-Time Updates",
+  },
+  {
+    title: "Government Accountability",
+    subtitle: "Transparency That Builds Trust",
+    description:
+      "Local authorities manage complaints efficiently with structured workflows, performance tracking, and public accountability—creating trust through action.",
+    reverse: false,
+    tagColor: "#97AB33",
+    tagLabel: "Government Portal",
+  },
+  {
+    title: "Community Collaboration",
+    subtitle: "Building Better Cities Together",
+    description:
+      "Citizens, officials, and communities work together to identify priorities, resolve recurring problems, and shape safer, cleaner, and smarter cities.",
+    reverse: true,
+    tagColor: "#97AB33",
+    tagLabel: "Community Hub",
+  },
+];
+
+const FEATURES = [
+  {
+    icon: (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+    ),
+    title: "State-Driven Workflow",
+    description:
+      "Issues progress through strictly validated states: Reported → Verified → Assigned → In Progress → Resolved → Closed. Invalid transitions are rejected server-side.",
+  },
+  {
+    icon: (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+      </svg>
+    ),
+    title: "Role-Based Authorization",
+    description:
+      "Fine-grained permissions at API layer: Citizens report, Officers resolve, Supervisors verify and assign, Admins oversee. Every action authenticated and authorized.",
+  },
+  {
+    icon: (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="16" y1="13" x2="8" y2="13" />
+        <line x1="16" y1="17" x2="8" y2="17" />
+        <polyline points="10 9 9 9 8 9" />
+      </svg>
+    ),
+    title: "Immutable Audit Logs",
+    description:
+      "All critical actions generate append-only audit records. Complete traceability with timestamps, actor details, and state changes — no hard deletes, no data loss.",
+  },
+  {
+    icon: (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+        <path d="M12 22v-4" />
+        <path d="M8 22h8" />
+      </svg>
+    ),
+    title: "SLA Enforcement",
+    description:
+      "Service Level Agreements tracked per issue category. Automated escalation for overdue responses. SLA metrics drive accountability and performance monitoring.",
+  },
+  {
+    icon: (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+        <line x1="9" y1="9" x2="15" y2="15" />
+        <line x1="15" y1="9" x2="9" y2="15" />
+      </svg>
+    ),
+    title: "Backend Validation",
+    description:
+      "Centralized workflow validation logic ensures business rules are enforced server-side. No client-side trust — all state transitions verified before execution.",
+  },
+  {
+    icon: (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <line x1="18" y1="20" x2="18" y2="10" />
+        <line x1="12" y1="20" x2="12" y2="4" />
+        <line x1="6" y1="20" x2="6" y2="14" />
+        <rect x="2" y="2" width="20" height="20" rx="2" ry="2" />
+      </svg>
+    ),
+    title: "Audit Analytics",
+    description:
+      "Structured historical tracking enables trend analysis, performance metrics, and compliance reporting. Full visibility into resolution times and officer workloads.",
+  },
+];
+
+const STATS = [
+  {
+    value: "50",
+    suffix: "+",
+    label: "Active Citizens",
+    sublabel: "Using the platform daily",
+  },
+  {
+    value: "100",
+    suffix: "+",
+    label: "Issues Reported",
+    sublabel: "Logged and tracked",
+  },
+  {
+    value: "10",
+    suffix: "+",
+    label: "Cities Covered",
+    sublabel: "Actively participating",
+  },
+  {
+    value: "95",
+    suffix: "%",
+    label: "User Satisfaction",
+    sublabel: "Positive feedback rate",
+  },
+];
+
+function getTokens(isDark) {
+  const accentColor = "#97AB33"; 
+
+  return isDark
+    ? {
+        background: "#0A0A0A",
+        backgroundAlt: "#121212",
+        backgroundCard: "#1A1A1A",
+        text: "#FFFFFF",
+        textMuted: "#A0A0A0",
+        textSecondary: "#CCCCCC",
+        accent: accentColor,
+        accentLight: "rgba(151, 171, 51, 0.15)",
+        border: "rgba(255,255,255,0.1)",
+        borderLight: "rgba(255,255,255,0.05)",
+        buttonPrimary: accentColor,
+        buttonPrimaryText: "#000000",
+        buttonOutline: "transparent",
+        buttonOutlineBorder: "rgba(255,255,255,0.2)",
+        buttonOutlineText: "#FFFFFF",
+        navBg: "rgba(10,10,10,0.95)",
+        cardBg: "#1A1A1A",
+        sectionBg: "#121212",
+        glow: "rgba(151, 171, 51, 0.25)",
+        shadow: "rgba(0,0,0,0.5)",
+        statsBg: "#1A1A1A",
+        statsText: "#FFFFFF",
+        statsMuted: "#A0A0A0",
+        marqueeBg: "#121212",
+        imgFilter: "brightness(0.95) contrast(1.1)",
+        toggleBg: "#1A1A1A",
+        toggleBorder: "rgba(255,255,255,0.1)",
+      }
+    : {
+        background: "#FFFFFF",
+        backgroundAlt: "#F5F5F5",
+        backgroundCard: "#FFFFFF",
+        text: "#000000",
+        textMuted: "#666666",
+        textSecondary: "#333333",
+        accent: accentColor,
+        accentLight: "rgba(151, 171, 51, 0.1)",
+        border: "rgba(0,0,0,0.1)",
+        borderLight: "rgba(0,0,0,0.05)",
+        buttonPrimary: accentColor,
+        buttonPrimaryText: "#FFFFFF",
+        buttonOutline: "transparent",
+        buttonOutlineBorder: "rgba(0,0,0,0.2)",
+        buttonOutlineText: "#000000",
+        navBg: "rgba(255,255,255,0.95)",
+        cardBg: "#FFFFFF",
+        sectionBg: "#F8F8F8",
+        glow: "rgba(151, 171, 51, 0.2)",
+        shadow: "rgba(0,0,0,0.1)",
+        statsBg: "#F0F0F0",
+        statsText: "#000000",
+        statsMuted: "#666666",
+        marqueeBg: "#F0F0F0",
+        imgFilter: "brightness(1) contrast(1)",
+        toggleBg: "#F0F0F0",
+        toggleBorder: "rgba(0,0,0,0.1)",
+      };
+}
+
+const hexAlpha = (hex, alpha) => {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+};
 
 const HomePage = () => {
   const { theme, toggleTheme } = useTheme();
-  const [scrollY, setScrollY] = useState(0);
-  const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 });
-  const [activeSection, setActiveSection] = useState(0);
-  const [hoveredCard, setHoveredCard] = useState(null);
-  const [hoveredImageCard, setHoveredImageCard] = useState(null);
-  // ✅ STATIC HARDCODED VALUES - NO DYNAMIC COUNTING
-  const [statsCount] = useState({
-    activeCitizens: 50,
-    issuesReported: 100,
-    citiesCovered: 10,
-    satisfaction: 95
-  });
+  const isDark = theme === "dark";
+  const t = getTokens(isDark);
+
   const [pageLoaded, setPageLoaded] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
   const [typingText, setTypingText] = useState("");
   const [typingIndex, setTypingIndex] = useState(0);
   const [deleting, setDeleting] = useState(false);
+  const [hoveredCard, setHoveredCard] = useState(null);
+  const [hoveredImage, setHoveredImage] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState(0);
+
   const sectionRefs = useRef([]);
   const rafId = useRef(null);
 
-  const typingPhrases = [
-    "Report Issues Instantly",
-    "Track Progress Live",
-    "Connect with Officials",
-    "Build Better Communities",
-    "Make Your Voice Heard",
-  ];
-  const currentLogo = theme === "dark" ? darkLogo : lightLogo;
-
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setPageLoaded(true);
-    }, 2000);
+    const timer = setTimeout(() => setPageLoaded(true), 2000);
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    const timeout = setTimeout(
-      () => {
-        const currentPhrase = typingPhrases[typingIndex];
-
-        if (!deleting) {
-          if (typingText.length < currentPhrase.length) {
-            setTypingText(currentPhrase.slice(0, typingText.length + 1));
-          } else {
-            setTimeout(() => setDeleting(true), 2000);
-          }
-        } else {
-          if (typingText.length > 0) {
-            setTypingText(currentPhrase.slice(0, typingText.length - 1));
-          } else {
-            setDeleting(false);
-            setTypingIndex((prev) => (prev + 1) % typingPhrases.length);
-          }
-        }
-      },
-      deleting ? 50 : 100,
-    );
-
-    return () => clearTimeout(timeout);
-  }, [typingText, typingIndex, deleting]);
 
   useEffect(() => {
-    const handleMouseMove = (e) => {
-      const x = (e.clientX / window.innerWidth) * 100;
-      const y = (e.clientY / window.innerHeight) * 100;
-      setMousePosition({ x, y });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    injectFont();
   }, []);
-  
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
 
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -100,17 +338,13 @@ const HomePage = () => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const index = sectionRefs.current.findIndex(
-              (sec) => sec === entry.target,
+              (ref) => ref === entry.target,
             );
-            if (index !== -1) {
-              setActiveSection(index);
-            }
+            if (index !== -1) setActiveSection(index);
           }
         });
       },
-      {
-        threshold: 0.4,
-      },
+      { threshold: 0.4 },
     );
 
     sectionRefs.current.forEach((section) => {
@@ -120,90 +354,29 @@ const HomePage = () => {
     return () => observer.disconnect();
   }, []);
 
-  const getThemeColors = () => {
-    if (theme === "light") {
-      return {
-        background: "#ffffff",
-        text: "#000000",
-        mutedText: "#666666",
-        accent: "#000000",
-        cardBg: "#cad4f3",
-        border: "rgba(0,0,0,0.1)",
-        gradient: "linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)",
-        buttonBg: "#000000",
-        buttonText: "#ffffff",
-        sectionBg: "#d4d4d4",
-        glow: "rgba(0,0,0,0.15)",
-        shadow: "rgba(0,0,0,0.1)",
-        shinyOverlay:
-          "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.5) 50%, transparent 60%)",
-      };
-    }
-    return {
-      background: "#000000",
-      text: "#ffffff",
-      mutedText: "#cccccc",
-      accent: "#ffffff",
-      cardBg: "#111111",
-      border: "rgba(255,255,255,0.1)",
-      gradient: "linear-gradient(135deg, #000000 0%, #0a0a0a 100%)",
-      buttonBg: "#ffffff",
-      buttonText: "#000000",
-      sectionBg: "#050505",
-      glow: "rgba(255,255,255,0.15)",
-      shadow: "rgba(255,255,255,0.1)",
-      shinyOverlay:
-        "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.25) 50%, transparent 60%)",
-    };
-  };
+  useEffect(() => {
+    const currentPhrase = TYPING_PHRASES[typingIndex];
+    const delay = deleting ? 50 : 100;
 
-  const colors = getThemeColors();
-  
-  const getDynamicShadow = (index) => {
-    if (hoveredCard === index) {
-      const offsetX = ((mousePosition.x - 50) / 50) * 10;
-      const offsetY = ((mousePosition.y - 50) / 50) * 10;
-      return `${offsetX}px ${offsetY}px 40px ${colors.shadow}`;
-    }
-    return `0 8px 30px ${theme === "dark" ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.08)"}`;
-  };
+    const timeout = setTimeout(() => {
+      if (!deleting) {
+        if (typingText.length < currentPhrase.length) {
+          setTypingText(currentPhrase.slice(0, typingText.length + 1));
+        } else {
+          setTimeout(() => setDeleting(true), 2000);
+        }
+      } else {
+        if (typingText.length > 0) {
+          setTypingText(currentPhrase.slice(0, typingText.length - 1));
+        } else {
+          setDeleting(false);
+          setTypingIndex((prev) => (prev + 1) % TYPING_PHRASES.length);
+        }
+      }
+    }, delay);
 
-  const handleTilt = (e) => {
-    if (window.innerWidth < 768) return;
-    
-    const card = e.currentTarget;
-    const rect = card.getBoundingClientRect();
-
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    const rotateX = -((y - centerY) / centerY) * 5;
-    const rotateY = ((x - centerX) / centerX) * 5;
-
-    if (rafId.current) cancelAnimationFrame(rafId.current);
-
-    rafId.current = requestAnimationFrame(() => {
-      card.style.transform = `
-        perspective(1200px)
-        rotateX(${rotateX}deg)
-        rotateY(${rotateY}deg)
-        scale(1.04)
-      `;
-    });
-  };
-  
-  const resetTilt = (e) => {
-    if (rafId.current) cancelAnimationFrame(rafId.current);
-    e.currentTarget.style.transform = `
-      perspective(1200px)
-      rotateX(0deg)
-      rotateY(0deg)
-      scale(1)
-    `;
-  };
+    return () => clearTimeout(timeout);
+  }, [typingText, typingIndex, deleting]);
 
   const scrollToSection = (index) => {
     if (sectionRefs.current[index]) {
@@ -214,194 +387,137 @@ const HomePage = () => {
     }
     setMobileMenuOpen(false);
   };
-  
-  const sections = [
-    {
-      title: "Your City, Your Voice",
-      subtitle: "Empowering Citizens to Be Heard",
-      description:
-        "CivicFix gives every citizen a simple and transparent way to raise local issues, ensuring their voices reach the right authorities without friction or delay.",
-      reverse: false,
-      image: imgReport,
-    },
-    {
-      title: "Track Every Issue",
-      subtitle: "From Report to Resolution",
-      description:
-        "Stay informed at every step with real-time updates, clear timelines, and full visibility into how reported issues are reviewed, assigned, and resolved.",
-      reverse: true,
-      image: imgTrack,
-    },
-    {
-      title: "Government Accountability",
-      subtitle: "Transparency That Builds Trust",
-      description:
-        "Local authorities manage complaints efficiently with structured workflows, performance tracking, and public accountability—creating trust through action.",
-      reverse: false,
-      image: imgGov,
-    },
-    {
-      title: "Community Collaboration",
-      subtitle: "Building Better Cities Together",
-      description:
-        "Citizens, officials, and communities work together to identify priorities, resolve recurring problems, and shape safer, cleaner, and smarter cities.",
-      reverse: true,
-      image: imgCommunity,
-    },
+
+  const sectionImages = [
+    isDark ? imgRepDark : imgRepLight,
+    isDark ? imgTrkDark : imgTrkLight,
+    imgGov,
+    imgComm,
   ];
-  
-  const features = [
-    {
-      title: "Instant Reporting",
-      description:
-        "Submit complaints quickly with photos, location, and details — no long forms.",
-    },
-    {
-      title: "Precise Mapping",
-      description:
-        "Mark the exact location of issues on interactive maps for faster resolution.",
-    },
-    {
-      title: "Live Updates",
-      description:
-        "Receive status updates from authorities when your complaint is acknowledged and in progress.",
-    },
-    {
-      title: "Community Collaboration",
-      description:
-        "Engage with neighbors, report recurring issues, and suggest improvements for your area.",
-    },
-    {
-      title: "Insightful Analytics",
-      description:
-        "Track trends in complaints to see which areas need attention most.",
-    },
-    {
-      title: "Secure Platform",
-      description:
-        "Your data and reports are safe — we do not share personal information without consent.",
-    },
-  ];
-  
-  // ✅ STATS WITH HARDCODED VALUES (NO DYNAMIC COUNTING)
-  const stats = [
-    { 
-      label: "Active Citizens", 
-      value: 50,
-      suffix: "+ using the platform" 
-    },
-    { 
-      label: "Issues Reported", 
-      value: 100,
-      suffix: "+ logged so far" 
-    },
-    { 
-      label: "Cities Covered", 
-      value: 10,
-      suffix: "+ actively participating" 
-    },
-    { 
-      label: "User Satisfaction", 
-      value: 95,
-      suffix: "% positive feedback" 
-    },
-  ];
-  
-  if (!pageLoaded) {
-    return <Preloader />;
-  }
+
+  if (!pageLoaded) return <Preloader />;
 
   return (
     <div
-      className="min-h-screen overflow-x-hidden"
       style={{
-        backgroundColor: colors.background,
-        color: colors.text,
+        minHeight: "100vh",
+        backgroundColor: t.background,
+        color: t.text,
+        fontFamily:
+          "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        overflowX: "hidden",
+        transition: "background-color 0.3s ease, color 0.3s ease",
       }}
     >
-      {/* Background gradient effect - hidden on mobile */}
+      <style>{`
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        .animate-fadeIn { animation: fadeIn 0.6s ease forwards; }
+        .animate-slideDown { animation: slideDown 0.3s ease forwards; }
+        .animate-pulse { animation: pulse 2s ease-in-out infinite; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: ${t.accent}40; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: ${t.accent}60; }
+      `}</style>
+
       <div
-        className="fixed inset-0 pointer-events-none z-0 hidden md:block"
         style={{
-          background: `
-            radial-gradient(
-              800px at ${mousePosition.x}% ${mousePosition.y}%,
-              ${theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"},
-              transparent 70%
-            )
-          `,
+          position: "fixed",
+          inset: 0,
+          pointerEvents: "none",
+          zIndex: 0,
+          background: `radial-gradient(circle at 50% 50%, ${t.accentLight} 0%, transparent 70%)`,
+          opacity: 0.5,
         }}
       />
-      
-      {/* Navigation */}
+
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 px-4 py-3 transition-all duration-300 ${
-          scrollY > 50 ? "backdrop-blur-md bg-opacity-95" : ""
-        }`}
         style={{
-          backgroundColor:
-            theme === "dark"
-              ? scrollY > 50
-                ? "rgba(0,0,0,0.95)"
-                : "rgba(0,0,0,0.98)"
-              : scrollY > 50
-                ? "rgba(255,255,255,0.95)"
-                : "rgba(255,255,255,0.98)",
-          borderBottom: `1px solid ${colors.border}`,
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          padding: scrollY > 50 ? "12px 48px" : "20px 48px",
+          backgroundColor: scrollY > 50 ? t.navBg : "transparent",
+          backdropFilter: scrollY > 50 ? "blur(12px)" : "none",
+          borderBottom: `1px solid ${scrollY > 50 ? t.border : "transparent"}`,
+          transition: "all 0.3s ease",
         }}
       >
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <div
-            className="flex items-center cursor-pointer group"
-            onClick={() => scrollToSection(0)}
-          >
-            <img
-              src={currentLogo}
-              alt="CivicFix Logo"
-              className="h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-            />
-          </div>
+        <div
+          style={{
+            maxWidth: "1400px",
+            margin: "0 auto",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg focus:outline-none"
-            style={{ color: colors.text }}
-            aria-label="Toggle menu"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {mobileMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
+          <div
+  onClick={() => scrollToSection(0)}
+  style={{
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+  }}
+>
+  <span style={{
+    fontFamily: "'Inter', sans-serif",
+    fontSize: "24px",
+    fontWeight: "700",
+    letterSpacing: "-0.5px",
+    color: t.text,
+  }}>
+    CIVIC
+  </span>
+  <span style={{
+    fontFamily: "'Inter', sans-serif",
+    fontSize: "24px",
+    fontWeight: "700",
+    letterSpacing: "-0.5px",
+    color: t.accent,
+  }}>
+    FIX
+  </span>
+</div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-4 lg:space-x-6">
+          <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
             {/* Section dots */}
-            <div className="flex items-center space-x-2">
-              {sections.map((_, index) => {
+            <div style={{ display: "flex", gap: "8px" }}>
+              {SECTIONS.map((_, index) => {
                 const sectionIndex = index + 1;
                 const isActive = activeSection === sectionIndex;
                 return (
                   <button
                     key={index}
                     onClick={() => scrollToSection(sectionIndex)}
-                    className="relative transition-all duration-300 rounded-2xl p-1"
                     style={{
-                      backgroundColor: isActive ? (theme === "dark" ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)") : "transparent",
+                      padding: "4px",
+                      background: "transparent",
+                      border: "none",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
-                    aria-label={`Go to section ${sectionIndex}`}
                   >
                     <div
-                      className="w-2 h-2 rounded-full transition-all duration-300"
                       style={{
-                        backgroundColor: isActive ? colors.accent : colors.mutedText,
-                        opacity: isActive ? 1 : 0.5,
-                        transform: isActive ? "scale(1.25)" : "scale(1)",
+                        width: "6px",
+                        height: "6px",
+                        borderRadius: "50%",
+                        backgroundColor: isActive ? t.accent : t.textMuted,
+                        opacity: isActive ? 1 : 0.3,
+                        transform: isActive ? "scale(1.2)" : "scale(1)",
+                        transition: "all 0.3s ease",
                       }}
                     />
                   </button>
@@ -409,374 +525,779 @@ const HomePage = () => {
               })}
             </div>
 
-            {/* Desktop Action Buttons */}
-            <div className="flex items-center space-x-3">
-              {/* ✅ FIXED: Sign In link with proper styling and z-index */}
-              <Link 
-                to="/login" 
-                className="text-sm font-medium relative group overflow-hidden px-3 py-2 inline-block"
-                style={{ color: colors.text, zIndex: 60 }}
+            {/* Action Buttons */}
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <Link
+                to="/login"
+                style={{
+                  padding: "8px 16px",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  color: t.text,
+                  textDecoration: "none",
+                  border: `1px solid ${t.border}`,
+                  borderRadius: "6px",
+                  transition: "all 0.2s ease",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = t.accentLight)
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = "transparent")
+                }
               >
-                <span className="relative z-10">Sign In</span>
-                <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" style={{ background: colors.shinyOverlay }} />
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300" style={{ backgroundColor: colors.accent }} />
+                Sign In
               </Link>
 
-              <PrimaryButton as={Link} to="/signup" theme={theme} className="relative overflow-hidden group px-4 py-2 text-sm">
-                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                <span className="relative z-10">Get Started</span>
-              </PrimaryButton>
-
-              <button 
-                onClick={toggleTheme} 
-                className="p-2 rounded-lg border transition-all duration-200 hover:scale-105" 
+              <Link
+                to="/signup"
                 style={{
-                  backgroundColor: theme === "dark" ? "#0a0a0a" : "#f5f5f5",
-                  borderColor: theme === "dark" ? "#1a1a1a" : "#e5e5e5",
-                  color: theme === "dark" ? "#ffffff" : "#000000",
+                  padding: "8px 16px",
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  backgroundColor: t.accent,
+                  color: t.buttonPrimaryText,
+                  textDecoration: "none",
+                  borderRadius: "6px",
+                  transition: "all 0.2s ease",
                 }}
-                aria-label="Toggle theme"
+                onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
               >
-                {theme === "dark" ? (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                Get Started
+              </Link>
+
+              <button
+                onClick={toggleTheme}
+                style={{
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "6px",
+                  border: `1px solid ${t.border}`,
+                  backgroundColor: t.toggleBg,
+                  color: t.text,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                {isDark ? (
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <circle cx="12" cy="12" r="5" />
+                    <line x1="12" y1="1" x2="12" y2="3" />
+                    <line x1="12" y1="21" x2="12" y2="23" />
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                    <line x1="1" y1="12" x2="3" y2="12" />
+                    <line x1="21" y1="12" x2="23" y2="12" />
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
                   </svg>
                 ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
                   </svg>
                 )}
               </button>
             </div>
           </div>
         </div>
-
-        {/* Mobile menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden mt-4 p-4 rounded-lg animate-slideDown" style={{
-            backgroundColor: theme === "dark" ? "#1a1a1a" : "#f5f5f5",
-            border: `1px solid ${colors.border}`,
-            position: 'relative',
-            zIndex: 100,
-          }}>
-            <div className="flex flex-wrap gap-2 mb-4">
-              {sections.map((section, index) => (
-                <button key={index} onClick={() => scrollToSection(index + 1)} className="px-3 py-2 rounded-lg text-sm transition-all" style={{
-                  backgroundColor: activeSection === index + 1 ? colors.accent : "transparent",
-                  color: activeSection === index + 1 ? (theme === "dark" ? "#000" : "#fff") : colors.text,
-                  border: `1px solid ${colors.border}`,
-                }}>
-                  {section.title.split(" ")[0]}
-                </button>
-              ))}
-            </div>
-            <div className="flex flex-col space-y-3">
-              <a 
-  href="/login" 
-  className="w-full text-center py-3 rounded-lg font-medium block"
-  style={{
-    backgroundColor: theme === "dark" ? "#333" : "#e5e5e5",
-    color: colors.text,
-    textDecoration: 'none',
-  }} 
-  onClick={() => setMobileMenuOpen(false)}
->
-  Sign In
-</a>
-              <a 
-  href="/signup" 
-  className="w-full text-center py-3 rounded-lg font-medium block"
-  style={{
-    backgroundColor: colors.accent,
-    color: theme === "dark" ? "#000" : "#fff",
-    textDecoration: 'none',
-  }} 
-  onClick={() => setMobileMenuOpen(false)}
->
-  Get Started
-</a>
-              <button 
-                onClick={() => { toggleTheme(); setMobileMenuOpen(false); }} 
-                className="w-full text-center py-3 rounded-lg font-medium flex items-center justify-center gap-2"
-                style={{
-                  backgroundColor: theme === "dark" ? "#333" : "#e5e5e5",
-                  color: colors.text,
-                }}
-              >
-                {theme === "dark" ? "Switch to Light" : "Switch to Dark"}
-              </button>
-            </div>
-          </div>
-        )}
       </nav>
 
       {/* Hero Section */}
-      <section ref={(el) => (sectionRefs.current[0] = el)} className="relative min-h-screen flex items-center justify-center px-4 pt-16 overflow-hidden">
-        <div className="absolute inset-0 transition-all duration-300" style={{
-          boxShadow: getDynamicShadow(-2),
-          transform: `translateY(${scrollY * 0.1}px)`,
-          background: colors.gradient,
-        }} />
-
-        <div className="relative z-10 max-w-6xl mx-auto text-center px-2">
-          <div className="mb-8 md:mb-12">
-            <div className="mb-3 md:mb-4 h-8 md:h-12">
-              <span className="text-base md:text-2xl lg:text-3xl font-light inline-block" style={{ color: colors.mutedText }}>
-                {typingText}
-                <span className="ml-1 animate-pulse" style={{ color: colors.accent }}>|</span>
-              </span>
-            </div>
-
-            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-4 md:mb-6 leading-tight">
-              Fix Your City,
-              <br />
-              <span className="font-bold relative inline-block mt-2" style={{
-                color: colors.accent,
-                textShadow: `0 5px 20px ${colors.glow}`,
-              }}>
-                Together
-                <div className="absolute -bottom-2 left-0 w-full h-0.5 md:h-1" style={{
-                  background: `linear-gradient(90deg, transparent, ${colors.accent}, transparent)`,
-                }} />
-              </span>
-            </h1>
-            
-            <p className="text-sm sm:text-base md:text-xl lg:text-2xl mb-6 md:mb-10 max-w-3xl mx-auto leading-relaxed px-2" style={{ color: colors.mutedText }}>
-              CivicFix connects citizens with local government for transparent
-              issue reporting and real-time resolution tracking.
-            </p>
+      <section
+        ref={(el) => (sectionRefs.current[0] = el)}
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          padding: "120px 48px 80px",
+          position: "relative",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            width: "100%",
+            position: "relative",
+            zIndex: 2,
+          }}
+        >
+          <div className="animate-fadeIn" style={{ marginBottom: "24px" }}>
+            <span
+              style={{
+                fontSize: "14px",
+                fontWeight: "500",
+                letterSpacing: "2px",
+                textTransform: "uppercase",
+                color: t.accent,
+              }}
+            >
+              Community Issue Platform
+            </span>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center px-4 sm:px-0">
-            <PrimaryButton as={Link} to="/signup" size="lg" theme={theme} className="text-sm sm:text-base md:text-lg px-6 sm:px-8 py-3 sm:py-4 rounded-xl relative overflow-hidden group w-full sm:w-auto">
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-              <span className="relative z-10">Start Reporting</span>
-            </PrimaryButton>
-            
-            {/* ✅ FIXED: Hero section Sign In button */}
-            <SecondaryButton as={Link} to="/login" size="lg" theme={theme} className="text-sm sm:text-base md:text-lg px-6 sm:px-8 py-3 sm:py-4 rounded-xl relative overflow-hidden group w-full sm:w-auto">
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-              <span className="relative z-10">Sign In</span>
-            </SecondaryButton>
+          <h1
+            className="animate-fadeIn"
+            style={{
+              fontSize: "clamp(48px, 8vw, 96px)",
+              fontWeight: "700",
+              lineHeight: 1.1,
+              letterSpacing: "-0.02em",
+              marginBottom: "24px",
+            }}
+          >
+            Fix Your City,
+            <br />
+            <span style={{ color: t.accent }}>Together</span>
+          </h1>
+
+          <p
+            className="animate-fadeIn"
+            style={{
+              fontSize: "18px",
+              lineHeight: 1.6,
+              color: t.textMuted,
+              maxWidth: "500px",
+              marginBottom: "40px",
+            }}
+          >
+            CivicFix connects citizens with local government for transparent
+            issue reporting and real-time resolution tracking.
+          </p>
+
+          <div
+            className="animate-fadeIn"
+            style={{
+              display: "flex",
+              gap: "16px",
+              flexWrap: "wrap",
+              marginBottom: "32px",
+            }}
+          >
+            <Link
+              to="/signup"
+              style={{
+                padding: "14px 32px",
+                fontSize: "16px",
+                fontWeight: "600",
+                backgroundColor: t.accent,
+                color: t.buttonPrimaryText,
+                textDecoration: "none",
+                borderRadius: "8px",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.transform = "translateY(-2px)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.transform = "translateY(0)")
+              }
+            >
+              Start Reporting
+            </Link>
+
+            <Link
+              to="/login"
+              style={{
+                padding: "14px 32px",
+                fontSize: "16px",
+                fontWeight: "500",
+                color: t.text,
+                textDecoration: "none",
+                border: `1px solid ${t.border}`,
+                borderRadius: "8px",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = t.accentLight;
+                e.currentTarget.style.borderColor = t.accent;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.borderColor = t.border;
+              }}
+            >
+              Sign In
+            </Link>
+          </div>
+
+          <div
+            className="animate-fadeIn"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              fontSize: "16px",
+              color: t.textMuted,
+            }}
+          >
+            <span>{typingText}</span>
+            <span
+              style={{
+                width: "2px",
+                height: "20px",
+                backgroundColor: t.accent,
+                animation: "pulse 1s infinite",
+              }}
+            />
           </div>
         </div>
 
-        <div className="absolute bottom-4 md:bottom-8 left-1/2 transform -translate-x-1/2 transition-opacity duration-300 hidden sm:block" style={{ opacity: Math.max(0, 1 - scrollY / 300) }}>
-          <div className="animate-bounce">
-            <div className="w-5 h-8 md:w-6 md:h-10 rounded-full border-2 flex items-start justify-center p-1" style={{ borderColor: colors.accent }}>
-              <div className="w-1 h-2 rounded-full animate-pulse" style={{ backgroundColor: colors.accent }} />
-            </div>
+        {/* Scroll indicator */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: "40px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            opacity: Math.max(0, 1 - scrollY / 300),
+            transition: "opacity 0.3s ease",
+          }}
+        >
+          <div
+            style={{
+              width: "24px",
+              height: "40px",
+              border: `2px solid ${t.accent}`,
+              borderRadius: "12px",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <div
+              style={{
+                width: "4px",
+                height: "8px",
+                backgroundColor: t.accent,
+                borderRadius: "2px",
+                marginTop: "6px",
+                animation: "pulse 1.5s infinite",
+              }}
+            />
           </div>
         </div>
       </section>
 
       {/* Feature Sections */}
-      {sections.map((section, index) => (
-        <section key={index} ref={(el) => (sectionRefs.current[index + 1] = el)} className="py-12 md:py-20 px-4 relative" style={{
-          backgroundColor: index % 2 === 0 ? colors.sectionBg : colors.background,
-        }}>
-          <div className="max-w-6xl mx-auto">
-            <div className={`flex flex-col ${section.reverse ? "lg:flex-row-reverse" : "lg:flex-row"} items-center gap-6 md:gap-8 lg:gap-12`}>
-              <div className="w-full lg:w-1/2 order-2 lg:order-1">
-                <div className="flex items-center gap-3 mb-4">
-                  {activeSection === index + 1 && (
-                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full animate-pulse" style={{ backgroundColor: colors.accent }} />
-                  )}
-                </div>
-                
-                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 relative">
-                  {section.title}
-                  {activeSection === index + 1 && (
-                    <div className="absolute -left-4 md:-left-8 top-2 md:top-3 w-1 h-8 md:h-12 rounded-full" style={{ backgroundColor: colors.accent }} />
-                  )}
-                </h2>
-                
-                <p className="text-base sm:text-lg md:text-xl font-medium mb-3 md:mb-4" style={{ color: colors.accent }}>
-                  {section.subtitle}
-                </p>
-                
-                <p className="text-sm sm:text-base md:text-lg leading-relaxed opacity-90" style={{ color: colors.mutedText }}>
-                  {section.description}
-                </p>
-              </div>
+      {SECTIONS.map((section, index) => {
+        const sectionIndex = index + 1;
+        const image = sectionImages[index];
 
-              <div className="w-full lg:w-1/2 order-1 lg:order-2 mb-6 lg:mb-0">
-                <div className="h-48 sm:h-64 md:h-80 lg:h-96 rounded-xl md:rounded-2xl overflow-hidden relative group/image"
-                  onMouseMove={handleTilt} onMouseLeave={resetTilt} onMouseEnter={() => setHoveredImageCard(index)}
+        return (
+          <section
+            key={index}
+            ref={(el) => (sectionRefs.current[sectionIndex] = el)}
+            style={{
+              padding: "100px 48px",
+              backgroundColor: index % 2 === 0 ? t.background : t.sectionBg,
+              borderTop: `1px solid ${t.border}`,
+            }}
+          >
+            <div
+              style={{
+                maxWidth: "1200px",
+                margin: "0 auto",
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "80px",
+                alignItems: "center",
+                direction: section.reverse ? "rtl" : "ltr",
+              }}
+            >
+              {/* Content */}
+              <div style={{ direction: "ltr" }}>
+                {activeSection === sectionIndex && (
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      marginBottom: "16px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "4px",
+                        height: "24px",
+                        backgroundColor: t.accent,
+                        borderRadius: "2px",
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        letterSpacing: "1px",
+                        textTransform: "uppercase",
+                        color: t.accent,
+                      }}
+                    >
+                      {section.tagLabel}
+                    </span>
+                  </div>
+                )}
+
+                <h2
                   style={{
-                    backgroundColor: colors.cardBg,
-                    border: `1px solid ${colors.border}`,
-                    boxShadow: getDynamicShadow(index * 10),
+                    fontSize: "clamp(32px, 5vw, 48px)",
+                    fontWeight: "700",
+                    lineHeight: 1.2,
+                    marginBottom: "16px",
                   }}
                 >
-                  <span className="absolute inset-0 -translate-x-full group-hover/image:translate-x-full transition-transform duration-1000 z-20 hidden md:block" style={{
-                    background: colors.shinyOverlay,
-                    width: "200%",
-                    left: "-50%",
-                  }} />
-                  <img src={section.image} alt={section.title} className="w-full h-full object-cover transition-transform duration-700 group-hover/image:scale-110" loading="lazy" />
+                  {section.title}
+                </h2>
+
+                <h3
+                  style={{
+                    fontSize: "20px",
+                    fontWeight: "500",
+                    color: t.accent,
+                    marginBottom: "16px",
+                  }}
+                >
+                  {section.subtitle}
+                </h3>
+
+                <p
+                  style={{
+                    fontSize: "16px",
+                    lineHeight: 1.8,
+                    color: t.textMuted,
+                    marginBottom: "32px",
+                  }}
+                >
+                  {section.description}
+                </p>
+
+                <Link
+                  to="#"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    fontSize: "14px",
+                    fontWeight: "600",
+                    color: t.accent,
+                    textDecoration: "none",
+                    borderBottom: `1px solid ${t.accent}`,
+                    paddingBottom: "4px",
+                  }}
+                >
+                  Learn More
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M5 12L11 8L5 4" />
+                  </svg>
+                </Link>
+              </div>
+
+              {/* Image */}
+              <div style={{ direction: "ltr" }}>
+                <div
+                  onMouseEnter={() => setHoveredImage(index)}
+                  onMouseLeave={() => setHoveredImage(null)}
+                  style={{
+                    position: "relative",
+                    borderRadius: "12px",
+                    overflow: "hidden",
+                    aspectRatio: "4/3",
+                    border: `1px solid ${t.border}`,
+                    boxShadow:
+                      hoveredImage === index
+                        ? `0 20px 40px ${t.shadow}`
+                        : "none",
+                    transition: "all 0.3s ease",
+                  }}
+                >
+                  <img
+                    src={image}
+                    alt={section.title}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      filter: t.imgFilter,
+                      transform:
+                        hoveredImage === index ? "scale(1.05)" : "scale(1)",
+                      transition: "transform 0.5s ease",
+                    }}
+                  />
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-      ))}
+          </section>
+        );
+      })}
 
-      {/* Features Grid Section */}
-      <section ref={(el) => (sectionRefs.current[5] = el)} className="py-12 md:py-20 px-4" style={{ backgroundColor: colors.sectionBg }}>
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8 md:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">Everything You Need</h2>
-            <p className="text-sm sm:text-base md:text-xl max-w-3xl mx-auto px-4" style={{ color: colors.mutedText }}>
-              Powerful tools designed to make community reporting simple and effective
+      {/* Features Grid */}
+      <section
+        style={{
+          padding: "100px 48px",
+          backgroundColor: t.sectionBg,
+          borderTop: `1px solid ${t.border}`,
+        }}
+      >
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <div
+            style={{
+              textAlign: "center",
+              marginBottom: "60px",
+            }}
+          >
+            <h2
+              style={{
+                fontSize: "clamp(36px, 5vw, 48px)",
+                fontWeight: "700",
+                marginBottom: "16px",
+              }}
+            >
+              Everything You Need
+            </h2>
+            <p
+              style={{
+                fontSize: "18px",
+                color: t.textMuted,
+                maxWidth: "600px",
+                margin: "0 auto",
+              }}
+            >
+              Powerful tools designed to make community reporting simple and
+              effective
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {features.map((feature, index) => (
-              <div key={index} className="p-4 sm:p-6 md:p-8 rounded-lg md:rounded-xl transition-all duration-300 group relative overflow-hidden"
-                onMouseEnter={() => setHoveredCard(index + 50)} onMouseLeave={() => setHoveredCard(null)}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "24px",
+            }}
+          >
+            {FEATURES.map((feature, index) => (
+              <div
+                key={index}
+                onMouseEnter={() => setHoveredCard(index)}
+                onMouseLeave={() => setHoveredCard(null)}
                 style={{
-                  backgroundColor: colors.cardBg,
-                  border: `1px solid ${colors.border}`,
-                  boxShadow: getDynamicShadow(index + 100),
+                  padding: "32px",
+                  backgroundColor: t.cardBg,
+                  border: `1px solid ${hoveredCard === index ? t.accent : t.border}`,
+                  borderRadius: "12px",
+                  transition: "all 0.3s ease",
+                  transform:
+                    hoveredCard === index
+                      ? "translateY(-4px)"
+                      : "translateY(0)",
+                  boxShadow:
+                    hoveredCard === index ? `0 12px 30px ${t.shadow}` : "none",
                 }}
               >
-                <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 hidden md:block" style={{
-                  background: colors.shinyOverlay,
-                  width: "200%",
-                  left: "-50%",
-                }} />
-
-                <div className="relative z-10">
-                  <h3 className="text-base sm:text-lg md:text-xl font-bold mb-2 md:mb-3">{feature.title}</h3>
-                  <p className="text-xs sm:text-sm md:text-base leading-relaxed" style={{ color: colors.mutedText }}>
-                    {feature.description}
-                  </p>
+                <div
+                  style={{
+                    fontSize: "32px",
+                    marginBottom: "16px",
+                  }}
+                >
+                  {feature.icon}
                 </div>
+                <h3
+                  style={{
+                    fontSize: "18px",
+                    fontWeight: "600",
+                    marginBottom: "8px",
+                  }}
+                >
+                  {feature.title}
+                </h3>
+                <p
+                  style={{
+                    fontSize: "14px",
+                    lineHeight: 1.6,
+                    color: t.textMuted,
+                  }}
+                >
+                  {feature.description}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ✅ STATS SECTION - HARDCODED VALUES */}
-      <section ref={(el) => (sectionRefs.current[6] = el)} className="py-12 md:py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center p-3 sm:p-4 md:p-6 lg:p-8 rounded-lg md:rounded-xl transition-all duration-300 hover:scale-105 group relative overflow-hidden"
-                onMouseEnter={() => setHoveredCard(index + 200)} onMouseLeave={() => setHoveredCard(null)}
+      {/* Stats Section */}
+      <section
+        style={{
+          padding: "80px 48px",
+          backgroundColor: t.background,
+          borderTop: `1px solid ${t.border}`,
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: "32px",
+          }}
+        >
+          {STATS.map((stat, index) => (
+            <div
+              key={index}
+              style={{
+                textAlign: "center",
+                padding: "32px",
+                backgroundColor: t.cardBg,
+                border: `1px solid ${t.border}`,
+                borderRadius: "12px",
+              }}
+            >
+              <div
                 style={{
-                  backgroundColor: colors.cardBg,
-                  border: `1px solid ${colors.border}`,
-                  boxShadow: getDynamicShadow(index + 200),
+                  fontSize: "48px",
+                  fontWeight: "700",
+                  color: t.accent,
+                  lineHeight: 1,
+                  marginBottom: "8px",
                 }}
               >
-                <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 hidden md:block" style={{
-                  background: colors.shinyOverlay,
-                  width: "200%",
-                  left: "-50%",
-                }} />
-
-                <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-1 md:mb-2 transition-all duration-500 relative z-10" style={{ color: colors.accent }}>
-                  {index === 3 ? `${stat.value}%` : `${stat.value}+`}
-                </div>
-                <div className="text-xs sm:text-sm md:text-base lg:text-lg font-medium mb-1 relative z-10" style={{ color: colors.text }}>
-                  {stat.label}
-                </div>
-                <div className="text-2xs sm:text-xs md:text-sm opacity-80 relative z-10" style={{ color: colors.mutedText }}>
-                  {stat.suffix}
-                </div>
+                {stat.value}
+                {stat.suffix}
               </div>
-            ))}
-          </div>
+              <div
+                style={{
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  marginBottom: "4px",
+                }}
+              >
+                {stat.label}
+              </div>
+              <div
+                style={{
+                  fontSize: "13px",
+                  color: t.textMuted,
+                }}
+              >
+                {stat.sublabel}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* CTA Section */}
-      <section ref={(el) => (sectionRefs.current[7] = el)} className="py-12 md:py-20 px-4" style={{ backgroundColor: colors.sectionBg }}>
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-4 md:mb-8 px-4">
+      <section
+        style={{
+          padding: "120px 48px",
+          backgroundColor: t.sectionBg,
+          borderTop: `1px solid ${t.border}`,
+          textAlign: "center",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "800px",
+            margin: "0 auto",
+            position: "relative",
+            zIndex: 2,
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "clamp(36px, 6vw, 56px)",
+              fontWeight: "700",
+              marginBottom: "20px",
+            }}
+          >
             Ready to Make a Difference?
           </h2>
-          <p className="text-sm sm:text-base md:text-xl mb-6 md:mb-12 max-w-2xl mx-auto px-4" style={{ color: colors.mutedText }}>
-            Join thousands of citizens building better cities through transparency and collaboration
+          <p
+            style={{
+              fontSize: "18px",
+              color: t.textMuted,
+              marginBottom: "40px",
+              maxWidth: "600px",
+              margin: "0 auto 40px",
+            }}
+          >
+            Join thousands of citizens building better cities through
+            transparency and collaboration
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center px-4">
-            <PrimaryButton as={Link} to="/signup" size="lg" theme={theme} className="rounded-lg md:rounded-xl px-6 sm:px-8 md:px-10 py-3 md:py-4 relative overflow-hidden group w-full sm:w-auto">
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-              <span className="relative z-10 text-sm sm:text-base">Start Free Today</span>
-            </PrimaryButton>
-            
-            {/* ✅ FIXED: CTA section Sign In button */}
-            <a 
-  href="/login" 
-  className="rounded-lg md:rounded-xl px-6 sm:px-8 md:px-10 py-3 md:py-4 relative overflow-hidden group w-full sm:w-auto text-center block"
-  style={{
-    backgroundColor: 'transparent',
-    border: `2px solid ${colors.accent}`,
-    color: colors.accent,
-    textDecoration: 'none',
-    fontWeight: '500',
-  }}
->
-  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-  <span className="relative z-10 text-sm sm:text-base">Sign In</span>
-</a>
+
+          <div
+            style={{
+              display: "flex",
+              gap: "16px",
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            <Link
+              to="/signup"
+              style={{
+                padding: "14px 32px",
+                fontSize: "16px",
+                fontWeight: "600",
+                backgroundColor: t.accent,
+                color: t.buttonPrimaryText,
+                textDecoration: "none",
+                borderRadius: "8px",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.transform = "translateY(-2px)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.transform = "translateY(0)")
+              }
+            >
+              Start Free Today
+            </Link>
+
+            <Link
+              to="/login"
+              style={{
+                padding: "14px 32px",
+                fontSize: "16px",
+                fontWeight: "500",
+                color: t.text,
+                textDecoration: "none",
+                border: `1px solid ${t.border}`,
+                borderRadius: "8px",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = t.accentLight;
+                e.currentTarget.style.borderColor = t.accent;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.borderColor = t.border;
+              }}
+            >
+              Sign In
+            </Link>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-8 md:py-12 px-4" style={{
-        borderTop: `1px solid ${colors.border}`,
-        backgroundColor: colors.background,
-      }}>
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0">
-            <div className="text-center md:text-left mb-4 md:mb-0">
-              <div className="flex items-center justify-center md:justify-start space-x-2 md:space-x-3 mb-2">
-                <img src={currentLogo} alt="CivicFix Logo" className="h-8 md:h-10 w-auto object-contain" />
-                <span className="text-lg md:text-xl font-bold">CivicFix</span>
-              </div>
-              <p className="text-xs md:text-sm opacity-80" style={{ color: colors.mutedText }}>
-                Building better cities, together.
-              </p>
+      <footer
+        style={{
+          padding: "60px 48px 40px",
+          backgroundColor: t.background,
+          borderTop: `1px solid ${t.border}`,
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "32px",
+              marginBottom: "48px",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+              }}
+            >
+              <img
+                src={isDark ? darkLogo : lightLogo}
+                alt="CivicFix"
+                style={{ height: "32px", width: "auto" }}
+              />
+              <span
+                style={{
+                  fontSize: "18px",
+                  fontWeight: "600",
+                }}
+              >
+                CivicFix
+              </span>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-4 md:gap-8">
-              {["About", "Features", "Contact"].map((item, idx) => (
-                <Link key={idx} to="#" className="text-xs md:text-sm relative group overflow-hidden px-2 py-1" style={{ color: colors.text }}>
-                  <span className="relative z-10">{item}</span>
-                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 hidden md:block" style={{ background: colors.shinyOverlay }} />
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300" style={{ backgroundColor: colors.accent }} />
+            <div
+              style={{
+                display: "flex",
+                gap: "32px",
+                flexWrap: "wrap",
+              }}
+            >
+              {["About", "Features", "Roles", "Contact"].map((item) => (
+                <Link
+                  key={item}
+                  to="#"
+                  style={{
+                    fontSize: "14px",
+                    color: t.textMuted,
+                    textDecoration: "none",
+                    transition: "color 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = t.accent)}
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = t.textMuted)
+                  }
+                >
+                  {item}
                 </Link>
               ))}
             </div>
           </div>
 
-          <div className="mt-6 md:mt-8 pt-6 md:pt-8 text-center" style={{ borderTop: `1px solid ${colors.border}` }}>
-            <p className="text-xs md:text-sm opacity-80" style={{ color: colors.mutedText }}>
-              © {new Date().getFullYear()} CivicFix. All rights reserved.
-            </p>
+          <div
+            style={{
+              paddingTop: "32px",
+              borderTop: `1px solid ${t.border}`,
+              textAlign: "center",
+              fontSize: "13px",
+              color: t.textMuted,
+            }}
+          >
+            © {new Date().getFullYear()} CivicFix. All rights reserved.
           </div>
         </div>
       </footer>
-
-      <style jsx>{`
-        @keyframes slideDown {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-slideDown {
-          animation: slideDown 0.3s ease-out;
-        }
-      `}</style>
     </div>
   );
 };
 
 export default HomePage;
-
