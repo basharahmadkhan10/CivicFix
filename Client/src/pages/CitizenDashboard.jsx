@@ -354,11 +354,6 @@ const CitizenDashboard = () => {
               gap: "8px",
             }}
           >
-            <img
-              src={currentLogo}
-              alt="CivicFix"
-              style={{ height: "32px", width: "auto", objectFit: "contain" }}
-            />
             <span style={{
               fontFamily: "'Inter', sans-serif",
               fontSize: "20px",
@@ -879,3 +874,4 @@ const CitizenDashboard = () => {
 };
 
 export default CitizenDashboard;
+
