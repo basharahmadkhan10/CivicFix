@@ -349,35 +349,35 @@ const CitizenDashboard = () => {
           backdropFilter: "blur(10px)",
         }}
       >
-       <div
-  onClick={() => scrollToSection(0)}
-  style={{
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    gap: "4px",
-  }}
->
-  <span style={{
-    fontFamily: "'Inter', sans-serif",
-    fontSize: "24px",
-    fontWeight: "700",
-    letterSpacing: "-0.5px",
-    color: t.text,
-  }}>
-    CIVIC
-  </span>
-  <span style={{
-    fontFamily: "'Inter', sans-serif",
-    fontSize: "24px",
-    fontWeight: "700",
-    letterSpacing: "-0.5px",
-    color: t.accent,
-  }}>
-    FIX
-  </span>
-</div>
+        <div className="flex justify-between items-center">
+          {/* Logo - Fixed */}
+          <div
+            onClick={() => navigate("/dashboard")}
+            style={{
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            <img
+              src={currentLogo}
+              alt="CivicFix"
+              style={{ height: "32px", width: "auto", objectFit: "contain" }}
+            />
+            <span style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: "20px",
+              fontWeight: "700",
+              letterSpacing: "-0.5px",
+              color: colors.text,
+            }}>
+              CIVIC
+              <span style={{ color: colors.accent }}>FIX</span>
+            </span>
+          </div>
 
+          {/* Mobile Menu Button */}
           <button
             onClick={(e) => { e.stopPropagation(); setMobileMenuOpen(!mobileMenuOpen); }}
             className="md:hidden p-2 rounded-lg"
@@ -389,6 +389,7 @@ const CitizenDashboard = () => {
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
 
+          {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
             <button
               onClick={toggleTheme}
@@ -399,7 +400,7 @@ const CitizenDashboard = () => {
                 color: colors.text,
               }}
             >
-              {theme === "dark" ? "Light" : "Dark"}
+              {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
             </button>
 
             <button
@@ -426,6 +427,7 @@ const CitizenDashboard = () => {
               <span>New Complaint</span>
             </button>
 
+            {/* Profile Dropdown */}
             <div className="relative">
               <button
                 className="flex items-center space-x-2 p-2 rounded-xl"
@@ -459,11 +461,19 @@ const CitizenDashboard = () => {
                     boxShadow: colors.shadow,
                   }}
                 >
-                  <button onClick={navigateToProfile} className="flex items-center space-x-2 w-full px-4 py-3 hover:bg-opacity-80 text-left transition-colors">
+                  <button 
+                    onClick={navigateToProfile} 
+                    className="flex items-center space-x-2 w-full px-4 py-3 hover:bg-opacity-80 text-left transition-colors"
+                    style={{ color: colors.text }}
+                  >
                     <User size={16} />
                     <span>Profile</span>
                   </button>
-                  <button onClick={handleLogout} className="flex items-center space-x-2 w-full px-4 py-3 hover:bg-opacity-80 text-left transition-colors">
+                  <button 
+                    onClick={handleLogout} 
+                    className="flex items-center space-x-2 w-full px-4 py-3 hover:bg-opacity-80 text-left transition-colors"
+                    style={{ color: colors.danger }}
+                  >
                     <LogOut size={16} />
                     <span>Logout</span>
                   </button>
@@ -473,6 +483,7 @@ const CitizenDashboard = () => {
           </div>
         </div>
 
+        {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div
             className="md:hidden mt-3 p-4 rounded-xl animate-slideDown"
@@ -484,35 +495,46 @@ const CitizenDashboard = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col space-y-3">
-              <button onClick={() => { toggleTheme(); setMobileMenuOpen(false); }}
+              <button 
+                onClick={() => { toggleTheme(); setMobileMenuOpen(false); }}
                 className="w-full text-left py-3 px-4 rounded-lg flex items-center justify-between"
-                style={{ backgroundColor: colors.cardHover, border: `1px solid ${colors.border}` }}>
-                <span>{theme === "dark" ? "Light Mode" : " Dark Mode"}</span>
+                style={{ backgroundColor: colors.cardHover, border: `1px solid ${colors.border}` }}
+              >
+                <span style={{ color: colors.text }}>{theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}</span>
               </button>
-              <button onClick={() => { handleRefresh(); setMobileMenuOpen(false); }}
+              <button 
+                onClick={() => { handleRefresh(); setMobileMenuOpen(false); }}
                 className="w-full text-left py-3 px-4 rounded-lg flex items-center justify-between"
-                style={{ backgroundColor: colors.cardHover, border: `1px solid ${colors.border}` }}>
-                <span>🔄 Refresh</span>
+                style={{ backgroundColor: colors.cardHover, border: `1px solid ${colors.border}` }}
+              >
+                <span style={{ color: colors.text }}>🔄 Refresh</span>
               </button>
-              <button onClick={() => { navigateToNewComplaint(); setMobileMenuOpen(false); }}
+              <button 
+                onClick={() => { navigateToNewComplaint(); setMobileMenuOpen(false); }}
                 className="w-full text-left py-3 px-4 rounded-lg flex items-center justify-between"
-                style={{ backgroundColor: colors.accent, color: theme === "dark" ? "#000" : "#FFF" }}>
+                style={{ backgroundColor: colors.accent, color: theme === "dark" ? "#000" : "#FFF" }}
+              >
                 <span>➕ New Complaint</span>
               </button>
-              <button onClick={navigateToProfile}
+              <button 
+                onClick={navigateToProfile}
                 className="w-full text-left py-3 px-4 rounded-lg flex items-center justify-between"
-                style={{ backgroundColor: colors.cardHover, border: `1px solid ${colors.border}` }}>
-                <span>👤 Profile</span>
+                style={{ backgroundColor: colors.cardHover, border: `1px solid ${colors.border}` }}
+              >
+                <span style={{ color: colors.text }}>👤 Profile</span>
               </button>
-              <button onClick={handleLogout}
+              <button 
+                onClick={handleLogout}
                 className="w-full text-left py-3 px-4 rounded-lg flex items-center justify-between"
-                style={{ color: colors.danger, backgroundColor: colors.cardHover, border: `1px solid ${colors.border}` }}>
+                style={{ backgroundColor: colors.cardHover, border: `1px solid ${colors.border}`, color: colors.danger }}
+              >
                 <span>🚪 Logout</span>
               </button>
             </div>
           </div>
         )}
 
+        {/* Tabs */}
         <div className="flex mt-3 overflow-x-auto hide-scrollbar gap-1">
           {["overview", "my-complaints"].map((tab) => (
             <button
@@ -534,6 +556,7 @@ const CitizenDashboard = () => {
       <main className="p-3 sm:p-4 md:p-6 max-w-7xl mx-auto">
         {activeTab === "overview" && (
           <>
+            {/* Welcome Section */}
             <div className="mb-6 sm:mb-8 mt-4">
               <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2">
                 Welcome Back{" "}
@@ -546,6 +569,7 @@ const CitizenDashboard = () => {
               </p>
             </div>
 
+            {/* Stats Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4 mb-6 sm:mb-8">
               <StatCard title="Total" value={stats.total} color={colors.info} icon={<AlertCircle size={20} />} />
               <StatCard title="Created" value={stats.created} color={colors.info} icon={<AlertCircle size={20} />} />
@@ -554,58 +578,69 @@ const CitizenDashboard = () => {
               <StatCard title="Resolved" value={stats.resolved} color={colors.success} icon={<CheckCircle size={20} />} subtitle={`${stats.total > 0 ? Math.round((stats.resolved / stats.total) * 100) : 0}%`} />
             </div>
 
+            {/* Quick Actions */}
             <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 mb-6 sm:mb-8">
-              <button onClick={navigateToNewComplaint}
+              <button 
+                onClick={navigateToNewComplaint}
                 className="p-3 sm:p-4 rounded-xl text-left transition-all duration-300 hover:scale-[1.02]"
-                style={{ backgroundColor: colors.card, border: `2px solid ${colors.accent}`, boxShadow: colors.shadow }}>
+                style={{ backgroundColor: colors.card, border: `2px solid ${colors.accent}`, boxShadow: colors.shadow }}
+              >
                 <div className="flex items-center space-x-2 mb-1">
                   <div className="p-1.5 rounded-lg" style={{ backgroundColor: `${colors.accent}20` }}>
                     <Plus size={16} style={{ color: colors.accent }} />
                   </div>
-                  <div className="font-medium text-sm">Report New Issue</div>
+                  <div className="font-medium text-sm" style={{ color: colors.text }}>Report New Issue</div>
                 </div>
                 <p className="text-xs" style={{ color: colors.muted }}>File a new complaint</p>
               </button>
 
-              <button onClick={() => handleFilter("RESOLVED")}
+              <button 
+                onClick={() => handleFilter("RESOLVED")}
                 className="p-3 sm:p-4 rounded-xl text-left transition-all duration-300 hover:scale-[1.02]"
-                style={{ backgroundColor: colors.card, border: `2px solid ${colors.success}`, boxShadow: colors.shadow }}>
+                style={{ backgroundColor: colors.card, border: `2px solid ${colors.success}`, boxShadow: colors.shadow }}
+              >
                 <div className="flex items-center space-x-2 mb-1">
                   <div className="p-1.5 rounded-lg" style={{ backgroundColor: `${colors.success}20` }}>
                     <CheckCircle size={16} style={{ color: colors.success }} />
                   </div>
-                  <div className="font-medium text-sm">Resolved</div>
+                  <div className="font-medium text-sm" style={{ color: colors.text }}>Resolved</div>
                 </div>
                 <p className="text-xs" style={{ color: colors.muted }}>View resolved</p>
               </button>
 
-              <button onClick={() => handleFilter("IN_PROGRESS")}
+              <button 
+                onClick={() => handleFilter("IN_PROGRESS")}
                 className="p-3 sm:p-4 rounded-xl text-left transition-all duration-300 hover:scale-[1.02]"
-                style={{ backgroundColor: colors.card, border: `2px solid ${colors.warning}`, boxShadow: colors.shadow }}>
+                style={{ backgroundColor: colors.card, border: `2px solid ${colors.warning}`, boxShadow: colors.shadow }}
+              >
                 <div className="flex items-center space-x-2 mb-1">
                   <div className="p-1.5 rounded-lg" style={{ backgroundColor: `${colors.warning}20` }}>
                     <Clock size={16} style={{ color: colors.warning }} />
                   </div>
-                  <div className="font-medium text-sm">In Progress</div>
+                  <div className="font-medium text-sm" style={{ color: colors.text }}>In Progress</div>
                 </div>
                 <p className="text-xs" style={{ color: colors.muted }}>Track ongoing</p>
               </button>
 
-              <button onClick={handleRefresh}
+              <button 
+                onClick={handleRefresh}
                 className="p-3 sm:p-4 rounded-xl text-left transition-all duration-300 hover:scale-[1.02]"
-                style={{ backgroundColor: colors.card, border: `2px solid ${colors.info}`, boxShadow: colors.shadow }}>
+                style={{ backgroundColor: colors.card, border: `2px solid ${colors.info}`, boxShadow: colors.shadow }}
+              >
                 <div className="flex items-center space-x-2 mb-1">
                   <div className="p-1.5 rounded-lg" style={{ backgroundColor: `${colors.info}20` }}>
                     <RefreshCw size={16} style={{ color: colors.info }} />
                   </div>
-                  <div className="font-medium text-sm">Refresh</div>
+                  <div className="font-medium text-sm" style={{ color: colors.text }}>Refresh</div>
                 </div>
                 <p className="text-xs" style={{ color: colors.muted }}>Update data</p>
               </button>
             </div>
+
+            {/* Recent Complaints */}
             <div>
               <div className="flex justify-between items-center mb-3 sm:mb-4">
-                <h2 className="text-lg sm:text-xl font-bold">Recent Complaints</h2>
+                <h2 className="text-lg sm:text-xl font-bold" style={{ color: colors.text }}>Recent Complaints</h2>
                 <button onClick={() => setActiveTab("my-complaints")} className="text-sm" style={{ color: colors.accent }}>
                   View All →
                 </button>
@@ -614,30 +649,38 @@ const CitizenDashboard = () => {
               {complaints.length === 0 ? (
                 <div className="text-center py-8 rounded-xl" style={{ backgroundColor: colors.card, border: `2px solid ${colors.border}` }}>
                   <AlertCircle size={40} className="mx-auto mb-4" style={{ color: colors.muted }} />
-                  <h3 className="text-base sm:text-lg font-bold mb-2">No complaints yet</h3>
+                  <h3 className="text-base sm:text-lg font-bold mb-2" style={{ color: colors.text }}>No complaints yet</h3>
                   <p className="text-sm mb-4" style={{ color: colors.muted }}>Start by creating your first complaint!</p>
-                  <button onClick={navigateToNewComplaint} className="px-6 py-3 rounded-lg font-medium text-sm"
-                    style={{ backgroundColor: colors.accent, color: theme === "dark" ? "#000" : "#FFF" }}>
+                  <button 
+                    onClick={navigateToNewComplaint} 
+                    className="px-6 py-3 rounded-lg font-medium text-sm"
+                    style={{ backgroundColor: colors.accent, color: theme === "dark" ? "#000" : "#FFF" }}
+                  >
                     Create First Complaint
                   </button>
                 </div>
               ) : (
                 <div className="space-y-3 sm:space-y-4">
                   {complaints.slice(0, 5).map((complaint) => (
-                    <div key={complaint._id} className="p-3 sm:p-4 rounded-xl transition-all duration-300 hover:scale-[1.01]"
-                      style={{ backgroundColor: colors.card, border: `2px solid ${colors.border}`, boxShadow: colors.shadow }}>
+                    <div 
+                      key={complaint._id} 
+                      className="p-3 sm:p-4 rounded-xl transition-all duration-300 hover:scale-[1.01]"
+                      style={{ backgroundColor: colors.card, border: `2px solid ${colors.border}`, boxShadow: colors.shadow }}
+                    >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex-1">
                           <div className="flex flex-wrap items-center gap-2 mb-2">
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium"
-                              style={{ backgroundColor: `${getStatusColor(complaint.status)}20`, color: getStatusColor(complaint.status) }}>
+                            <span 
+                              className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium"
+                              style={{ backgroundColor: `${getStatusColor(complaint.status)}20`, color: getStatusColor(complaint.status) }}
+                            >
                               {getStatusIcon(complaint.status)} {complaint.status}
                             </span>
                             <span className="text-xs" style={{ color: colors.muted }}>
                               {new Date(complaint.createdAt).toLocaleDateString()}
                             </span>
                           </div>
-                          <h3 className="font-bold text-base sm:text-lg mb-1">{complaint.title}</h3>
+                          <h3 className="font-bold text-base sm:text-lg mb-1" style={{ color: colors.text }}>{complaint.title}</h3>
                           <p className="text-xs sm:text-sm line-clamp-2" style={{ color: colors.muted }}>{complaint.description}</p>
                           <div className="flex flex-wrap items-center gap-2 mt-2">
                             <span className="text-xs flex items-center" style={{ color: colors.muted }}>
@@ -648,9 +691,11 @@ const CitizenDashboard = () => {
                             </span>
                           </div>
                         </div>
-                        <button onClick={() => navigateToComplaintDetails(complaint._id)}
+                        <button 
+                          onClick={() => navigateToComplaintDetails(complaint._id)}
                           className="w-full sm:w-auto px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2 text-sm"
-                          style={{ backgroundColor: colors.accent, color: theme === "dark" ? "#000" : "#FFF" }}>
+                          style={{ backgroundColor: colors.accent, color: theme === "dark" ? "#000" : "#FFF" }}
+                        >
                           <Eye size={14} /> View
                         </button>
                       </div>
@@ -664,30 +709,54 @@ const CitizenDashboard = () => {
 
         {activeTab === "my-complaints" && (
           <div>
-       
+            {/* Search and Filter */}
             <div className="flex flex-col gap-3 mb-4 sm:mb-6">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">My Complaints</h1>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold" style={{ color: colors.text }}>My Complaints</h1>
               <div className="flex flex-col gap-3">
                 {/* Search Bar */}
                 <div className="relative w-full">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2" size={16} style={{ color: colors.muted }} />
-                  <input type="text" placeholder="Search complaints..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                  <input 
+                    type="text" 
+                    placeholder="Search complaints..." 
+                    value={searchQuery} 
+                    onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyPress={(e) => e.key === "Enter" && handleSearch()}
                     className="w-full pl-9 pr-10 py-2.5 text-sm rounded-lg focus:outline-none focus:ring-2"
-                    style={{ backgroundColor: colors.card, border: `2px solid ${colors.border}`, color: colors.text, outlineColor: colors.accent }} />
-                  <button onClick={handleSearch} className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    style={{ backgroundColor: colors.card, border: `2px solid ${colors.border}`, color: colors.text, outlineColor: colors.accent }} 
+                  />
+                  <button 
+                    onClick={handleSearch} 
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                  >
                     <Search size={14} style={{ color: colors.muted }} />
                   </button>
                 </div>
 
+                {/* Filter Buttons */}
                 <div className="flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
-                  <button onClick={() => handleFilter("ALL")} className="px-3 py-2 rounded-lg text-xs whitespace-nowrap transition-all flex-shrink-0"
-                    style={{ backgroundColor: selectedStatusFilter === "ALL" ? colors.accent : colors.card, color: selectedStatusFilter === "ALL" ? (theme === "dark" ? "#000" : "#FFF") : colors.text, border: `2px solid ${colors.accent}` }}>
+                  <button 
+                    onClick={() => handleFilter("ALL")} 
+                    className="px-3 py-2 rounded-lg text-xs whitespace-nowrap transition-all flex-shrink-0"
+                    style={{ 
+                      backgroundColor: selectedStatusFilter === "ALL" ? colors.accent : colors.card, 
+                      color: selectedStatusFilter === "ALL" ? (theme === "dark" ? "#000" : "#FFF") : colors.text, 
+                      border: `2px solid ${colors.accent}` 
+                    }}
+                  >
                     <Filter size={12} className="inline mr-1" /> All
                   </button>
                   {["CREATED", "ASSIGNED", "IN_PROGRESS", "RESOLVED", "REJECTED"].map((status) => (
-                    <button key={status} onClick={() => handleFilter(status)} className="px-3 py-2 rounded-lg text-xs whitespace-nowrap transition-all flex-shrink-0"
-                      style={{ backgroundColor: selectedStatusFilter === status ? getStatusColor(status) : colors.card, color: selectedStatusFilter === status ? "#FFF" : colors.text, border: `2px solid ${getStatusColor(status)}` }}>
+                    <button 
+                      key={status} 
+                      onClick={() => handleFilter(status)} 
+                      className="px-3 py-2 rounded-lg text-xs whitespace-nowrap transition-all flex-shrink-0"
+                      style={{ 
+                        backgroundColor: selectedStatusFilter === status ? getStatusColor(status) : colors.card, 
+                        color: selectedStatusFilter === status ? "#FFF" : colors.text, 
+                        border: `2px solid ${getStatusColor(status)}` 
+                      }}
+                    >
                       {status}
                     </button>
                   ))}
@@ -695,16 +764,20 @@ const CitizenDashboard = () => {
               </div>
             </div>
 
+            {/* Complaints List */}
             {complaints.length === 0 ? (
               <div className="text-center py-8 sm:py-12 rounded-xl" style={{ backgroundColor: colors.card, border: `2px solid ${colors.border}` }}>
                 <AlertCircle size={40} className="mx-auto mb-4" style={{ color: colors.muted }} />
-                <h3 className="text-base sm:text-lg font-bold mb-2">No complaints found</h3>
+                <h3 className="text-base sm:text-lg font-bold mb-2" style={{ color: colors.text }}>No complaints found</h3>
                 <p className="text-sm mb-4" style={{ color: colors.muted }}>
                   {searchQuery ? "No complaints match your search criteria." : "You haven't created any complaints yet."}
                 </p>
                 {!searchQuery && (
-                  <button onClick={navigateToNewComplaint} className="px-6 py-3 rounded-lg font-medium text-sm"
-                    style={{ backgroundColor: colors.accent, color: theme === "dark" ? "#000" : "#FFF" }}>
+                  <button 
+                    onClick={navigateToNewComplaint} 
+                    className="px-6 py-3 rounded-lg font-medium text-sm"
+                    style={{ backgroundColor: colors.accent, color: theme === "dark" ? "#000" : "#FFF" }}
+                  >
                     Create Your First Complaint
                   </button>
                 )}
@@ -712,17 +785,22 @@ const CitizenDashboard = () => {
             ) : (
               <div className="space-y-3">
                 {complaints.map((complaint) => (
-                  <div key={complaint._id} className="p-3 sm:p-4 rounded-lg transition-all duration-300 hover:scale-[1.01]"
-                    style={{ backgroundColor: colors.card, border: `2px solid ${colors.border}`, boxShadow: colors.shadow }}>
+                  <div 
+                    key={complaint._id} 
+                    className="p-3 sm:p-4 rounded-lg transition-all duration-300 hover:scale-[1.01]"
+                    style={{ backgroundColor: colors.card, border: `2px solid ${colors.border}`, boxShadow: colors.shadow }}
+                  >
                     <div className="flex flex-col gap-2">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium"
-                          style={{ backgroundColor: `${getStatusColor(complaint.status)}20`, color: getStatusColor(complaint.status) }}>
+                        <span 
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium"
+                          style={{ backgroundColor: `${getStatusColor(complaint.status)}20`, color: getStatusColor(complaint.status) }}
+                        >
                           {getStatusIcon(complaint.status)} {complaint.status}
                         </span>
                         <span className="text-xs" style={{ color: colors.muted }}>{new Date(complaint.createdAt).toLocaleDateString()}</span>
                       </div>
-                      <h3 className="font-bold text-sm sm:text-base">{complaint.title}</h3>
+                      <h3 className="font-bold text-sm sm:text-base" style={{ color: colors.text }}>{complaint.title}</h3>
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-xs px-2 py-1 rounded-full" style={{ backgroundColor: colors.categoryBg, color: colors.categoryText }}>
                           {complaint.category}
@@ -732,13 +810,19 @@ const CitizenDashboard = () => {
                         </span>
                       </div>
                       <div className="flex gap-2 mt-1">
-                        <button onClick={() => navigateToComplaintDetails(complaint._id)} className="flex-1 px-3 py-2 rounded text-xs font-medium"
-                          style={{ backgroundColor: colors.accent, color: theme === "dark" ? "#000" : "#FFF" }}>
+                        <button 
+                          onClick={() => navigateToComplaintDetails(complaint._id)} 
+                          className="flex-1 px-3 py-2 rounded text-xs font-medium"
+                          style={{ backgroundColor: colors.accent, color: theme === "dark" ? "#000" : "#FFF" }}
+                        >
                           View Details
                         </button>
                         {["CREATED", "ASSIGNED"].includes(complaint.status) && (
-                          <button onClick={() => navigateToEditComplaint(complaint._id)} className="flex-1 px-3 py-2 rounded text-xs font-medium"
-                            style={{ backgroundColor: colors.card, border: `2px solid ${colors.accent}`, color: colors.text }}>
+                          <button 
+                            onClick={() => navigateToEditComplaint(complaint._id)} 
+                            className="flex-1 px-3 py-2 rounded text-xs font-medium"
+                            style={{ backgroundColor: colors.card, border: `2px solid ${colors.accent}`, color: colors.text }}
+                          >
                             Edit
                           </button>
                         )}
@@ -752,6 +836,7 @@ const CitizenDashboard = () => {
         )}
       </main>
 
+      {/* Footer */}
       <footer className="mt-8 py-4 sm:py-6 px-3 sm:px-4 border-t" style={{ borderColor: colors.border, backgroundColor: colors.bg }}>
         <div className="max-w-7xl mx-auto text-center">
           <p className="text-xs" style={{ color: colors.muted }}>
@@ -764,4 +849,3 @@ const CitizenDashboard = () => {
 };
 
 export default CitizenDashboard;
-
