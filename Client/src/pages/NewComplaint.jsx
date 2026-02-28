@@ -19,33 +19,60 @@ const NewComplaint = () => {
     priority: "MEDIUM",
   });
 
-  const categories = ["Road", "Water", "Electricity", "Sanitation", "Other"];
+  const categories = ["Road", "Water", "Electricity", "Sanitation", "Public Lighting", "Traffic", "Illegal Construction", "Other"];
   
   const priorities = [
-    { value: "LOW", label: "Low Priority", color: "green" },
-    { value: "MEDIUM", label: "Medium Priority", color: "yellow" },
-    { value: "HIGH", label: "High Priority", color: "orange" },
-    { value: "CRITICAL", label: "Critical Priority", color: "red" },
+    { value: "LOW", label: "Low Priority" },
+    { value: "MEDIUM", label: "Medium Priority" },
+    { value: "HIGH", label: "High Priority" },
+    { value: "CRITICAL", label: "Critical Priority" },
   ];
 
-  const colors =
-    theme === "light"
-      ? { 
-          bg: "#ffffff", 
-          text: "#000000", 
-          card: "#f3f4f6", 
-          border: "#e5e7eb",
-          primary: "#10b981",
-          danger: "#ef4444"
-        }
-      : { 
-          bg: "#000000", 
-          text: "#ffffff", 
-          card: "#111111", 
-          border: "#374151",
-          primary: "#10b981",
-          danger: "#ef4444"
-        };
+  // Modern theme with #97AB33
+  const getThemeColors = () => {
+    const accentColor = "#97AB33";
+    
+    if (theme === "light") {
+      return {
+        bg: "#FFFFFF",
+        text: "#1A202C",
+        card: "#FFFFFF",
+        cardHover: "#F7FAFC",
+        border: "#E2E8F0",
+        borderAccent: `2px solid ${accentColor}`,
+        accent: accentColor,
+        accentLight: "rgba(151, 171, 51, 0.1)",
+        accentHover: "#8A9E2E",
+        success: "#38A169",
+        warning: "#F6AD55",
+        danger: "#FC8181",
+        info: "#4299E1",
+        primary: accentColor,
+        muted: "#718096",
+        shadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+      };
+    }
+    return {
+      bg: "#0A0A0A",
+      text: "#FFFFFF",
+      card: "#111111",
+      cardHover: "#1A1A1A",
+      border: "#2D3748",
+      borderAccent: `2px solid ${accentColor}`,
+      accent: accentColor,
+      accentLight: "rgba(151, 171, 51, 0.15)",
+      accentHover: "#A8C03E",
+      success: "#68D391",
+      warning: "#FBD38D",
+      danger: "#FC8181",
+      info: "#63B3ED",
+      primary: accentColor,
+      muted: "#A0AEC0",
+      shadow: "0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)",
+    };
+  };
+
+  const colors = getThemeColors();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -142,23 +169,38 @@ const NewComplaint = () => {
 
   return (
     <div
-      className="min-h-screen p-3 sm:p-4"
-      style={{ backgroundColor: colors.bg, color: colors.text }}
+      className="min-h-screen p-3 sm:p-4 md:p-6"
+      style={{ 
+        backgroundColor: colors.bg, 
+        color: colors.text,
+        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+      }}
     >
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+      `}</style>
+
       {/* Back Button */}
       <button
         onClick={() => navigate("/dashboard")}
-        className="mb-4 flex items-center text-sm"
-        style={{ color: colors.primary }}
+        className="mb-4 flex items-center text-sm px-3 py-2 rounded-lg transition-all hover:scale-105"
+        style={{
+          backgroundColor: colors.card,
+          border: `2px solid ${colors.accent}`,
+          color: colors.text,
+        }}
       >
         <ArrowLeft size={18} className="mr-1" />
         Back to Dashboard
       </button>
 
       {/* Header */}
-      <header className="mb-4 text-center">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Create New Complaint</h1>
-        <p className="text-xs sm:text-sm opacity-75 mt-1">
+      <header className="mb-6 text-center">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold" style={{ color: colors.accent }}>
+          Create New Complaint
+        </h1>
+        <p className="text-xs sm:text-sm mt-1" style={{ color: colors.muted }}>
           Report an issue in your area
         </p>
       </header>
@@ -167,7 +209,7 @@ const NewComplaint = () => {
       <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
         {/* Title */}
         <div className="mb-4">
-          <label className="block mb-2 text-sm font-medium">
+          <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>
             Title <span className="text-red-500">*</span>
           </label>
           <input
@@ -176,36 +218,40 @@ const NewComplaint = () => {
             value={formData.title}
             onChange={handleInputChange}
             placeholder="Brief title (min. 10 characters)"
-            className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-2"
+            className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-2 transition-all"
             style={{
               backgroundColor: colors.card,
-              border: `1px solid ${colors.border}`,
+              border: `2px solid ${colors.accent}`,
+              color: colors.text,
+              outlineColor: colors.accent,
             }}
             required
           />
-          <div className="text-xs opacity-75 mt-1">
-            {formData.title.length}/10
+          <div className="text-xs mt-1" style={{ color: colors.muted }}>
+            {formData.title.length}/10 characters
           </div>
         </div>
 
         {/* Category, Area, Priority */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
           <div>
-            <label className="block mb-2 text-sm font-medium">
+            <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>
               Category <span className="text-red-500">*</span>
             </label>
             <select
               name="category"
               value={formData.category}
               onChange={handleInputChange}
-              className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-2"
+              className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-2 transition-all"
               style={{
                 backgroundColor: colors.card,
-                border: `1px solid ${colors.border}`,
+                border: `2px solid ${colors.accent}`,
+                color: colors.text,
+                outlineColor: colors.accent,
               }}
               required
             >
-              <option value="">Select</option>
+              <option value="">Select Category</option>
               {categories.map((cat) => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
@@ -213,7 +259,7 @@ const NewComplaint = () => {
           </div>
 
           <div>
-            <label className="block mb-2 text-sm font-medium">
+            <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>
               Area <span className="text-red-500">*</span>
             </label>
             <input
@@ -221,28 +267,32 @@ const NewComplaint = () => {
               name="area"
               value={formData.area}
               onChange={handleInputChange}
-              placeholder="e.g., Main St"
-              className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-2"
+              placeholder="e.g., Main Street"
+              className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-2 transition-all"
               style={{
                 backgroundColor: colors.card,
-                border: `1px solid ${colors.border}`,
+                border: `2px solid ${colors.accent}`,
+                color: colors.text,
+                outlineColor: colors.accent,
               }}
               required
             />
           </div>
 
           <div>
-            <label className="block mb-2 text-sm font-medium">
+            <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>
               Priority <span className="text-red-500">*</span>
             </label>
             <select
               name="priority"
               value={formData.priority}
               onChange={handleInputChange}
-              className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-2"
+              className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-2 transition-all"
               style={{
                 backgroundColor: colors.card,
-                border: `1px solid ${colors.border}`,
+                border: `2px solid ${colors.accent}`,
+                color: colors.text,
+                outlineColor: colors.accent,
               }}
               required
             >
@@ -255,7 +305,7 @@ const NewComplaint = () => {
 
         {/* Description */}
         <div className="mb-4">
-          <label className="block mb-2 text-sm font-medium">
+          <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>
             Description <span className="text-red-500">*</span>
           </label>
           <textarea
@@ -264,35 +314,38 @@ const NewComplaint = () => {
             onChange={handleInputChange}
             placeholder="Detailed description (min. 50 characters)"
             rows="5"
-            className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-2"
+            className="w-full p-3 rounded-lg text-sm focus:outline-none focus:ring-2 transition-all"
             style={{
               backgroundColor: colors.card,
-              border: `1px solid ${colors.border}`,
+              border: `2px solid ${colors.accent}`,
+              color: colors.text,
+              outlineColor: colors.accent,
             }}
             required
           />
-          <div className="text-xs opacity-75 mt-1">
-            {formData.description.length}/50
+          <div className="text-xs mt-1" style={{ color: colors.muted }}>
+            {formData.description.length}/50 characters
           </div>
         </div>
 
         {/* Image Upload */}
         <div className="mb-4">
-          <label className="block mb-2 text-sm font-medium">
-            Images (Optional)
+          <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>
+            Images (Optional - Max 5)
           </label>
           
           <div className="mb-3">
             <label
-              className={`inline-flex items-center px-4 py-2 rounded-lg cursor-pointer text-sm ${
-                images.length >= 5 ? "opacity-50 cursor-not-allowed" : "hover:opacity-80"
+              className={`inline-flex items-center px-4 py-2 rounded-lg cursor-pointer text-sm transition-all ${
+                images.length >= 5 ? "opacity-50 cursor-not-allowed" : "hover:scale-105 hover:shadow-lg"
               }`}
               style={{
                 backgroundColor: colors.card,
-                border: `1px solid ${colors.border}`,
+                border: `2px solid ${colors.accent}`,
+                color: colors.text,
               }}
             >
-              <Upload size={16} className="mr-2" />
+              <Upload size={16} className="mr-2" style={{ color: colors.accent }} />
               Upload Images
               <input
                 type="file"
@@ -303,7 +356,7 @@ const NewComplaint = () => {
                 disabled={images.length >= 5}
               />
             </label>
-            <p className="text-xs opacity-75 mt-1">
+            <p className="text-xs mt-1" style={{ color: colors.muted }}>
               {images.length} / 5 images • Max 5MB each
             </p>
           </div>
@@ -316,12 +369,13 @@ const NewComplaint = () => {
                   <img
                     src={URL.createObjectURL(image)}
                     alt={`Preview ${index + 1}`}
-                    className="w-full h-16 sm:h-20 object-cover rounded-lg"
+                    className="w-full h-16 sm:h-20 object-cover rounded-lg border-2"
+                    style={{ borderColor: colors.accent }}
                   />
                   <button
                     type="button"
                     onClick={() => removeImage(index)}
-                    className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600"
+                    className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 transition-colors"
                   >
                     <X size={14} />
                   </button>
@@ -336,20 +390,21 @@ const NewComplaint = () => {
 
         {/* Important Notes */}
         <div
-          className="mb-4 p-3 rounded-lg text-sm"
+          className="mb-4 p-4 rounded-lg"
           style={{
-            backgroundColor: `${colors.border}20`,
-            border: `1px solid ${colors.border}`,
+            backgroundColor: colors.card,
+            border: `2px solid ${colors.accent}`,
           }}
         >
           <div className="flex items-start gap-2">
-            <AlertCircle size={16} className="text-blue-500 flex-shrink-0 mt-0.5" />
+            <AlertCircle size={16} style={{ color: colors.accent }} className="flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-medium mb-1">Important</h3>
-              <ul className="text-xs space-y-1 opacity-75">
+              <h3 className="font-medium mb-1" style={{ color: colors.accent }}>Important</h3>
+              <ul className="text-xs space-y-1" style={{ color: colors.muted }}>
                 <li>• Review within 24-48 hours</li>
-                <li>• Clear images help resolution</li>
-                <li>• Track progress in dashboard</li>
+                <li>• Clear images help with faster resolution</li>
+                <li>• Track your complaint progress in dashboard</li>
+                <li>• You'll receive notifications on status updates</li>
               </ul>
             </div>
           </div>
@@ -360,10 +415,11 @@ const NewComplaint = () => {
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="flex-1 px-4 py-3 rounded-lg font-medium text-sm hover:opacity-80"
+            className="flex-1 px-4 py-3 rounded-lg font-medium text-sm transition-all hover:scale-105"
             style={{
               backgroundColor: colors.card,
-              border: `1px solid ${colors.border}`,
+              border: `2px solid ${colors.accent}`,
+              color: colors.text,
             }}
           >
             Cancel
@@ -371,8 +427,12 @@ const NewComplaint = () => {
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 px-4 py-3 rounded-lg font-medium text-sm text-white disabled:opacity-50 hover:opacity-90 flex items-center justify-center"
-            style={{ backgroundColor: colors.primary }}
+            className="flex-1 px-4 py-3 rounded-lg font-medium text-sm disabled:opacity-50 transition-all hover:scale-105 flex items-center justify-center"
+            style={{
+              backgroundColor: colors.accent,
+              color: theme === "dark" ? "#000" : "#FFF",
+              border: `2px solid ${colors.accent}`,
+            }}
           >
             {loading ? (
               <>
