@@ -22,7 +22,7 @@ import Preloader from "../components/Preloader";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
-  const { theme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [pageLoaded, setPageLoaded] = useState(false);
@@ -40,22 +40,45 @@ const ProfilePage = () => {
   });
   const [originalData, setOriginalData] = useState({});
 
-  const colors =
-    theme === "light"
-      ? {
-          bg: "#ffffff",
-          text: "#000000",
-          card: "#f8f9fa",
-          border: "#e5e7eb",
-          accent: "#3b82f6",
-        }
-      : {
-          bg: "#000000",
-          text: "#ffffff",
-          card: "#111111",
-          border: "#374151",
-          accent: "#60a5fa",
-        };
+  const getThemeColors = () => {
+    const accentColor = "#97AB33";
+    
+    if (theme === "light") {
+      return {
+        bg: "#FFFFFF",
+        text: "#1A202C",
+        card: "#FFFFFF",
+        cardHover: "#F7FAFC",
+        border: "#E2E8F0",
+        accent: accentColor,
+        accentLight: "rgba(151, 171, 51, 0.1)",
+        success: "#38A169",
+        warning: "#F6AD55",
+        danger: "#FC8181",
+        info: "#4299E1",
+        muted: "#718096",
+        shadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+      };
+    }
+    return {
+      bg: "#0A0A0A",
+      text: "#FFFFFF",
+      card: "#111111",
+      cardHover: "#1A1A1A",
+      border: "#2D3748",
+      accent: accentColor,
+      accentLight: "rgba(151, 171, 51, 0.15)",
+      success: "#68D391",
+      warning: "#FBD38D",
+      danger: "#FC8181",
+      info: "#63B3ED",
+      muted: "#A0AEC0",
+      shadow: "0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)",
+    };
+  };
+
+  const colors = getThemeColors();
+  const isDark = theme === "dark";
 
   // Helper function to get full image URL
   const getFullImageUrl = (imagePath) => {
@@ -137,10 +160,7 @@ const ProfilePage = () => {
         }
       }
 
-      toast.error("Failed to load profile from server, using cached data", {
-        position: "top-right",
-        duration: 5000,
-      });
+      toast.error("Failed to load profile from server, using cached data");
     } finally {
       setLoading(false);
       setTimeout(() => {
@@ -163,19 +183,13 @@ const ProfilePage = () => {
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      toast.error("Please upload an image file", {
-        position: "top-right",
-        duration: 4000,
-      });
+      toast.error("Please upload an image file");
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image size should be less than 5MB", {
-        position: "top-right",
-        duration: 4000,
-      });
+      toast.error("Image size should be less than 5MB");
       return;
     }
 
@@ -188,19 +202,13 @@ const ProfilePage = () => {
     };
     reader.readAsDataURL(file);
 
-    toast.info("New profile image selected", {
-      position: "top-right",
-      duration: 3000,
-    });
+    toast.info("New profile image selected");
   };
 
   const removeProfileImage = () => {
     setNewProfileImageFile(null);
     setNewProfileImagePreview(null);
-    toast.info("Image selection cancelled", {
-      position: "top-right",
-      duration: 3000,
-    });
+    toast.info("Image selection cancelled");
   };
 
   const handleSaveProfile = async () => {
@@ -209,10 +217,7 @@ const ProfilePage = () => {
 
       // Validation
       if (!formData.name.trim()) {
-        toast.error("Name is required", {
-          position: "top-center",
-          duration: 4000,
-        });
+        toast.error("Name is required");
         setSaving(false);
         return;
       }
@@ -236,10 +241,7 @@ const ProfilePage = () => {
         updateData.append("profileImage", newProfileImageFile);
       }
 
-      toast.info("Updating profile...", {
-        position: "top-right",
-        duration: 2000,
-      });
+      toast.info("Updating profile...");
 
       const response = await api.patch("/v1/user/me", updateData, {
         headers: {
@@ -272,10 +274,7 @@ const ProfilePage = () => {
         setNewProfileImagePreview(null);
         setIsEditing(false);
 
-        toast.success("Profile updated successfully!", {
-          position: "top-right",
-          duration: 4000,
-        });
+        toast.success("Profile updated successfully!");
 
         // Refresh the page to show updated image
         setTimeout(() => {
@@ -288,10 +287,7 @@ const ProfilePage = () => {
         error.response?.data?.message ||
         error.message ||
         "Failed to update profile";
-      toast.error(`Update failed: ${errorMessage}`, {
-        position: "top-right",
-        duration: 5000,
-      });
+      toast.error(`Update failed: ${errorMessage}`);
     } finally {
       setSaving(false);
     }
@@ -302,10 +298,7 @@ const ProfilePage = () => {
     setNewProfileImageFile(null);
     setNewProfileImagePreview(null);
     setIsEditing(false);
-    toast.info("Changes discarded", {
-      position: "top-right",
-      duration: 3000,
-    });
+    toast.info("Changes discarded");
   };
 
   const handleLogout = () => {
@@ -318,7 +311,7 @@ const ProfilePage = () => {
         <div className="flex gap-2 mt-2">
           <button
             onClick={() => {
-              toast.removeToast(confirmToastId);
+              toast.dismiss(confirmToastId);
               performLogout();
             }}
             className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded transition-colors"
@@ -327,11 +320,8 @@ const ProfilePage = () => {
           </button>
           <button
             onClick={() => {
-              toast.removeToast(confirmToastId);
-              toast.info("Logout cancelled", {
-                position: "top-right",
-                duration: 3000,
-              });
+              toast.dismiss(confirmToastId);
+              toast.info("Logout cancelled");
             }}
             className="px-3 py-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-xs rounded transition-colors"
           >
@@ -349,10 +339,7 @@ const ProfilePage = () => {
   const performLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    toast.success("Logged out successfully", {
-      position: "top-right",
-      duration: 3000,
-    });
+    toast.success("Logged out successfully");
     navigate("/login");
   };
 
@@ -369,23 +356,66 @@ const ProfilePage = () => {
   return (
     <div
       className="min-h-screen p-4 md:p-6"
-      style={{ backgroundColor: colors.bg, color: colors.text }}
+      style={{ 
+        backgroundColor: colors.bg, 
+        color: colors.text,
+        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+      }}
     >
-      <button
-        onClick={() => {
-          toast.info("Returning to dashboard...");
-          setTimeout(() => {
-            navigate("/dashboard");
-          }, 500);
-        }}
-        className="px-4 py-2 rounded-lg flex items-center hover:opacity-90 transition-opacity"
-      >
-        <ArrowLeft size={18} className="mr-2" />
-      </button>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+      `}</style>
+
+      {/* Header with back button and theme toggle */}
+      <div className="flex justify-between items-center mb-6">
+        <button
+          onClick={() => {
+            toast.info("Returning to dashboard...");
+            setTimeout(() => {
+              navigate("/dashboard");
+            }, 500);
+          }}
+          className="flex items-center text-sm px-3 py-2 rounded-lg transition-all hover:opacity-80"
+          style={{ backgroundColor: colors.cardHover, color: colors.text }}
+        >
+          <ArrowLeft size={18} className="mr-1" />
+          Back to Dashboard
+        </button>
+        
+        <button
+          onClick={toggleTheme}
+          className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:opacity-80"
+          style={{ backgroundColor: colors.cardHover, color: colors.text }}
+        >
+          {isDark ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+          ) : (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+          )}
+        </button>
+      </div>
+
       {/* Header */}
-      <header className="mb-6 md:mb-8 flex items-center justify-between flex-col">
-        <h1 className="text-2xl md:text-3xl font-bold">My Profile</h1>
-        <p className="opacity-75 mt-1">Manage your personal information</p>
+      <header className="mb-8 text-center">
+        <h1 className="text-2xl md:text-3xl font-bold mb-2" style={{ color: colors.accent }}>
+          My Profile
+        </h1>
+        <p className="text-sm" style={{ color: colors.muted }}>
+          Manage your personal information
+        </p>
       </header>
 
       <div className="max-w-4xl mx-auto">
@@ -401,7 +431,7 @@ const ProfilePage = () => {
             {/* Profile Image */}
             <div className="relative">
               <div
-                className="w-32 h-32 rounded-full overflow-hidden border-4"
+                className="w-32 h-32 rounded-full overflow-hidden border-2"
                 style={{ borderColor: colors.accent }}
               >
                 {displayImage ? (
@@ -414,17 +444,17 @@ const ProfilePage = () => {
                       e.target.onerror = null;
                       e.target.style.display = "none";
                       e.target.parentElement.innerHTML = `
-                        <div class="w-full h-full flex items-center justify-center" style="background-color: ${colors.border}">
-                          <span style="color: ${colors.text}">${formData.name?.charAt(0) || "U"}</span>
+                        <div class="w-full h-full flex items-center justify-center" style="background-color: ${colors.cardHover}">
+                          <span style="color: ${colors.text}; font-size: 32px; font-weight: 600;">${formData.name?.charAt(0) || "U"}</span>
                         </div>
                       `;
                     }}
                   />
                 ) : (
                   <div
-                    className="w-full h-full flex items-center justify-center text-2xl font-bold"
+                    className="w-full h-full flex items-center justify-center text-3xl font-bold"
                     style={{
-                      backgroundColor: colors.border,
+                      backgroundColor: colors.cardHover,
                       color: colors.text,
                     }}
                   >
@@ -435,7 +465,8 @@ const ProfilePage = () => {
 
               {isEditing && (
                 <div className="absolute bottom-0 right-0 flex gap-2">
-                  <label className="cursor-pointer p-2 rounded-full bg-blue-500 hover:bg-blue-600 text-white transition-colors">
+                  <label className="cursor-pointer p-2 rounded-full transition-colors"
+                    style={{ backgroundColor: colors.accent, color: isDark ? "#000" : "#FFF" }}>
                     <Camera size={18} />
                     <input
                       type="file"
@@ -448,7 +479,8 @@ const ProfilePage = () => {
                     <button
                       type="button"
                       onClick={removeProfileImage}
-                      className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors"
+                      className="p-2 rounded-full transition-colors"
+                      style={{ backgroundColor: colors.danger, color: "#FFF" }}
                     >
                       <X size={18} />
                     </button>
@@ -461,11 +493,11 @@ const ProfilePage = () => {
             <div className="flex-1 text-center md:text-left">
               <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
                 <div>
-                  <h2 className="text-xl md:text-2xl font-bold mb-1">
+                  <h2 className="text-xl md:text-2xl font-bold mb-1" style={{ color: colors.text }}>
                     {formData.name}
                   </h2>
-                  <div className="flex items-center justify-center md:justify-start gap-2 text-sm opacity-75">
-                    <Shield size={14} />
+                  <div className="flex items-center justify-center md:justify-start gap-2 text-sm" style={{ color: colors.muted }}>
+                    <Shield size={14} style={{ color: colors.accent }} />
                     <span>{formData.role}</span>
                   </div>
                 </div>
@@ -473,10 +505,10 @@ const ProfilePage = () => {
                 {!isEditing ? (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="mt-4 md:mt-0 px-4 py-2 rounded-lg flex items-center gap-2 hover:opacity-80 transition-opacity"
+                    className="mt-4 md:mt-0 px-4 py-2 rounded-lg flex items-center gap-2 transition-all hover:opacity-80"
                     style={{
                       backgroundColor: colors.accent,
-                      color: "white",
+                      color: isDark ? "#000" : "#FFF",
                     }}
                   >
                     <Edit2 size={16} />
@@ -486,10 +518,10 @@ const ProfilePage = () => {
                   <div className="mt-4 md:mt-0 flex gap-2">
                     <button
                       onClick={handleCancelEdit}
-                      className="px-4 py-2 rounded-lg flex items-center gap-2 hover:opacity-80 transition-opacity"
+                      className="px-4 py-2 rounded-lg flex items-center gap-2 transition-all hover:opacity-80"
                       style={{
-                        backgroundColor: colors.card,
-                        border: `1px solid ${colors.border}`,
+                        backgroundColor: colors.cardHover,
+                        color: colors.text,
                       }}
                     >
                       <X size={16} />
@@ -498,10 +530,10 @@ const ProfilePage = () => {
                     <button
                       onClick={handleSaveProfile}
                       disabled={saving}
-                      className="px-4 py-2 rounded-lg flex items-center gap-2 hover:opacity-80 transition-opacity disabled:opacity-50"
+                      className="px-4 py-2 rounded-lg flex items-center gap-2 transition-all hover:opacity-80 disabled:opacity-50"
                       style={{
-                        backgroundColor: "#10b981",
-                        color: "white",
+                        backgroundColor: colors.accent,
+                        color: isDark ? "#000" : "#FFF",
                       }}
                     >
                       {saving ? (
@@ -521,40 +553,40 @@ const ProfilePage = () => {
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 <div
                   className="text-center p-3 rounded-lg"
-                  style={{ backgroundColor: `${colors.border}30` }}
+                  style={{ backgroundColor: colors.cardHover }}
                 >
-                  <div className="text-2xl font-bold">24</div>
-                  <div className="text-sm opacity-75">Complaints</div>
+                  <div className="text-xl font-bold" style={{ color: colors.accent }}>24</div>
+                  <div className="text-xs" style={{ color: colors.muted }}>Complaints</div>
                 </div>
                 <div
                   className="text-center p-3 rounded-lg"
-                  style={{ backgroundColor: `${colors.border}30` }}
+                  style={{ backgroundColor: colors.cardHover }}
                 >
-                  <div className="text-2xl font-bold">18</div>
-                  <div className="text-sm opacity-75">Resolved</div>
+                  <div className="text-xl font-bold" style={{ color: colors.success }}>18</div>
+                  <div className="text-xs" style={{ color: colors.muted }}>Resolved</div>
                 </div>
                 <div
                   className="text-center p-3 rounded-lg"
-                  style={{ backgroundColor: `${colors.border}30` }}
+                  style={{ backgroundColor: colors.cardHover }}
                 >
-                  <div className="text-2xl font-bold">4</div>
-                  <div className="text-sm opacity-75">In Progress</div>
+                  <div className="text-xl font-bold" style={{ color: colors.warning }}>4</div>
+                  <div className="text-xs" style={{ color: colors.muted }}>In Progress</div>
                 </div>
                 <div
                   className="text-center p-3 rounded-lg"
-                  style={{ backgroundColor: `${colors.border}30` }}
+                  style={{ backgroundColor: colors.cardHover }}
                 >
-                  <div className="text-2xl font-bold">2</div>
-                  <div className="text-sm opacity-75">Pending</div>
+                  <div className="text-xl font-bold" style={{ color: colors.info }}>2</div>
+                  <div className="text-xs" style={{ color: colors.muted }}>Pending</div>
                 </div>
               </div>
 
               {/* Member Since */}
-              <div className="flex items-center justify-center md:justify-start gap-2 text-sm opacity-75">
-                <Calendar size={14} />
+              <div className="flex items-center justify-center md:justify-start gap-2 text-sm" style={{ color: colors.muted }}>
+                <Calendar size={14} style={{ color: colors.accent }} />
                 <span>Member since {formData.joinDate}</span>
               </div>
             </div>
@@ -569,13 +601,15 @@ const ProfilePage = () => {
             border: `1px solid ${colors.border}`,
           }}
         >
-          <h3 className="text-lg font-bold mb-6">Personal Information</h3>
+          <h3 className="text-lg font-bold mb-6" style={{ color: colors.accent }}>
+            Personal Information
+          </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Name */}
             <div>
-              <label className="block mb-2 font-medium flex items-center gap-2">
-                <User size={16} />
+              <label className="block mb-2 text-sm font-medium flex items-center gap-2" style={{ color: colors.text }}>
+                <User size={16} style={{ color: colors.accent }} />
                 Full Name <span className="text-red-500">*</span>
               </label>
               {isEditing ? (
@@ -584,17 +618,18 @@ const ProfilePage = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full p-3 rounded-lg focus:outline-none focus:ring-2"
+                  className="w-full p-3 rounded-lg focus:outline-none focus:ring-1 text-sm"
                   style={{
-                    backgroundColor: colors.bg,
+                    backgroundColor: colors.cardHover,
                     border: `1px solid ${colors.border}`,
+                    color: colors.text,
                   }}
                   required
                 />
               ) : (
                 <div
-                  className="p-3 rounded-lg"
-                  style={{ backgroundColor: `${colors.border}20` }}
+                  className="p-3 rounded-lg text-sm"
+                  style={{ backgroundColor: colors.cardHover, color: colors.text }}
                 >
                   {formData.name}
                 </div>
@@ -603,114 +638,28 @@ const ProfilePage = () => {
 
             {/* Email */}
             <div>
-              <label className="block mb-2 font-medium flex items-center gap-2">
-                <Mail size={16} />
+              <label className="block mb-2 text-sm font-medium flex items-center gap-2" style={{ color: colors.text }}>
+                <Mail size={16} style={{ color: colors.accent }} />
                 Email Address
               </label>
               <div
-                className="p-3 rounded-lg"
-                style={{ backgroundColor: `${colors.border}20` }}
+                className="p-3 rounded-lg text-sm"
+                style={{ backgroundColor: colors.cardHover, color: colors.muted }}
               >
                 {formData.email}
               </div>
-              <p className="text-xs opacity-75 mt-1">Email cannot be changed</p>
-            </div>
-
-            {/* Phone */}
-            <div>
-              <label className="block mb-2 font-medium flex items-center gap-2">
-                <Phone size={16} />
-                Phone Number
-              </label>
-              {isEditing ? (
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  placeholder="Enter phone number"
-                  className="w-full p-3 rounded-lg focus:outline-none focus:ring-2"
-                  style={{
-                    backgroundColor: colors.bg,
-                    border: `1px solid ${colors.border}`,
-                  }}
-                />
-              ) : (
-                <div
-                  className="p-3 rounded-lg"
-                  style={{ backgroundColor: `${colors.border}20` }}
-                >
-                  {formData.phone || "Not provided"}
-                </div>
-              )}
-            </div>
-
-            {/* Address */}
-            <div>
-              <label className="block mb-2 font-medium flex items-center gap-2">
-                <MapPin size={16} />
-                Address
-              </label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  placeholder="Enter your address"
-                  className="w-full p-3 rounded-lg focus:outline-none focus:ring-2"
-                  style={{
-                    backgroundColor: colors.bg,
-                    border: `1px solid ${colors.border}`,
-                  }}
-                />
-              ) : (
-                <div
-                  className="p-3 rounded-lg"
-                  style={{ backgroundColor: `${colors.border}20` }}
-                >
-                  {formData.address || "Not provided"}
-                </div>
-              )}
-            </div>
-
-            {/* Date of Birth */}
-            <div>
-              <label className="block mb-2 font-medium flex items-center gap-2">
-                <Calendar size={16} />
-                Date of Birth
-              </label>
-              {isEditing ? (
-                <input
-                  type="date"
-                  name="dateOfBirth"
-                  value={formData.dateOfBirth}
-                  onChange={handleInputChange}
-                  className="w-full p-3 rounded-lg focus:outline-none focus:ring-2"
-                  style={{
-                    backgroundColor: colors.bg,
-                    border: `1px solid ${colors.border}`,
-                  }}
-                />
-              ) : (
-                <div
-                  className="p-3 rounded-lg"
-                  style={{ backgroundColor: `${colors.border}20` }}
-                >
-                  {formData.dateOfBirth || "Not provided"}
-                </div>
-              )}
-            </div>
+              <p className="text-xs mt-1" style={{ color: colors.muted }}>Email cannot be changed</p>
+            </div>  
 
             {/* Role */}
             <div>
-              <label className="block mb-2 font-medium flex items-center gap-2">
-                <Shield size={16} />
+              <label className="block mb-2 text-sm font-medium flex items-center gap-2" style={{ color: colors.text }}>
+                <Shield size={16} style={{ color: colors.accent }} />
                 Account Role
               </label>
               <div
-                className="p-3 rounded-lg"
-                style={{ backgroundColor: `${colors.border}20` }}
+                className="p-3 rounded-lg text-sm"
+                style={{ backgroundColor: colors.cardHover, color: colors.text }}
               >
                 {formData.role}
               </div>
@@ -720,49 +669,50 @@ const ProfilePage = () => {
 
         {/* Account Actions */}
         <div
-          className="rounded-xl p-6"
+          className="rounded-xl p-6 mb-6"
           style={{
             backgroundColor: colors.card,
             border: `1px solid ${colors.border}`,
           }}
         >
-          <h3 className="text-lg font-bold mb-6">Account Actions</h3>
+          <h3 className="text-lg font-bold mb-6" style={{ color: colors.accent }}>
+            Account Actions
+          </h3>
 
           <div className="space-y-4">
             <button
               onClick={handleLogout}
-              className="w-full md:w-auto px-6 py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-80 transition-opacity"
+              className="w-full md:w-auto px-6 py-3 rounded-lg flex items-center justify-center gap-2 transition-all hover:opacity-80"
               style={{
-                backgroundColor: "#ef4444",
-                color: "white",
+                backgroundColor: colors.danger,
+                color: "#FFF",
               }}
             >
               <LogOut size={18} />
               Logout
             </button>
 
-            <p className="text-sm opacity-75">
+            <p className="text-sm" style={{ color: colors.muted }}>
               Need help with your account? Contact support at
-              support@citizenconnect.com
+              support@civicfix.com
             </p>
           </div>
         </div>
 
         {/* Important Notes */}
         <div
-          className="mt-6 p-4 rounded-lg"
+          className="p-4 rounded-lg"
           style={{
-            backgroundColor: `${colors.border}20`,
-            border: `1px solid ${colors.border}`,
+            backgroundColor: colors.cardHover,
           }}
         >
-          <h4 className="font-medium mb-2">Important Information</h4>
-          <ul className="text-sm space-y-1 opacity-75">
+          <h4 className="font-medium mb-2" style={{ color: colors.accent }}>
+            Important Information
+          </h4>
+          <ul className="text-xs space-y-1" style={{ color: colors.muted }}>
             <li>• Your email is used for login and cannot be changed</li>
             <li>• Profile image should be a clear photo of yourself</li>
-            <li>
-              • Keep your contact information up to date for better service
-            </li>
+            <li>• Keep your contact information up to date for better service</li>
             <li>• All your data is stored securely and privately</li>
           </ul>
         </div>
