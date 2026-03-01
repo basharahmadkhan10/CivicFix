@@ -10,6 +10,7 @@ import imgTrkDark from "../assets/images/img04.png";
 import imgTrkLight from "../assets/images/img04.png"; 
 import imgGov from "../assets/images/img05.png";
 import imgComm from "../assets/images/img06.png"; 
+
 const FONT_HREF =
   "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap";
 
@@ -312,15 +313,27 @@ const HomePage = () => {
   const [hoveredImage, setHoveredImage] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   const sectionRefs = useRef([]);
   const rafId = useRef(null);
+
+  // Check if mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => setPageLoaded(true), 2000);
     return () => clearTimeout(timer);
   }, []);
-
 
   useEffect(() => {
     injectFont();
@@ -395,6 +408,141 @@ const HomePage = () => {
     imgComm,
   ];
 
+  // Mobile menu component
+  const MobileMenu = () => (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: t.background,
+        zIndex: 200,
+        padding: "80px 24px 24px",
+        transform: mobileMenuOpen ? "translateX(0)" : "translateX(100%)",
+        transition: "transform 0.3s ease-in-out",
+        overflowY: "auto",
+      }}
+    >
+      <button
+        onClick={() => setMobileMenuOpen(false)}
+        style={{
+          position: "absolute",
+          top: "20px",
+          right: "20px",
+          background: "transparent",
+          border: "none",
+          color: t.text,
+          fontSize: "24px",
+          cursor: "pointer",
+          padding: "8px",
+        }}
+      >
+        ✕
+      </button>
+
+      <div style={{ marginBottom: "32px" }}>
+        {SECTIONS.map((section, index) => (
+          <button
+            key={index}
+            onClick={() => scrollToSection(index + 1)}
+            style={{
+              display: "block",
+              width: "100%",
+              padding: "16px",
+              marginBottom: "8px",
+              background: activeSection === index + 1 ? t.accentLight : "transparent",
+              border: `1px solid ${t.border}`,
+              borderRadius: "8px",
+              color: t.text,
+              fontSize: "16px",
+              fontWeight: activeSection === index + 1 ? "600" : "400",
+              textAlign: "left",
+              cursor: "pointer",
+            }}
+          >
+            {section.title}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        <Link
+          to="/login"
+          style={{
+            padding: "14px",
+            fontSize: "16px",
+            fontWeight: "500",
+            color: t.text,
+            textDecoration: "none",
+            border: `1px solid ${t.border}`,
+            borderRadius: "8px",
+            textAlign: "center",
+          }}
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          Sign In
+        </Link>
+
+        <Link
+          to="/signup"
+          style={{
+            padding: "14px",
+            fontSize: "16px",
+            fontWeight: "600",
+            backgroundColor: t.accent,
+            color: t.buttonPrimaryText,
+            textDecoration: "none",
+            borderRadius: "8px",
+            textAlign: "center",
+          }}
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          Get Started
+        </Link>
+
+        <button
+          onClick={() => {
+            toggleTheme();
+            setMobileMenuOpen(false);
+          }}
+          style={{
+            padding: "14px",
+            fontSize: "16px",
+            fontWeight: "500",
+            color: t.text,
+            textDecoration: "none",
+            border: `1px solid ${t.border}`,
+            borderRadius: "8px",
+            background: "transparent",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
+          }}
+        >
+          {isDark ? "Light Mode" : "Dark Mode"}
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            {isDark ? (
+              <circle cx="12" cy="12" r="5" />
+            ) : (
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            )}
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+
   if (!pageLoaded) return <Preloader />;
 
   return (
@@ -422,6 +570,23 @@ const HomePage = () => {
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: ${t.accent}40; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: ${t.accent}60; }
+
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+          .hide-on-mobile {
+            display: none !important;
+          }
+          
+          .show-on-mobile {
+            display: block !important;
+          }
+        }
+
+        @media (min-width: 769px) {
+          .hide-on-desktop {
+            display: none !important;
+          }
+        }
       `}</style>
 
       <div
@@ -442,7 +607,9 @@ const HomePage = () => {
           left: 0,
           right: 0,
           zIndex: 100,
-          padding: scrollY > 50 ? "12px 48px" : "20px 48px",
+          padding: scrollY > 50 
+            ? isMobile ? "12px 20px" : "12px 48px"
+            : isMobile ? "16px 20px" : "20px 48px",
           backgroundColor: scrollY > 50 ? t.navBg : "transparent",
           backdropFilter: scrollY > 50 ? "blur(12px)" : "none",
           borderBottom: `1px solid ${scrollY > 50 ? t.border : "transparent"}`,
@@ -458,38 +625,37 @@ const HomePage = () => {
             justifyContent: "space-between",
           }}
         >
-
           <div
-  onClick={() => scrollToSection(0)}
-  style={{
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    gap: "4px",
-  }}
->
-  <span style={{
-    fontFamily: "'Inter', sans-serif",
-    fontSize: "24px",
-    fontWeight: "700",
-    letterSpacing: "-0.5px",
-    color: t.text,
-  }}>
-    CIVIC
-  </span>
-  <span style={{
-    fontFamily: "'Inter', sans-serif",
-    fontSize: "24px",
-    fontWeight: "700",
-    letterSpacing: "-0.5px",
-    color: t.accent,
-  }}>
-    FIX
-  </span>
-</div>
+            onClick={() => scrollToSection(0)}
+            style={{
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+            }}
+          >
+            <span style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: isMobile ? "20px" : "24px",
+              fontWeight: "700",
+              letterSpacing: "-0.5px",
+              color: t.text,
+            }}>
+              CIVIC
+            </span>
+            <span style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: isMobile ? "20px" : "24px",
+              fontWeight: "700",
+              letterSpacing: "-0.5px",
+              color: t.accent,
+            }}>
+              FIX
+            </span>
+          </div>
 
           {/* Desktop Navigation */}
-          <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
+          <div className="hide-on-mobile" style={{ display: "flex", alignItems: "center", gap: "32px" }}>
             {/* Section dots */}
             <div style={{ display: "flex", gap: "8px" }}>
               {SECTIONS.map((_, index) => {
@@ -617,8 +783,27 @@ const HomePage = () => {
               </button>
             </div>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="hide-on-desktop"
+            onClick={() => setMobileMenuOpen(true)}
+            style={{
+              background: "transparent",
+              border: "none",
+              color: t.text,
+              fontSize: "24px",
+              cursor: "pointer",
+              padding: "8px",
+            }}
+          >
+            ☰
+          </button>
         </div>
       </nav>
+
+      {/* Mobile Menu */}
+      <MobileMenu />
 
       {/* Hero Section */}
       <section
@@ -627,7 +812,7 @@ const HomePage = () => {
           minHeight: "100vh",
           display: "flex",
           alignItems: "center",
-          padding: "120px 48px 80px",
+          padding: isMobile ? "100px 20px 60px" : "120px 48px 80px",
           position: "relative",
         }}
       >
@@ -640,10 +825,10 @@ const HomePage = () => {
             zIndex: 2,
           }}
         >
-          <div className="animate-fadeIn" style={{ marginBottom: "24px" }}>
+          <div className="animate-fadeIn" style={{ marginBottom: isMobile ? "16px" : "24px" }}>
             <span
               style={{
-                fontSize: "14px",
+                fontSize: isMobile ? "12px" : "14px",
                 fontWeight: "500",
                 letterSpacing: "2px",
                 textTransform: "uppercase",
@@ -657,11 +842,11 @@ const HomePage = () => {
           <h1
             className="animate-fadeIn"
             style={{
-              fontSize: "clamp(48px, 8vw, 96px)",
+              fontSize: isMobile ? "clamp(36px, 10vw, 48px)" : "clamp(48px, 8vw, 96px)",
               fontWeight: "700",
               lineHeight: 1.1,
               letterSpacing: "-0.02em",
-              marginBottom: "24px",
+              marginBottom: isMobile ? "16px" : "24px",
             }}
           >
             Fix Your City,
@@ -672,11 +857,11 @@ const HomePage = () => {
           <p
             className="animate-fadeIn"
             style={{
-              fontSize: "18px",
+              fontSize: isMobile ? "16px" : "18px",
               lineHeight: 1.6,
               color: t.textMuted,
               maxWidth: "500px",
-              marginBottom: "40px",
+              marginBottom: isMobile ? "30px" : "40px",
             }}
           >
             CivicFix connects citizens with local government for transparent
@@ -687,22 +872,23 @@ const HomePage = () => {
             className="animate-fadeIn"
             style={{
               display: "flex",
-              gap: "16px",
-              flexWrap: "wrap",
-              marginBottom: "32px",
+              gap: isMobile ? "12px" : "16px",
+              flexDirection: isMobile ? "column" : "row",
+              marginBottom: isMobile ? "24px" : "32px",
             }}
           >
             <Link
               to="/signup"
               style={{
-                padding: "14px 32px",
-                fontSize: "16px",
+                padding: isMobile ? "12px 24px" : "14px 32px",
+                fontSize: isMobile ? "14px" : "16px",
                 fontWeight: "600",
                 backgroundColor: t.accent,
                 color: t.buttonPrimaryText,
                 textDecoration: "none",
                 borderRadius: "8px",
                 transition: "all 0.2s ease",
+                textAlign: "center",
               }}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.transform = "translateY(-2px)")
@@ -717,14 +903,15 @@ const HomePage = () => {
             <Link
               to="/login"
               style={{
-                padding: "14px 32px",
-                fontSize: "16px",
+                padding: isMobile ? "12px 24px" : "14px 32px",
+                fontSize: isMobile ? "14px" : "16px",
                 fontWeight: "500",
                 color: t.text,
                 textDecoration: "none",
                 border: `1px solid ${t.border}`,
                 borderRadius: "8px",
                 transition: "all 0.2s ease",
+                textAlign: "center",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = t.accentLight;
@@ -745,7 +932,7 @@ const HomePage = () => {
               display: "flex",
               alignItems: "center",
               gap: "12px",
-              fontSize: "16px",
+              fontSize: isMobile ? "14px" : "16px",
               color: t.textMuted,
             }}
           >
@@ -753,7 +940,7 @@ const HomePage = () => {
             <span
               style={{
                 width: "2px",
-                height: "20px",
+                height: isMobile ? "16px" : "20px",
                 backgroundColor: t.accent,
                 animation: "pulse 1s infinite",
               }}
@@ -762,38 +949,40 @@ const HomePage = () => {
         </div>
 
         {/* Scroll indicator */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: "40px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            opacity: Math.max(0, 1 - scrollY / 300),
-            transition: "opacity 0.3s ease",
-          }}
-        >
+        {!isMobile && (
           <div
             style={{
-              width: "24px",
-              height: "40px",
-              border: `2px solid ${t.accent}`,
-              borderRadius: "12px",
-              display: "flex",
-              justifyContent: "center",
+              position: "absolute",
+              bottom: "40px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              opacity: Math.max(0, 1 - scrollY / 300),
+              transition: "opacity 0.3s ease",
             }}
           >
             <div
               style={{
-                width: "4px",
-                height: "8px",
-                backgroundColor: t.accent,
-                borderRadius: "2px",
-                marginTop: "6px",
-                animation: "pulse 1.5s infinite",
+                width: "24px",
+                height: "40px",
+                border: `2px solid ${t.accent}`,
+                borderRadius: "12px",
+                display: "flex",
+                justifyContent: "center",
               }}
-            />
+            >
+              <div
+                style={{
+                  width: "4px",
+                  height: "8px",
+                  backgroundColor: t.accent,
+                  borderRadius: "2px",
+                  marginTop: "6px",
+                  animation: "pulse 1.5s infinite",
+                }}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </section>
 
       {/* Feature Sections */}
@@ -806,7 +995,7 @@ const HomePage = () => {
             key={index}
             ref={(el) => (sectionRefs.current[sectionIndex] = el)}
             style={{
-              padding: "100px 48px",
+              padding: isMobile ? "60px 20px" : "100px 48px",
               backgroundColor: index % 2 === 0 ? t.background : t.sectionBg,
               borderTop: `1px solid ${t.border}`,
             }}
@@ -816,10 +1005,10 @@ const HomePage = () => {
                 maxWidth: "1200px",
                 margin: "0 auto",
                 display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "80px",
+                gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+                gap: isMobile ? "40px" : "80px",
                 alignItems: "center",
-                direction: section.reverse ? "rtl" : "ltr",
+                direction: section.reverse && !isMobile ? "rtl" : "ltr",
               }}
             >
               {/* Content */}
@@ -857,7 +1046,7 @@ const HomePage = () => {
 
                 <h2
                   style={{
-                    fontSize: "clamp(32px, 5vw, 48px)",
+                    fontSize: isMobile ? "clamp(24px, 6vw, 32px)" : "clamp(32px, 5vw, 48px)",
                     fontWeight: "700",
                     lineHeight: 1.2,
                     marginBottom: "16px",
@@ -868,7 +1057,7 @@ const HomePage = () => {
 
                 <h3
                   style={{
-                    fontSize: "20px",
+                    fontSize: isMobile ? "18px" : "20px",
                     fontWeight: "500",
                     color: t.accent,
                     marginBottom: "16px",
@@ -879,7 +1068,7 @@ const HomePage = () => {
 
                 <p
                   style={{
-                    fontSize: "16px",
+                    fontSize: isMobile ? "14px" : "16px",
                     lineHeight: 1.8,
                     color: t.textMuted,
                     marginBottom: "32px",
@@ -894,7 +1083,7 @@ const HomePage = () => {
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "8px",
-                    fontSize: "14px",
+                    fontSize: isMobile ? "13px" : "14px",
                     fontWeight: "600",
                     color: t.accent,
                     textDecoration: "none",
@@ -917,7 +1106,10 @@ const HomePage = () => {
               </div>
 
               {/* Image */}
-              <div style={{ direction: "ltr" }}>
+              <div style={{ 
+                direction: "ltr",
+                order: isMobile && section.reverse ? -1 : 0 
+              }}>
                 <div
                   onMouseEnter={() => setHoveredImage(index)}
                   onMouseLeave={() => setHoveredImage(null)}
@@ -957,7 +1149,7 @@ const HomePage = () => {
       {/* Features Grid */}
       <section
         style={{
-          padding: "100px 48px",
+          padding: isMobile ? "60px 20px" : "100px 48px",
           backgroundColor: t.sectionBg,
           borderTop: `1px solid ${t.border}`,
         }}
@@ -966,12 +1158,12 @@ const HomePage = () => {
           <div
             style={{
               textAlign: "center",
-              marginBottom: "60px",
+              marginBottom: isMobile ? "40px" : "60px",
             }}
           >
             <h2
               style={{
-                fontSize: "clamp(36px, 5vw, 48px)",
+                fontSize: isMobile ? "clamp(28px, 6vw, 36px)" : "clamp(36px, 5vw, 48px)",
                 fontWeight: "700",
                 marginBottom: "16px",
               }}
@@ -980,10 +1172,11 @@ const HomePage = () => {
             </h2>
             <p
               style={{
-                fontSize: "18px",
+                fontSize: isMobile ? "16px" : "18px",
                 color: t.textMuted,
                 maxWidth: "600px",
                 margin: "0 auto",
+                padding: isMobile ? "0 20px" : "0",
               }}
             >
               Powerful tools designed to make community reporting simple and
@@ -994,8 +1187,8 @@ const HomePage = () => {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: "24px",
+              gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+              gap: isMobile ? "20px" : "24px",
             }}
           >
             {FEATURES.map((feature, index) => (
@@ -1004,13 +1197,13 @@ const HomePage = () => {
                 onMouseEnter={() => setHoveredCard(index)}
                 onMouseLeave={() => setHoveredCard(null)}
                 style={{
-                  padding: "32px",
+                  padding: isMobile ? "24px" : "32px",
                   backgroundColor: t.cardBg,
                   border: `1px solid ${hoveredCard === index ? t.accent : t.border}`,
                   borderRadius: "12px",
                   transition: "all 0.3s ease",
                   transform:
-                    hoveredCard === index
+                    hoveredCard === index && !isMobile
                       ? "translateY(-4px)"
                       : "translateY(0)",
                   boxShadow:
@@ -1027,7 +1220,7 @@ const HomePage = () => {
                 </div>
                 <h3
                   style={{
-                    fontSize: "18px",
+                    fontSize: isMobile ? "16px" : "18px",
                     fontWeight: "600",
                     marginBottom: "8px",
                   }}
@@ -1036,7 +1229,7 @@ const HomePage = () => {
                 </h3>
                 <p
                   style={{
-                    fontSize: "14px",
+                    fontSize: isMobile ? "13px" : "14px",
                     lineHeight: 1.6,
                     color: t.textMuted,
                   }}
@@ -1052,7 +1245,7 @@ const HomePage = () => {
       {/* Stats Section */}
       <section
         style={{
-          padding: "80px 48px",
+          padding: isMobile ? "60px 20px" : "80px 48px",
           backgroundColor: t.background,
           borderTop: `1px solid ${t.border}`,
         }}
@@ -1062,8 +1255,8 @@ const HomePage = () => {
             maxWidth: "1200px",
             margin: "0 auto",
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: "32px",
+            gridTemplateColumns: isMobile ? "1fr" : "repeat(4, 1fr)",
+            gap: isMobile ? "16px" : "32px",
           }}
         >
           {STATS.map((stat, index) => (
@@ -1071,7 +1264,7 @@ const HomePage = () => {
               key={index}
               style={{
                 textAlign: "center",
-                padding: "32px",
+                padding: isMobile ? "24px" : "32px",
                 backgroundColor: t.cardBg,
                 border: `1px solid ${t.border}`,
                 borderRadius: "12px",
@@ -1079,7 +1272,7 @@ const HomePage = () => {
             >
               <div
                 style={{
-                  fontSize: "48px",
+                  fontSize: isMobile ? "36px" : "48px",
                   fontWeight: "700",
                   color: t.accent,
                   lineHeight: 1,
@@ -1091,7 +1284,7 @@ const HomePage = () => {
               </div>
               <div
                 style={{
-                  fontSize: "16px",
+                  fontSize: isMobile ? "14px" : "16px",
                   fontWeight: "600",
                   marginBottom: "4px",
                 }}
@@ -1100,7 +1293,7 @@ const HomePage = () => {
               </div>
               <div
                 style={{
-                  fontSize: "13px",
+                  fontSize: isMobile ? "12px" : "13px",
                   color: t.textMuted,
                 }}
               >
@@ -1114,7 +1307,7 @@ const HomePage = () => {
       {/* CTA Section */}
       <section
         style={{
-          padding: "120px 48px",
+          padding: isMobile ? "80px 20px" : "120px 48px",
           backgroundColor: t.sectionBg,
           borderTop: `1px solid ${t.border}`,
           textAlign: "center",
@@ -1132,7 +1325,7 @@ const HomePage = () => {
         >
           <h2
             style={{
-              fontSize: "clamp(36px, 6vw, 56px)",
+              fontSize: isMobile ? "clamp(28px, 6vw, 36px)" : "clamp(36px, 6vw, 56px)",
               fontWeight: "700",
               marginBottom: "20px",
             }}
@@ -1141,11 +1334,12 @@ const HomePage = () => {
           </h2>
           <p
             style={{
-              fontSize: "18px",
+              fontSize: isMobile ? "16px" : "18px",
               color: t.textMuted,
               marginBottom: "40px",
               maxWidth: "600px",
               margin: "0 auto 40px",
+              padding: isMobile ? "0 20px" : "0",
             }}
           >
             Join thousands of citizens building better cities through
@@ -1155,22 +1349,24 @@ const HomePage = () => {
           <div
             style={{
               display: "flex",
-              gap: "16px",
+              gap: isMobile ? "12px" : "16px",
               justifyContent: "center",
-              flexWrap: "wrap",
+              flexDirection: isMobile ? "column" : "row",
+              padding: isMobile ? "0 20px" : "0",
             }}
           >
             <Link
               to="/signup"
               style={{
-                padding: "14px 32px",
-                fontSize: "16px",
+                padding: isMobile ? "12px 24px" : "14px 32px",
+                fontSize: isMobile ? "14px" : "16px",
                 fontWeight: "600",
                 backgroundColor: t.accent,
                 color: t.buttonPrimaryText,
                 textDecoration: "none",
                 borderRadius: "8px",
                 transition: "all 0.2s ease",
+                textAlign: "center",
               }}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.transform = "translateY(-2px)")
@@ -1185,14 +1381,15 @@ const HomePage = () => {
             <Link
               to="/login"
               style={{
-                padding: "14px 32px",
-                fontSize: "16px",
+                padding: isMobile ? "12px 24px" : "14px 32px",
+                fontSize: isMobile ? "14px" : "16px",
                 fontWeight: "500",
                 color: t.text,
                 textDecoration: "none",
                 border: `1px solid ${t.border}`,
                 borderRadius: "8px",
                 transition: "all 0.2s ease",
+                textAlign: "center",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = t.accentLight;
@@ -1212,7 +1409,7 @@ const HomePage = () => {
       {/* Footer */}
       <footer
         style={{
-          padding: "60px 48px 40px",
+          padding: isMobile ? "40px 20px 30px" : "60px 48px 40px",
           backgroundColor: t.background,
           borderTop: `1px solid ${t.border}`,
         }}
@@ -1228,8 +1425,8 @@ const HomePage = () => {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              flexWrap: "wrap",
-              gap: "32px",
+              flexDirection: isMobile ? "column" : "row",
+              gap: isMobile ? "24px" : "32px",
               marginBottom: "48px",
             }}
           >
@@ -1243,11 +1440,11 @@ const HomePage = () => {
               <img
                 src={isDark ? darkLogo : lightLogo}
                 alt="CivicFix"
-                style={{ height: "32px", width: "auto" }}
+                style={{ height: isMobile ? "28px" : "32px", width: "auto" }}
               />
               <span
                 style={{
-                  fontSize: "18px",
+                  fontSize: isMobile ? "16px" : "18px",
                   fontWeight: "600",
                 }}
               >
@@ -1258,8 +1455,9 @@ const HomePage = () => {
             <div
               style={{
                 display: "flex",
-                gap: "32px",
+                gap: isMobile ? "24px" : "32px",
                 flexWrap: "wrap",
+                justifyContent: "center",
               }}
             >
               {["About", "Features", "Roles", "Contact"].map((item) => (
@@ -1267,7 +1465,7 @@ const HomePage = () => {
                   key={item}
                   to="#"
                   style={{
-                    fontSize: "14px",
+                    fontSize: isMobile ? "13px" : "14px",
                     color: t.textMuted,
                     textDecoration: "none",
                     transition: "color 0.2s ease",
@@ -1288,7 +1486,7 @@ const HomePage = () => {
               paddingTop: "32px",
               borderTop: `1px solid ${t.border}`,
               textAlign: "center",
-              fontSize: "13px",
+              fontSize: isMobile ? "12px" : "13px",
               color: t.textMuted,
             }}
           >
