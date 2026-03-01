@@ -302,41 +302,6 @@ const ProfilePage = () => {
   };
 
   const handleLogout = () => {
-    const confirmToastId = toast.warning(
-      <div className="flex flex-col gap-2">
-        <div className="font-bold text-sm">Confirm Logout</div>
-        <div className="text-xs opacity-90">
-          Are you sure you want to logout?
-        </div>
-        <div className="flex gap-2 mt-2">
-          <button
-            onClick={() => {
-              toast.dismiss(confirmToastId);
-              performLogout();
-            }}
-            className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded transition-colors"
-          >
-            Yes, Logout
-          </button>
-          <button
-            onClick={() => {
-              toast.dismiss(confirmToastId);
-              toast.info("Logout cancelled");
-            }}
-            className="px-3 py-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-xs rounded transition-colors"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>,
-      {
-        position: "top-center",
-        duration: 0,
-      },
-    );
-  };
-
-  const performLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     toast.success("Logged out successfully");
