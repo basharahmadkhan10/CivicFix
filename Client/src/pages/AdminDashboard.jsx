@@ -138,40 +138,54 @@ const AdminDashboard = () => {
   const [selectedStatusFilter, setSelectedStatusFilter] = useState("ALL");
   const [selectedRoleFilter, setSelectedRoleFilter] = useState("ALL");
 
-  // Admin theme colors - Purple theme
-  const colors =
-    theme === "light"
-      ? {
-          bg: "#ffffff",
-          text: "#000000",
-          card: "#f3e8ff",
-          border: "#d8b4fe",
-          accent: "#000000",
-          success: "#10b981",
-          warning: "#f59e0b",
-          danger: "#ef4444",
-          info: "#8b5cf6",
-          primary: "#8b5cf6",
-          pending: "#f97316",
-          categoryBg: "#e2e8f0",
-          categoryText: "#1e293b",
-        }
-      : {
-          bg: "#000000",
-          text: "#ffffff",
-          card: "#1a0f2e",
-          border: "#4c1d95",
-          accent: "#ffffff",
-          success: "#10b981",
-          warning: "#f59e0b",
-          danger: "#ef4444",
-          info: "#a78bfa",
-          primary: "#8b5cf6",
-          pending: "#f97316",
-          categoryBg: "#4b5563",
-          categoryText: "#f3f4f6",
-        };
+  // Modern theme with #97AB33
+  const getThemeColors = () => {
+    const accentColor = "#97AB33";
+    
+    if (theme === "light") {
+      return {
+        bg: "#FFFFFF",
+        text: "#1A202C",
+        card: "#FFFFFF",
+        cardHover: "#F7FAFC",
+        border: "#E2E8F0",
+        accent: accentColor,
+        accentLight: "rgba(151, 171, 51, 0.1)",
+        accentHover: "#8A9E2E",
+        success: "#38A169",
+        warning: "#F6AD55",
+        danger: "#FC8181",
+        info: "#4299E1",
+        primary: accentColor,
+        categoryBg: "#EDF2F7",
+        categoryText: "#2D3748",
+        muted: "#718096",
+        shadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+      };
+    }
+    return {
+      bg: "#0A0A0A",
+      text: "#FFFFFF",
+      card: "#111111",
+      cardHover: "#1A1A1A",
+      border: "#2D3748",
+      accent: accentColor,
+      accentLight: "rgba(151, 171, 51, 0.15)",
+      accentHover: "#A8C03E",
+      success: "#68D391",
+      warning: "#FBD38D",
+      danger: "#FC8181",
+      info: "#63B3ED",
+      primary: accentColor,
+      categoryBg: "#2D3748",
+      categoryText: "#E2E8F0",
+      muted: "#A0AEC0",
+      shadow: "0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)",
+    };
+  };
 
+  const colors = getThemeColors();
+  const isDark = theme === "dark";
   const currentLogo = theme === "dark" ? darkLogo : lightLogo;
 
   const getUserInitials = (name) => {
@@ -190,10 +204,7 @@ const AdminDashboard = () => {
         setPageLoaded(true);
       } catch (error) {
         console.error("Failed to load data:", error);
-        toast.error("Failed to load dashboard data", {
-          position: "top-right",
-          duration: 5000,
-        });
+        toast.error("Failed to load dashboard data");
       } finally {
         setLoading(false);
       }
@@ -203,10 +214,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (user?.name && pageLoaded) {
-      toast.success(`Welcome back, ${user.name}!`, {
-        position: "top-right",
-        duration: 2000,
-      });
+      toast.success(`Welcome back, ${user.name}!`);
     }
   }, [user, pageLoaded]);
 
@@ -274,10 +282,7 @@ const AdminDashboard = () => {
       setLoading(false);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
-      toast.error("Failed to load dashboard data. Please try again.", {
-        position: "top-right",
-        duration: 5000,
-      });
+      toast.error("Failed to load dashboard data. Please try again.");
       setLoading(false);
     }
   };
@@ -357,12 +362,12 @@ const AdminDashboard = () => {
       const categoriesData = Object.entries(categoryCount).map(
         ([category, count], index) => {
           const colors = [
-            "#8b5cf6",
-            "#10b981",
-            "#f59e0b",
-            "#ef4444",
-            "#3b82f6",
-            "#06b6d4",
+            colors.accent,
+            colors.success,
+            colors.warning,
+            colors.info,
+            colors.primary,
+            colors.muted,
           ];
           return {
             category,
@@ -418,18 +423,12 @@ const AdminDashboard = () => {
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
-      toast.warning("Please enter a search query", {
-        position: "top-right",
-        duration: 3000,
-      });
+      toast.warning("Please enter a search query");
       return;
     }
 
     try {
-      toast.info("Searching...", {
-        position: "top-right",
-        duration: 2000,
-      });
+      toast.info("Searching...");
 
       const filteredComplaints = complaints.filter(
         (complaint) =>
@@ -441,22 +440,13 @@ const AdminDashboard = () => {
       );
 
       if (filteredComplaints.length === 0) {
-        toast.warning("No results found", {
-          position: "top-right",
-          duration: 4000,
-        });
+        toast.warning("No results found");
       } else {
-        toast.success(`Found ${filteredComplaints.length} result(s)`, {
-          position: "top-right",
-          duration: 3000,
-        });
+        toast.success(`Found ${filteredComplaints.length} result(s)`);
       }
     } catch (error) {
       console.error("Search error:", error);
-      toast.error("Search failed", {
-        position: "top-right",
-        duration: 5000,
-      });
+      toast.error("Search failed");
     }
   };
 
@@ -465,18 +455,11 @@ const AdminDashboard = () => {
     try {
       toast.info(
         `Filtering ${status === "ALL" ? "all" : status.toLowerCase()} complaints...`,
-        {
-          position: "top-right",
-          duration: 1500,
-        },
       );
 
       if (status === "ALL") {
         await fetchDashboardData();
-        toast.success("Showing all complaints", {
-          position: "top-right",
-          duration: 3000,
-        });
+        toast.success("Showing all complaints");
         return;
       }
 
@@ -485,33 +468,20 @@ const AdminDashboard = () => {
       );
 
       if (filteredComplaints.length === 0) {
-        toast.warning(`No ${status.toLowerCase()} complaints found`, {
-          position: "top-right",
-          duration: 4000,
-        });
+        toast.warning(`No ${status.toLowerCase()} complaints found`);
       } else {
         toast.success(
           `Showing ${filteredComplaints.length} ${status.toLowerCase()} complaint(s)`,
-          {
-            position: "top-right",
-            duration: 3000,
-          },
         );
       }
     } catch (error) {
       console.error("Filter error:", error);
-      toast.error("Filter failed", {
-        position: "top-right",
-        duration: 5000,
-      });
+      toast.error("Filter failed");
     }
   };
 
   const handleRefresh = () => {
-    toast.info("Refreshing data...", {
-      position: "top-right",
-      duration: 2000,
-    });
+    toast.info("Refreshing data...");
     fetchDashboardData();
   };
 
@@ -534,10 +504,6 @@ const AdminDashboard = () => {
       console.error("Error creating user:", error);
       toast.error(
         `Failed to create user: ${error.response?.data?.message || error.message}`,
-        {
-          position: "top-right",
-          duration: 5000,
-        },
       );
     }
   };
@@ -560,10 +526,7 @@ const AdminDashboard = () => {
         error.message ||
         `Failed to ${action} user`;
 
-      toast.error(`Failed to ${action} user: ${errorMessage}`, {
-        position: "top-right",
-        duration: 5000,
-      });
+      toast.error(`Failed to ${action} user: ${errorMessage}`);
     }
   };
 
@@ -594,10 +557,6 @@ const AdminDashboard = () => {
       console.error("Error assigning complaint:", error);
       toast.error(
         `Failed to assign complaint: ${error.response?.data?.message || error.message || "Unknown error"}`,
-        {
-          position: "top-right",
-          duration: 5000,
-        },
       );
     }
   };
@@ -620,10 +579,6 @@ const AdminDashboard = () => {
       console.error("Error updating complaint:", error);
       toast.error(
         `Failed to update complaint: ${error.response?.data?.message || error.message}`,
-        {
-          position: "top-right",
-          duration: 5000,
-        },
       );
     }
   };
@@ -636,10 +591,7 @@ const AdminDashboard = () => {
         overrideData.action === "REOPEN" &&
         selectedComplaint.status !== "RESOLVED"
       ) {
-        toast.error("Only resolved complaints can be reopened", {
-          position: "top-right",
-          duration: 5000,
-        });
+        toast.error("Only resolved complaints can be reopened");
         return;
       }
 
@@ -657,10 +609,6 @@ const AdminDashboard = () => {
       if (response.data.success) {
         toast.success(
           `Complaint ${overrideData.action.toLowerCase()}d successfully!`,
-          {
-            position: "top-right",
-            duration: 5000,
-          },
         );
         setShowOverrideModal(false);
         setOverrideData({ action: "", reason: "", notes: "" });
@@ -679,10 +627,7 @@ const AdminDashboard = () => {
         errorMsg = error.response.data.message;
       }
 
-      toast.error(`Override failed: ${errorMsg}`, {
-        position: "top-right",
-        duration: 5000,
-      });
+      toast.error(`Override failed: ${errorMsg}`);
     }
   };
 
@@ -704,28 +649,19 @@ const AdminDashboard = () => {
       toast.success("Report exported successfully!");
     } catch (error) {
       console.error("Error exporting report:", error);
-      toast.error("Failed to export report", {
-        position: "top-right",
-        duration: 5000,
-      });
+      toast.error("Failed to export report");
     }
   };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    toast.success("Logged out successfully!", {
-      position: "top-right",
-      duration: 3000,
-    });
+    toast.success("Logged out successfully!");
     navigate("/login");
   };
 
   const navigateToProfile = () => {
-    toast.info("Loading profile...", {
-      position: "top-right",
-      duration: 1500,
-    });
+    toast.info("Loading profile...");
     navigate("/profile");
     setProfileDropdownOpen(false);
     setMobileMenuOpen(false);
@@ -735,21 +671,21 @@ const AdminDashboard = () => {
     switch (status) {
       case "CREATED": return colors.info;
       case "ASSIGNED": return colors.warning;
-      case "IN_PROGRESS": return colors.primary;
+      case "IN_PROGRESS": return colors.accent;
       case "RESOLVED": return colors.success;
       case "REJECTED": return colors.danger;
-      case "ESCALATED": return "#f97316";
-      default: return "#6b7280";
+      case "ESCALATED": return colors.warning;
+      default: return colors.muted;
     }
   };
 
   const getRoleColor = (role) => {
     switch (role) {
-      case "ADMIN": return colors.primary;
+      case "ADMIN": return colors.accent;
       case "SUPERVISOR": return colors.info;
       case "OFFICER": return colors.warning;
       case "CITIZEN": return colors.success;
-      default: return "#6b7280";
+      default: return colors.muted;
     }
   };
 
@@ -825,7 +761,8 @@ const AdminDashboard = () => {
       className="p-4 sm:p-6 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer"
       style={{
         backgroundColor: colors.card,
-        border: `1px solid ${colors.border}`,
+        border: `1px solid ${color}30`,
+        boxShadow: colors.shadow,
       }}
     >
       <div className="flex justify-between items-start mb-3 sm:mb-4">
@@ -835,7 +772,7 @@ const AdminDashboard = () => {
         >
           <div style={{ color }}>{icon}</div>
         </div>
-        <ChevronRight size={18} className="opacity-50" />
+        <ChevronRight size={18} style={{ color: colors.muted }} />
       </div>
       <h3 className="text-xl sm:text-2xl font-bold mb-1" style={{ color: colors.text }}>
         {value}
@@ -844,7 +781,7 @@ const AdminDashboard = () => {
         {title}
       </p>
       {subtitle && (
-        <p className="text-xs sm:text-sm mt-1 opacity-75" style={{ color: colors.text }}>
+        <p className="text-xs sm:text-sm mt-1" style={{ color: colors.muted }}>
           {subtitle}
         </p>
       )}
@@ -854,162 +791,156 @@ const AdminDashboard = () => {
   return (
     <div
       className="min-h-screen"
-      style={{ backgroundColor: colors.bg, color: colors.text }}
+      style={{ 
+        backgroundColor: colors.bg, 
+        color: colors.text,
+        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+      }}
     >
-      {/* Header - Mobile Optimized */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slideDown { animation: slideDown 0.3s ease-out; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+
+      {/* Header */}
       <header
-        className="sticky top-0 z-50 border-b px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4"
+        className="sticky top-0 z-50 px-3 sm:px-4 md:px-6 py-2 sm:py-3"
         style={{
           backgroundColor: colors.bg,
-          borderColor: colors.border,
           backdropFilter: "blur(10px)",
         }}
       >
         <div className="flex justify-between items-center">
           {/* Logo */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <div
+            onClick={() => navigate("/dashboard")}
+            className="flex items-center gap-2 cursor-pointer"
+          >
             <img
               src={currentLogo}
-              alt="CivicFix Logo"
-              className="h-8 sm:h-10 md:h-12 lg:h-14 w-auto object-contain"
+              alt="CivicFix"
+              style={{ height: "32px", width: "auto", objectFit: "contain" }}
             />
-            <div className="hidden xs:block">
-              <h1
-                className="text-base sm:text-lg md:text-xl font-bold"
-                style={{ color: colors.primary }}
-              >
-                Admin
-              </h1>
-            </div>
+            <span className="text-lg sm:text-xl font-bold">
+              CIVIC<span style={{ color: colors.accent }}>FIX</span>
+              <span className="ml-2 text-xs font-normal" style={{ color: colors.muted }}>Admin</span>
+            </span>
           </div>
 
           {/* Mobile Menu Button */}
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setMobileMenuOpen(!mobileMenuOpen);
-            }}
+            onClick={(e) => { e.stopPropagation(); setMobileMenuOpen(!mobileMenuOpen); }}
             className="md:hidden p-2 rounded-lg"
             style={{
-              backgroundColor: colors.card,
-              border: `1px solid ${colors.border}`,
+              backgroundColor: colors.cardHover,
             }}
           >
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
+          <div className="hidden md:flex items-center space-x-2">
             <button
               onClick={toggleTheme}
-              className="flex items-center gap-1 lg:gap-2 px-2 lg:px-3 py-1.5 lg:py-2 rounded-xl border transition-colors duration-200 hover:scale-105"
-              style={{
-                backgroundColor: theme === "dark" ? "#0a0a0a" : "#f5f5f5",
-                borderColor: theme === "dark" ? "#1a1a1a" : "#e5e5e5",
-                color: theme === "dark" ? "#ffffff" : "#000000",
-              }}
+              className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:opacity-80"
+              style={{ backgroundColor: colors.cardHover, color: colors.text }}
             >
-              {theme === "dark" ? (
-                <>
-                  <svg className="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                  <span className="text-xs lg:text-sm font-medium">Light</span>
-                </>
+              {isDark ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="5" />
+                  <line x1="12" y1="1" x2="12" y2="3" />
+                  <line x1="12" y1="21" x2="12" y2="23" />
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                  <line x1="1" y1="12" x2="3" y2="12" />
+                  <line x1="21" y1="12" x2="23" y2="12" />
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
               ) : (
-                <>
-                  <svg className="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                  </svg>
-                  <span className="text-xs lg:text-sm font-medium">Dark</span>
-                </>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
               )}
             </button>
 
             <button
               onClick={handleRefresh}
-              className="p-2 lg:p-2.5 rounded-xl transition-all duration-300 hover:scale-110"
-              style={{
-                backgroundColor: colors.card,
-                border: `1px solid ${colors.border}`,
-              }}
-              title="Refresh Dashboard"
+              className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:opacity-80"
+              style={{ backgroundColor: colors.cardHover }}
             >
-              <RefreshCw size={16} className="lg:w-[18px] lg:h-[18px]" />
+              <RefreshCw size={18} />
             </button>
 
             <button
               onClick={() => setShowUserModal(true)}
-              className="px-2 lg:px-3 py-1.5 lg:py-2 rounded-xl font-medium flex items-center space-x-1 lg:space-x-2 transition-all duration-300 hover:scale-105"
+              className="h-9 px-3 rounded-lg font-medium flex items-center space-x-2 transition-all hover:opacity-90"
               style={{
-                backgroundColor: colors.primary,
-                color: "white",
+                backgroundColor: colors.accent,
+                color: isDark ? "#000" : "#FFF",
               }}
             >
-              <UserPlus size={16} className="lg:w-[18px] lg:h-[18px]" />
-              <span className="text-xs lg:text-sm">New User</span>
+              <UserPlus size={16} />
+              <span className="hidden lg:inline">New User</span>
             </button>
 
             <button
               onClick={handleExportReport}
-              className="px-2 lg:px-3 py-1.5 lg:py-2 rounded-xl font-medium flex items-center space-x-1 lg:space-x-2 transition-all duration-300 hover:scale-105"
+              className="h-9 px-3 rounded-lg font-medium flex items-center space-x-2 transition-all hover:opacity-90"
               style={{
                 backgroundColor: colors.success,
-                color: "white",
+                color: "#FFF",
               }}
             >
-              <DownloadCloud size={16} className="lg:w-[18px] lg:h-[18px]" />
-              <span className="text-xs lg:text-sm hidden lg:inline">Export</span>
+              <DownloadCloud size={16} />
+              <span className="hidden lg:inline">Export</span>
             </button>
 
+            {/* Profile Dropdown */}
             <div className="relative">
               <button
-                className="flex items-center space-x-1 lg:space-x-2 p-1 lg:p-2"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setProfileDropdownOpen(!profileDropdownOpen);
-                }}
+                className="flex items-center space-x-2 p-1.5 rounded-lg"
+                onClick={(e) => { e.stopPropagation(); setProfileDropdownOpen(!profileDropdownOpen); }}
+                style={{ backgroundColor: colors.cardHover }}
               >
                 <div
-                  className="w-6 h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center text-xs lg:text-sm"
-                  style={{
-                    backgroundColor: colors.primary,
-                    color: "white",
-                  }}
+                  className="w-7 h-7 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: colors.accent }}
                 >
-                  <span>{getUserInitials(user?.name)}</span>
+                  <span style={{ color: isDark ? "#000" : "#FFF", fontSize: "12px", fontWeight: "600" }}>
+                    {getUserInitials(user?.name)}
+                  </span>
                 </div>
-                <span className="font-medium text-xs lg:text-sm hidden lg:inline">
-                  {user?.name || "Admin"}
-                </span>
+                <span className="font-medium hidden lg:inline text-sm">{user?.name?.split(" ")[0] || "Admin"}</span>
               </button>
 
               {profileDropdownOpen && (
                 <div
-                  className="absolute right-0 mt-2 w-36 lg:w-44 rounded-xl py-1 lg:py-2 z-50"
+                  className="absolute right-0 mt-2 w-48 rounded-lg py-2 z-50"
                   style={{
                     backgroundColor: colors.card,
                     border: `1px solid ${colors.border}`,
-                    boxShadow: `0 10px 25px rgba(0, 0, 0, 0.2)`,
+                    boxShadow: colors.shadow,
                   }}
                 >
-                  <button
-                    onClick={navigateToProfile}
-                    className="flex items-center space-x-2 w-full px-3 lg:px-4 py-2 hover:bg-opacity-80 text-left text-xs lg:text-sm"
-                    style={{ backgroundColor: `${colors.border}10` }}
+                  <button 
+                    onClick={navigateToProfile} 
+                    className="flex items-center space-x-2 w-full px-4 py-3 hover:bg-opacity-80 text-left transition-colors"
+                    style={{ color: colors.text }}
                   >
-                    <User size={14} className="lg:w-4 lg:h-4" />
+                    <User size={16} />
                     <span>Profile</span>
                   </button>
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center space-x-2 w-full px-3 lg:px-4 py-2 hover:bg-opacity-80 text-left text-xs lg:text-sm"
-                    style={{
-                      color: colors.danger,
-                      backgroundColor: `${colors.border}10`,
-                    }}
+                  <button 
+                    onClick={handleLogout} 
+                    className="flex items-center space-x-2 w-full px-4 py-3 hover:bg-opacity-80 text-left transition-colors"
+                    style={{ color: colors.danger }}
                   >
-                    <LogOut size={14} className="lg:w-4 lg:h-4" />
+                    <LogOut size={16} />
                     <span>Logout</span>
                   </button>
                 </div>
@@ -1021,72 +952,54 @@ const AdminDashboard = () => {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div
-            className="md:hidden mt-3 p-3 rounded-lg animate-slideDown"
+            className="md:hidden mt-3 p-4 rounded-lg animate-slideDown"
             style={{
               backgroundColor: colors.card,
               border: `1px solid ${colors.border}`,
-              position: 'relative',
-              zIndex: 100,
+              boxShadow: colors.shadow,
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col space-y-2">
               <button
-                onClick={() => {
-                  toggleTheme();
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
-                style={{ backgroundColor: `${colors.border}20` }}
+                onClick={() => { toggleTheme(); setMobileMenuOpen(false); }}
+                className="w-full text-left py-3 px-4 rounded-lg"
+                style={{ backgroundColor: colors.cardHover, color: colors.text }}
               >
-                <span>{theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}</span>
+                {isDark ? "☀️ Light Mode" : "🌙 Dark Mode"}
               </button>
-              
-              <button
-                onClick={() => {
-                  handleRefresh();
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
-                style={{ backgroundColor: `${colors.border}20` }}
+              <button 
+                onClick={() => { handleRefresh(); setMobileMenuOpen(false); }}
+                className="w-full text-left py-3 px-4 rounded-lg"
+                style={{ backgroundColor: colors.cardHover, color: colors.text }}
               >
                 <span>🔄 Refresh</span>
               </button>
-              
-              <button
-                onClick={() => {
-                  setShowUserModal(true);
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
-                style={{ backgroundColor: colors.primary, color: "white" }}
+              <button 
+                onClick={() => { setShowUserModal(true); setMobileMenuOpen(false); }}
+                className="w-full text-left py-3 px-4 rounded-lg"
+                style={{ backgroundColor: colors.accent, color: isDark ? "#000" : "#FFF" }}
               >
                 <span>➕ New User</span>
               </button>
-              
-              <button
-                onClick={() => {
-                  handleExportReport();
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
-                style={{ backgroundColor: colors.success, color: "white" }}
+              <button 
+                onClick={() => { handleExportReport(); setMobileMenuOpen(false); }}
+                className="w-full text-left py-3 px-4 rounded-lg"
+                style={{ backgroundColor: colors.success, color: "#FFF" }}
               >
-                <span>📥 Export</span>
+                <span>📥 Export Report</span>
               </button>
-              
-              <button
+              <button 
                 onClick={navigateToProfile}
-                className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
-                style={{ backgroundColor: `${colors.border}20` }}
+                className="w-full text-left py-3 px-4 rounded-lg"
+                style={{ backgroundColor: colors.cardHover, color: colors.text }}
               >
                 <span>👤 Profile</span>
               </button>
-              
-              <button
+              <button 
                 onClick={handleLogout}
-                className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
-                style={{ color: colors.danger, backgroundColor: `${colors.border}20` }}
+                className="w-full text-left py-3 px-4 rounded-lg"
+                style={{ backgroundColor: colors.cardHover, color: colors.danger }}
               >
                 <span>🚪 Logout</span>
               </button>
@@ -1094,56 +1007,43 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* Tabs - Mobile Optimized */}
-        <div className="flex mt-3 overflow-x-auto hide-scrollbar">
+        {/* Tabs */}
+        <div className="flex mt-4 space-x-1">
           {["dashboard", "complaints", "users"].map((tab) => (
             <button
               key={tab}
-              onClick={() => {
-                setActiveTab(tab);
-                toast.info(`Switched to ${tab} tab`, {
-                  position: "top-right",
-                  duration: 2000,
-                });
-                setMobileMenuOpen(false);
-              }}
-              className="flex-1 min-w-20 py-2 text-xs sm:text-sm font-medium relative group"
+              onClick={() => { setActiveTab(tab); setMobileMenuOpen(false); }}
+              className="flex-1 py-2.5 text-sm font-medium rounded-lg transition-all"
               style={{
-                color: activeTab === tab ? colors.primary : colors.text,
-                opacity: activeTab === tab ? 1 : 0.7,
+                backgroundColor: activeTab === tab ? colors.accent : "transparent",
+                color: activeTab === tab ? (isDark ? "#000" : "#FFF") : colors.muted,
               }}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              {activeTab === tab && (
-                <div
-                  className="absolute bottom-0 left-1/4 right-1/4 h-0.5 rounded-full"
-                  style={{ backgroundColor: colors.primary }}
-                />
-              )}
             </button>
           ))}
         </div>
       </header>
 
-      {/* Main Content - Mobile Optimized */}
-      <main className="p-3 sm:p-4 md:p-6">
+      {/* Main Content */}
+      <main className="p-3 sm:p-4 md:p-6 max-w-7xl mx-auto">
         {activeTab === "dashboard" && (
           <>
             {/* Welcome Section */}
-            <div className="mb-6 sm:mb-8 md:mb-12 mt-4">
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-2">
+            <div className="mb-6 sm:mb-8 mt-4">
+              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2">
                 Welcome Back{" "}
-                <span className="font-bold block sm:inline text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl italic">
+                <span className="block sm:inline" style={{ color: colors.accent }}>
                   {user?.name?.split(" ")[0] || "Admin"}
                 </span>
               </h1>
-              <p className="text-xs sm:text-sm md:text-base opacity-75">
+              <p className="text-sm sm:text-base" style={{ color: colors.muted }}>
                 Here's what's happening with your system today.
               </p>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mb-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
               <StatCard
                 title="Total Complaints"
                 value={stats.totalComplaints || 0}
@@ -1168,102 +1068,49 @@ const AdminDashboard = () => {
               <StatCard
                 title="System Uptime"
                 value={`${stats.systemUptime || 99.9}%`}
-                color={colors.primary}
+                color={colors.accent}
                 icon={<Home size={20} />}
               />
             </div>
 
             {/* Role Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mb-6">
-              <div
-                className="p-3 sm:p-4 rounded-xl text-center"
-                style={{
-                  backgroundColor: colors.card,
-                  border: `1px solid ${colors.border}`,
-                }}
-              >
-                <div className="text-lg sm:text-xl md:text-2xl font-bold mb-1" style={{ color: colors.info }}>
-                  {stats.supervisors || 0}
-                </div>
-                <div className="text-xs sm:text-sm opacity-75">Supervisors</div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+              <div className="p-4 rounded-lg text-center" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
+                <div className="text-xl font-bold mb-1" style={{ color: colors.info }}>{stats.supervisors || 0}</div>
+                <div className="text-xs" style={{ color: colors.muted }}>Supervisors</div>
               </div>
-              <div
-                className="p-3 sm:p-4 rounded-xl text-center"
-                style={{
-                  backgroundColor: colors.card,
-                  border: `1px solid ${colors.border}`,
-                }}
-              >
-                <div className="text-lg sm:text-xl md:text-2xl font-bold mb-1" style={{ color: colors.warning }}>
-                  {stats.officers || 0}
-                </div>
-                <div className="text-xs sm:text-sm opacity-75">Officers</div>
+              <div className="p-4 rounded-lg text-center" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
+                <div className="text-xl font-bold mb-1" style={{ color: colors.warning }}>{stats.officers || 0}</div>
+                <div className="text-xs" style={{ color: colors.muted }}>Officers</div>
               </div>
-              <div
-                className="p-3 sm:p-4 rounded-xl text-center"
-                style={{
-                  backgroundColor: colors.card,
-                  border: `1px solid ${colors.border}`,
-                }}
-              >
-                <div className="text-lg sm:text-xl md:text-2xl font-bold mb-1" style={{ color: colors.success }}>
-                  {stats.citizens || 0}
-                </div>
-                <div className="text-xs sm:text-sm opacity-75">Citizens</div>
+              <div className="p-4 rounded-lg text-center" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
+                <div className="text-xl font-bold mb-1" style={{ color: colors.success }}>{stats.citizens || 0}</div>
+                <div className="text-xs" style={{ color: colors.muted }}>Citizens</div>
               </div>
-              <div
-                className="p-3 sm:p-4 rounded-xl text-center"
-                style={{
-                  backgroundColor: colors.card,
-                  border: `1px solid ${colors.border}`,
-                }}
-              >
-                <div className="text-lg sm:text-xl md:text-2xl font-bold mb-1" style={{ color: colors.primary }}>
-                  {stats.avgResolutionTime || 0}
-                </div>
-                <div className="text-xs sm:text-sm opacity-75">Avg. Resolution (days)</div>
+              <div className="p-4 rounded-lg text-center" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
+                <div className="text-xl font-bold mb-1" style={{ color: colors.accent }}>{stats.avgResolutionTime || 0}</div>
+                <div className="text-xs" style={{ color: colors.muted }}>Avg Resolution (days)</div>
               </div>
             </div>
 
             {/* Recent Activity */}
-            <div
-              className="p-4 sm:p-6 rounded-xl"
-              style={{
-                backgroundColor: colors.card,
-                border: `1px solid ${colors.border}`,
-              }}
-            >
+            <div className="p-4 sm:p-6 rounded-lg" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-base sm:text-lg md:text-xl font-bold">Recent Activity</h2>
-                <button
-                  onClick={() => setActiveTab("complaints")}
-                  className="text-xs sm:text-sm opacity-75 hover:opacity-100"
-                  style={{ color: colors.primary }}
-                >
+                <h2 className="text-lg font-bold" style={{ color: colors.text }}>Recent Activity</h2>
+                <button onClick={() => setActiveTab("complaints")} className="text-sm" style={{ color: colors.accent }}>
                   View All →
                 </button>
               </div>
               <div className="space-y-3">
                 {auditTrail.slice(0, 5).map((audit, index) => (
-                  <div
-                    key={index}
-                    className="flex items-start gap-2 p-2 rounded-lg"
-                    style={{ backgroundColor: `${colors.border}20` }}
-                  >
-                    <div
-                      className="p-1.5 rounded flex-shrink-0"
-                      style={{ backgroundColor: getRoleColor(audit.role) + "20" }}
-                    >
+                  <div key={index} className="flex items-start gap-2 p-2 rounded-lg" style={{ backgroundColor: colors.cardHover }}>
+                    <div className="p-1.5 rounded" style={{ backgroundColor: `${getRoleColor(audit.role)}20` }}>
                       {getRoleIcon(audit.role)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-xs sm:text-sm truncate">{audit.action}</div>
-                      <div className="text-xs opacity-75">
-                        by {audit.actor?.name || "System"}
-                      </div>
-                      <div className="text-2xs opacity-50 mt-0.5">
-                        {new Date(audit.createdAt).toLocaleString()}
-                      </div>
+                      <div className="font-medium text-sm truncate" style={{ color: colors.text }}>{audit.action}</div>
+                      <div className="text-xs" style={{ color: colors.muted }}>by {audit.actor?.name || "System"}</div>
+                      <div className="text-2xs mt-0.5" style={{ color: colors.muted }}>{new Date(audit.createdAt).toLocaleString()}</div>
                     </div>
                   </div>
                 ))}
@@ -1275,55 +1122,45 @@ const AdminDashboard = () => {
         {activeTab === "complaints" && (
           <div>
             <div className="flex flex-col gap-3 mb-4">
-              <div>
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1">
-                  All Complaints
-                </h1>
-                <p className="text-xs sm:text-sm opacity-75">
-                  Manage all complaints in the system
-                </p>
-              </div>
+              <h1 className="text-xl sm:text-2xl font-bold" style={{ color: colors.text }}>All Complaints</h1>
               <div className="flex flex-col gap-3">
+                {/* Search Bar */}
                 <div className="relative w-full">
-                  <Search
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2"
-                    size={16}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Search complaints..."
-                    value={searchQuery}
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2" size={16} style={{ color: colors.muted }} />
+                  <input 
+                    type="text" 
+                    placeholder="Search complaints..." 
+                    value={searchQuery} 
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                    className="w-full pl-9 pr-4 py-2 text-sm rounded-lg focus:outline-none focus:ring-2"
-                    style={{
-                      backgroundColor: colors.card,
-                      border: `1px solid ${colors.border}`,
-                      focusRingColor: colors.primary,
-                    }}
+                    className="w-full pl-9 pr-10 py-3 text-sm rounded-lg focus:outline-none focus:ring-1"
+                    style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}`, color: colors.text }} 
                   />
+                  <button onClick={handleSearch} className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <Search size={14} style={{ color: colors.muted }} />
+                  </button>
                 </div>
+
+                {/* Filter Buttons */}
                 <div className="flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
-                  <button
-                    onClick={() => handleFilter("ALL")}
-                    className="px-3 py-1.5 rounded-lg text-xs whitespace-nowrap flex-shrink-0"
-                    style={{
-                      backgroundColor: selectedStatusFilter === "ALL" ? colors.primary : colors.card,
-                      color: selectedStatusFilter === "ALL" ? "white" : colors.text,
-                      border: `1px solid ${colors.border}`,
+                  <button 
+                    onClick={() => handleFilter("ALL")} 
+                    className="px-3 py-2 rounded-lg text-xs whitespace-nowrap flex-shrink-0"
+                    style={{ 
+                      backgroundColor: selectedStatusFilter === "ALL" ? colors.accent : colors.cardHover, 
+                      color: selectedStatusFilter === "ALL" ? (isDark ? "#000" : "#FFF") : colors.text, 
                     }}
                   >
                     All
                   </button>
                   {["CREATED", "ASSIGNED", "IN_PROGRESS", "RESOLVED", "REJECTED"].map((status) => (
-                    <button
-                      key={status}
-                      onClick={() => handleFilter(status)}
-                      className="px-3 py-1.5 rounded-lg text-xs whitespace-nowrap flex-shrink-0"
-                      style={{
-                        backgroundColor: selectedStatusFilter === status ? getStatusColor(status) : colors.card,
-                        color: selectedStatusFilter === status ? "white" : colors.text,
-                        border: `1px solid ${colors.border}`,
+                    <button 
+                      key={status} 
+                      onClick={() => handleFilter(status)} 
+                      className="px-3 py-2 rounded-lg text-xs whitespace-nowrap flex-shrink-0"
+                      style={{ 
+                        backgroundColor: selectedStatusFilter === status ? getStatusColor(status) : colors.cardHover, 
+                        color: selectedStatusFilter === status ? "#FFF" : colors.text, 
                       }}
                     >
                       {status}
@@ -1334,93 +1171,49 @@ const AdminDashboard = () => {
             </div>
 
             {filteredComplaints.length === 0 ? (
-              <div className="text-center py-8">
-                <AlertCircle size={40} className="mx-auto mb-3 opacity-50" />
-                <h3 className="text-base font-bold mb-1">No complaints found</h3>
-                <p className="text-xs opacity-75">
+              <div className="text-center py-8 rounded-lg" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
+                <AlertCircle size={40} className="mx-auto mb-4" style={{ color: colors.muted }} />
+                <h3 className="text-base font-bold mb-2" style={{ color: colors.text }}>No complaints found</h3>
+                <p className="text-sm" style={{ color: colors.muted }}>
                   {searchQuery ? "No complaints match your search criteria." : "No complaints in the system yet."}
                 </p>
               </div>
             ) : (
               <div className="space-y-3">
                 {filteredComplaints.map((complaint) => (
-                  <div
-                    key={complaint._id}
-                    className="p-3 rounded-lg"
-                    style={{
-                      backgroundColor: colors.card,
-                      border: `1px solid ${colors.border}`,
-                    }}
-                  >
-                    <div className="flex flex-col gap-2">
+                  <div key={complaint._id} className="p-4 rounded-lg" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
+                    <div className="flex flex-col gap-3">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span
-                          className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium"
-                          style={{
-                            backgroundColor: `${getStatusColor(complaint.status)}20`,
-                            color: getStatusColor(complaint.status),
-                          }}
-                        >
-                          {getStatusIcon(complaint.status)}
-                          <span>{complaint.status}</span>
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium"
+                          style={{ backgroundColor: `${getStatusColor(complaint.status)}20`, color: getStatusColor(complaint.status) }}>
+                          {getStatusIcon(complaint.status)} {complaint.status}
                         </span>
-                        <span className="text-xs opacity-75">
-                          {new Date(complaint.createdAt).toLocaleDateString()}
-                        </span>
+                        <span className="text-xs" style={{ color: colors.muted }}>{new Date(complaint.createdAt).toLocaleDateString()}</span>
                       </div>
-
-                      <h3 className="font-bold text-sm">{complaint.title}</h3>
-                      
-                      <div className="text-xs opacity-75 line-clamp-2">
-                        {complaint.description?.substring(0, 100)}
-                        {complaint.description?.length > 100 ? "..." : ""}
-                      </div>
-
+                      <h3 className="font-bold text-sm" style={{ color: colors.text }}>{complaint.title}</h3>
                       <div className="flex flex-wrap items-center gap-2 text-xs">
-                        <span className="flex items-center">
-                          <MapPin size={10} className="mr-1" />
-                          {complaint.area || "N/A"}
+                        <span className="flex items-center" style={{ color: colors.muted }}>
+                          <MapPin size={10} className="mr-1" /> {complaint.area || "N/A"}
                         </span>
                         <span>•</span>
-                        <span>{complaint.user?.name || "N/A"}</span>
+                        <span style={{ color: colors.muted }}>{complaint.user?.name || "N/A"}</span>
                       </div>
-
                       <div className="flex gap-2 mt-1">
-                        <button
-                          onClick={() => {
-                            setSelectedComplaint(complaint);
-                            setShowUpdateModal(true);
-                          }}
-                          className="flex-1 px-2 py-1.5 rounded text-xs font-medium"
-                          style={{
-                            backgroundColor: colors.card,
-                            border: `1px solid ${colors.border}`,
-                          }}
-                        >
+                        <button onClick={() => { setSelectedComplaint(complaint); setShowUpdateModal(true); }}
+                          className="flex-1 px-3 py-2 rounded text-xs font-medium"
+                          style={{ backgroundColor: colors.cardHover, color: colors.text }}>
                           Update
                         </button>
-
                         {complaint.status !== "RESOLVED" ? (
-                          <button
-                            onClick={() => {
-                              setSelectedComplaint(complaint);
-                              setShowAssignModal(true);
-                            }}
-                            className="flex-1 px-2 py-1.5 rounded text-xs font-medium text-white"
-                            style={{ backgroundColor: colors.info }}
-                          >
+                          <button onClick={() => { setSelectedComplaint(complaint); setShowAssignModal(true); }}
+                            className="flex-1 px-3 py-2 rounded text-xs font-medium"
+                            style={{ backgroundColor: colors.info, color: "#FFF" }}>
                             Assign
                           </button>
                         ) : (
-                          <button
-                            onClick={() => {
-                              setSelectedComplaint(complaint);
-                              setOverrideData({ action: "REOPEN", reason: "", notes: "" });
-                              setShowOverrideModal(true);
-                            }}
-                            className="flex-1 px-2 py-1.5 rounded text-xs font-medium text-white"
-                            style={{ backgroundColor: colors.warning }}
-                          >
+                          <button onClick={() => { setSelectedComplaint(complaint); setOverrideData({ action: "REOPEN", reason: "", notes: "" }); setShowOverrideModal(true); }}
+                            className="flex-1 px-3 py-2 rounded text-xs font-medium"
+                            style={{ backgroundColor: colors.warning, color: "#FFF" }}>
                             Reopen
                           </button>
                         )}
@@ -1436,51 +1229,41 @@ const AdminDashboard = () => {
         {activeTab === "users" && (
           <div>
             <div className="flex flex-col gap-3 mb-4">
-              <div>
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1">
-                  User Management
-                </h1>
-                <p className="text-xs sm:text-sm opacity-75">Manage all system users</p>
-              </div>
+              <h1 className="text-xl sm:text-2xl font-bold" style={{ color: colors.text }}>User Management</h1>
               <div className="flex flex-col gap-3">
+                {/* Search Bar */}
                 <div className="relative w-full">
-                  <Search
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2"
-                    size={16}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Search users..."
-                    value={searchQuery}
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2" size={16} style={{ color: colors.muted }} />
+                  <input 
+                    type="text" 
+                    placeholder="Search users..." 
+                    value={searchQuery} 
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2 text-sm rounded-lg focus:outline-none focus:ring-2"
-                    style={{
-                      backgroundColor: colors.card,
-                      border: `1px solid ${colors.border}`,
-                    }}
+                    className="w-full pl-9 pr-10 py-3 text-sm rounded-lg focus:outline-none focus:ring-1"
+                    style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}`, color: colors.text }} 
                   />
                 </div>
+
+                {/* Filter Buttons */}
                 <div className="flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
-                  <button
-                    onClick={() => setSelectedRoleFilter("ALL")}
-                    className="px-3 py-1.5 rounded-lg text-xs whitespace-nowrap flex-shrink-0"
-                    style={{
-                      backgroundColor: selectedRoleFilter === "ALL" ? colors.primary : colors.card,
-                      color: selectedRoleFilter === "ALL" ? "white" : colors.text,
-                      border: `1px solid ${colors.border}`,
+                  <button 
+                    onClick={() => setSelectedRoleFilter("ALL")} 
+                    className="px-3 py-2 rounded-lg text-xs whitespace-nowrap flex-shrink-0"
+                    style={{ 
+                      backgroundColor: selectedRoleFilter === "ALL" ? colors.accent : colors.cardHover, 
+                      color: selectedRoleFilter === "ALL" ? (isDark ? "#000" : "#FFF") : colors.text, 
                     }}
                   >
                     All
                   </button>
                   {["ADMIN", "SUPERVISOR", "OFFICER", "CITIZEN"].map((role) => (
-                    <button
-                      key={role}
-                      onClick={() => setSelectedRoleFilter(role)}
-                      className="px-3 py-1.5 rounded-lg text-xs whitespace-nowrap flex-shrink-0"
-                      style={{
-                        backgroundColor: selectedRoleFilter === role ? getRoleColor(role) : colors.card,
-                        color: selectedRoleFilter === role ? "white" : colors.text,
-                        border: `1px solid ${colors.border}`,
+                    <button 
+                      key={role} 
+                      onClick={() => setSelectedRoleFilter(role)} 
+                      className="px-3 py-2 rounded-lg text-xs whitespace-nowrap flex-shrink-0"
+                      style={{ 
+                        backgroundColor: selectedRoleFilter === role ? getRoleColor(role) : colors.cardHover, 
+                        color: selectedRoleFilter === role ? "#FFF" : colors.text, 
                       }}
                     >
                       {role}
@@ -1491,95 +1274,64 @@ const AdminDashboard = () => {
             </div>
 
             {filteredUsers.length === 0 ? (
-              <div className="text-center py-8">
-                <Users size={40} className="mx-auto mb-3 opacity-50" />
-                <h3 className="text-base font-bold mb-1">No users found</h3>
-                <p className="text-xs opacity-75 mb-3">
+              <div className="text-center py-8 rounded-lg" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
+                <Users size={40} className="mx-auto mb-4" style={{ color: colors.muted }} />
+                <h3 className="text-base font-bold mb-2" style={{ color: colors.text }}>No users found</h3>
+                <p className="text-sm mb-4" style={{ color: colors.muted }}>
                   {searchQuery ? "No users match your search." : "No users in the system yet."}
                 </p>
-                <button
-                  onClick={() => setShowUserModal(true)}
-                  className="px-4 py-2 rounded-lg text-sm font-medium"
-                  style={{ backgroundColor: colors.primary, color: "white" }}
-                >
+                <button onClick={() => setShowUserModal(true)} className="px-6 py-3 rounded-lg font-medium text-sm"
+                  style={{ backgroundColor: colors.accent, color: isDark ? "#000" : "#FFF" }}>
                   Create First User
                 </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {filteredUsers.map((user) => (
-                  <div
-                    key={user._id}
-                    className="p-3 rounded-lg"
-                    style={{
-                      backgroundColor: colors.card,
-                      border: `1px solid ${colors.border}`,
-                    }}
-                  >
+                  <div key={user._id} className="p-4 rounded-lg" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2 min-w-0 flex-1">
-                        <div
-                          className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                          style={{ backgroundColor: getRoleColor(user.role), color: "white" }}
-                        >
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                          style={{ backgroundColor: getRoleColor(user.role), color: "#FFF" }}>
                           {getRoleIcon(user.role)}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h3 className="font-bold text-sm truncate">{user.name}</h3>
-                          <p className="text-xs opacity-75 truncate">{user.email}</p>
+                          <h3 className="font-bold text-sm truncate" style={{ color: colors.text }}>{user.name}</h3>
+                          <p className="text-xs truncate" style={{ color: colors.muted }}>{user.email}</p>
                         </div>
                       </div>
                       <div className="relative group flex-shrink-0">
-                        <button
-                          className="p-1.5 rounded-lg"
-                          style={{ backgroundColor: `${colors.border}50` }}
-                        >
-                          <MoreVertical size={14} />
+                        <button className="p-1.5 rounded-lg" style={{ backgroundColor: colors.cardHover }}>
+                          <MoreVertical size={14} style={{ color: colors.muted }} />
                         </button>
-                        <div
-                          className="absolute right-0 mt-1 w-36 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10"
-                          style={{
-                            backgroundColor: colors.card,
-                            border: `1px solid ${colors.border}`,
-                          }}
-                        >
+                        <div className="absolute right-0 mt-1 w-36 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10"
+                          style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}`, boxShadow: colors.shadow }}>
                           <div className="py-1">
                             {user.isActive === false ? (
-                              <button
-                                onClick={() => handleManageUser(user._id, "activate")}
+                              <button onClick={() => handleManageUser(user._id, "activate")}
                                 className="flex items-center gap-2 w-full px-3 py-1.5 hover:bg-opacity-80 text-left text-xs"
-                              >
-                                <Play size={12} />
-                                Activate
+                                style={{ color: colors.text }}>
+                                <Play size={12} /> Activate
                               </button>
                             ) : (
-                              <button
-                                onClick={() => handleManageUser(user._id, "deactivate")}
+                              <button onClick={() => handleManageUser(user._id, "deactivate")}
                                 className="flex items-center gap-2 w-full px-3 py-1.5 hover:bg-opacity-80 text-left text-xs"
-                              >
-                                <Pause size={12} />
-                                Deactivate
+                                style={{ color: colors.text }}>
+                                <Pause size={12} /> Deactivate
                               </button>
                             )}
-                            <button
-                              onClick={() => handleManageUser(user._id, "reset_password")}
+                            <button onClick={() => handleManageUser(user._id, "reset_password")}
                               className="flex items-center gap-2 w-full px-3 py-1.5 hover:bg-opacity-80 text-left text-xs"
-                            >
-                              <RotateCcw size={12} />
-                              Reset Password
+                              style={{ color: colors.text }}>
+                              <RotateCcw size={12} /> Reset Password
                             </button>
                           </div>
                         </div>
                       </div>
                     </div>
-                    
                     <div className="mt-2 grid grid-cols-2 gap-1 text-xs">
-                      <div>
-                        <span className="opacity-75">Role:</span>
-                        <span className="ml-1 font-medium">{user.role}</span>
-                      </div>
-                      <div>
-                        <span className="opacity-75">Status:</span>
+                      <div><span style={{ color: colors.muted }}>Role:</span> <span className="font-medium" style={{ color: colors.text }}>{user.role}</span></div>
+                      <div><span style={{ color: colors.muted }}>Status:</span> 
                         <span className={`ml-1 font-medium ${user.isActive ? "text-green-600" : "text-red-600"}`}>
                           {user.isActive ? "Active" : "Inactive"}
                         </span>
@@ -1593,64 +1345,23 @@ const AdminDashboard = () => {
         )}
       </main>
 
-      {/* Modals - Mobile Optimized */}
+      {/* Modals */}
       {showUserModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div
-            className="rounded-xl p-4 sm:p-6 max-w-md w-full max-h-[90vh] overflow-y-auto"
-            style={{
-              backgroundColor: colors.card,
-              border: `1px solid ${colors.border}`,
-            }}
-          >
-            <h3 className="text-lg sm:text-xl font-bold mb-3">Create New User</h3>
+          <div className="rounded-xl p-6 max-w-md w-full" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
+            <h3 className="text-lg font-bold mb-4" style={{ color: colors.accent }}>Create New User</h3>
             <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={newUserData.name}
+              <input type="text" placeholder="Full Name" value={newUserData.name}
                 onChange={(e) => setNewUserData({ ...newUserData, name: e.target.value })}
-                className="w-full p-2.5 text-sm rounded-lg"
-                style={{
-                  backgroundColor: colors.bg,
-                  border: `1px solid ${colors.border}`,
-                  color: colors.text,
-                }}
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={newUserData.email}
+                className="w-full p-3 text-sm rounded-lg" style={{ backgroundColor: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }} />
+              <input type="email" placeholder="Email" value={newUserData.email}
                 onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
-                className="w-full p-2.5 text-sm rounded-lg"
-                style={{
-                  backgroundColor: colors.bg,
-                  border: `1px solid ${colors.border}`,
-                  color: colors.text,
-                }}
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={newUserData.password}
+                className="w-full p-3 text-sm rounded-lg" style={{ backgroundColor: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }} />
+              <input type="password" placeholder="Password" value={newUserData.password}
                 onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })}
-                className="w-full p-2.5 text-sm rounded-lg"
-                style={{
-                  backgroundColor: colors.bg,
-                  border: `1px solid ${colors.border}`,
-                  color: colors.text,
-                }}
-              />
-              <select
-                value={newUserData.role}
-                onChange={(e) => setNewUserData({ ...newUserData, role: e.target.value })}
-                className="w-full p-2.5 text-sm rounded-lg"
-                style={{
-                  backgroundColor: colors.bg,
-                  border: `1px solid ${colors.border}`,
-                  color: colors.text,
-                }}
-              >
+                className="w-full p-3 text-sm rounded-lg" style={{ backgroundColor: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }} />
+              <select value={newUserData.role} onChange={(e) => setNewUserData({ ...newUserData, role: e.target.value })}
+                className="w-full p-3 text-sm rounded-lg" style={{ backgroundColor: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }}>
                 <option value="CITIZEN">Citizen</option>
                 <option value="OFFICER">Officer</option>
                 <option value="SUPERVISOR">Supervisor</option>
@@ -1658,22 +1369,13 @@ const AdminDashboard = () => {
               </select>
             </div>
             <div className="flex gap-2 mt-4">
-              <button
-                onClick={() => setShowUserModal(false)}
-                className="flex-1 p-2.5 rounded-lg font-medium text-sm"
-                style={{
-                  backgroundColor: colors.card,
-                  border: `1px solid ${colors.border}`,
-                }}
-              >
+              <button onClick={() => setShowUserModal(false)} className="flex-1 p-3 rounded-lg font-medium text-sm"
+                style={{ backgroundColor: colors.cardHover, color: colors.text }}>
                 Cancel
               </button>
-              <button
-                onClick={handleCreateUser}
-                disabled={!newUserData.name || !newUserData.email || !newUserData.password}
-                className="flex-1 p-2.5 rounded-lg font-medium text-sm text-white disabled:opacity-50"
-                style={{ backgroundColor: colors.primary }}
-              >
+              <button onClick={handleCreateUser} disabled={!newUserData.name || !newUserData.email || !newUserData.password}
+                className="flex-1 p-3 rounded-lg font-medium text-sm disabled:opacity-50"
+                style={{ backgroundColor: colors.accent, color: isDark ? "#000" : "#FFF" }}>
                 Create
               </button>
             </div>
@@ -1683,90 +1385,44 @@ const AdminDashboard = () => {
 
       {showAssignModal && selectedComplaint && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div
-            className="rounded-xl p-4 sm:p-6 max-w-md w-full"
-            style={{
-              backgroundColor: colors.card,
-              border: `1px solid ${colors.border}`,
-            }}
-          >
-            <h3 className="text-lg sm:text-xl font-bold mb-3">Assign Complaint</h3>
+          <div className="rounded-xl p-6 max-w-md w-full" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
+            <h3 className="text-lg font-bold mb-4" style={{ color: colors.accent }}>Assign Complaint</h3>
             <div className="space-y-3">
-              <div className="mb-3">
-                <p className="font-medium text-sm">Complaint:</p>
-                <p className="text-xs opacity-75">{selectedComplaint.title}</p>
+              <div className="p-2 rounded-lg" style={{ backgroundColor: colors.cardHover }}>
+                <p className="text-xs" style={{ color: colors.muted }}>Complaint:</p>
+                <p className="text-sm font-medium" style={{ color: colors.text }}>{selectedComplaint.title}</p>
               </div>
-              <select
-                value={assignData.type}
-                onChange={(e) => setAssignData({ ...assignData, type: e.target.value })}
-                className="w-full p-2.5 text-sm rounded-lg"
-                style={{
-                  backgroundColor: colors.bg,
-                  border: `1px solid ${colors.border}`,
-                  color: colors.text,
-                }}
-              >
+              <select value={assignData.type} onChange={(e) => setAssignData({ ...assignData, type: e.target.value })}
+                className="w-full p-3 text-sm rounded-lg" style={{ backgroundColor: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }}>
                 <option value="supervisor">Assign to Supervisor</option>
                 <option value="officer">Assign to Officer</option>
               </select>
               {assignData.type === "supervisor" ? (
-                <select
-                  value={assignData.supervisorId}
-                  onChange={(e) => setAssignData({ ...assignData, supervisorId: e.target.value })}
-                  className="w-full p-2.5 text-sm rounded-lg"
-                  style={{
-                    backgroundColor: colors.bg,
-                    border: `1px solid ${colors.border}`,
-                    color: colors.text,
-                  }}
-                >
+                <select value={assignData.supervisorId} onChange={(e) => setAssignData({ ...assignData, supervisorId: e.target.value })}
+                  className="w-full p-3 text-sm rounded-lg" style={{ backgroundColor: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }}>
                   <option value="">Select Supervisor</option>
                   {getSupervisors().map((supervisor) => (
-                    <option key={supervisor._id} value={supervisor._id}>
-                      {supervisor.name}
-                    </option>
+                    <option key={supervisor._id} value={supervisor._id}>{supervisor.name}</option>
                   ))}
                 </select>
               ) : (
-                <select
-                  value={assignData.officerId}
-                  onChange={(e) => setAssignData({ ...assignData, officerId: e.target.value })}
-                  className="w-full p-2.5 text-sm rounded-lg"
-                  style={{
-                    backgroundColor: colors.bg,
-                    border: `1px solid ${colors.border}`,
-                    color: colors.text,
-                  }}
-                >
+                <select value={assignData.officerId} onChange={(e) => setAssignData({ ...assignData, officerId: e.target.value })}
+                  className="w-full p-3 text-sm rounded-lg" style={{ backgroundColor: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }}>
                   <option value="">Select Officer</option>
                   {getOfficers().map((officer) => (
-                    <option key={officer._id} value={officer._id}>
-                      {officer.name}
-                    </option>
+                    <option key={officer._id} value={officer._id}>{officer.name}</option>
                   ))}
                 </select>
               )}
             </div>
             <div className="flex gap-2 mt-4">
-              <button
-                onClick={() => setShowAssignModal(false)}
-                className="flex-1 p-2.5 rounded-lg font-medium text-sm"
-                style={{
-                  backgroundColor: colors.card,
-                  border: `1px solid ${colors.border}`,
-                }}
-              >
+              <button onClick={() => setShowAssignModal(false)} className="flex-1 p-3 rounded-lg font-medium text-sm"
+                style={{ backgroundColor: colors.cardHover, color: colors.text }}>
                 Cancel
               </button>
-              <button
-                onClick={handleAssignComplaint}
-                disabled={
-                  (assignData.type === "supervisor" && !assignData.supervisorId) ||
-                  (assignData.type === "officer" && !assignData.officerId)
-                }
-                className="flex-1 p-2.5 rounded-lg font-medium text-sm text-white disabled:opacity-50"
-                style={{ backgroundColor: colors.primary }}
-              >
+              <button onClick={handleAssignComplaint} disabled={(assignData.type === "supervisor" && !assignData.supervisorId) || (assignData.type === "officer" && !assignData.officerId)}
+                className="flex-1 p-3 rounded-lg font-medium text-sm disabled:opacity-50"
+                style={{ backgroundColor: colors.accent, color: isDark ? "#000" : "#FFF" }}>
                 Assign
               </button>
             </div>
@@ -1776,29 +1432,15 @@ const AdminDashboard = () => {
 
       {showUpdateModal && selectedComplaint && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div
-            className="rounded-xl p-4 sm:p-6 max-w-md w-full"
-            style={{
-              backgroundColor: colors.card,
-              border: `1px solid ${colors.border}`,
-            }}
-          >
-            <h3 className="text-lg sm:text-xl font-bold mb-3">Update Complaint</h3>
+          <div className="rounded-xl p-6 max-w-md w-full" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
+            <h3 className="text-lg font-bold mb-4" style={{ color: colors.accent }}>Update Complaint</h3>
             <div className="space-y-3">
-              <div className="mb-3">
-                <p className="font-medium text-sm">Complaint:</p>
-                <p className="text-xs opacity-75">{selectedComplaint.title}</p>
+              <div className="p-2 rounded-lg" style={{ backgroundColor: colors.cardHover }}>
+                <p className="text-xs" style={{ color: colors.muted }}>Complaint:</p>
+                <p className="text-sm font-medium" style={{ color: colors.text }}>{selectedComplaint.title}</p>
               </div>
-              <select
-                value={updateData.status}
-                onChange={(e) => setUpdateData({ ...updateData, status: e.target.value })}
-                className="w-full p-2.5 text-sm rounded-lg"
-                style={{
-                  backgroundColor: colors.bg,
-                  border: `1px solid ${colors.border}`,
-                  color: colors.text,
-                }}
-              >
+              <select value={updateData.status} onChange={(e) => setUpdateData({ ...updateData, status: e.target.value })}
+                className="w-full p-3 text-sm rounded-lg" style={{ backgroundColor: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }}>
                 <option value="">Select Status</option>
                 <option value="CREATED">Created</option>
                 <option value="ASSIGNED">Assigned</option>
@@ -1806,52 +1448,26 @@ const AdminDashboard = () => {
                 <option value="RESOLVED">Resolved</option>
                 <option value="REJECTED">Rejected</option>
               </select>
-              <select
-                value={updateData.priority}
-                onChange={(e) => setUpdateData({ ...updateData, priority: e.target.value })}
-                className="w-full p-2.5 text-sm rounded-lg"
-                style={{
-                  backgroundColor: colors.bg,
-                  border: `1px solid ${colors.border}`,
-                  color: colors.text,
-                }}
-              >
+              <select value={updateData.priority} onChange={(e) => setUpdateData({ ...updateData, priority: e.target.value })}
+                className="w-full p-3 text-sm rounded-lg" style={{ backgroundColor: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }}>
                 <option value="">Select Priority</option>
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
                 <option value="HIGH">High</option>
                 <option value="CRITICAL">Critical</option>
               </select>
-              <textarea
-                placeholder="Remarks"
-                value={updateData.remarks}
-                onChange={(e) => setUpdateData({ ...updateData, remarks: e.target.value })}
-                className="w-full p-2.5 text-sm rounded-lg"
-                rows="3"
-                style={{
-                  backgroundColor: colors.bg,
-                  border: `1px solid ${colors.border}`,
-                  color: colors.text,
-                }}
-              />
+              <textarea placeholder="Remarks" value={updateData.remarks} onChange={(e) => setUpdateData({ ...updateData, remarks: e.target.value })}
+                className="w-full p-3 text-sm rounded-lg" rows="3"
+                style={{ backgroundColor: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }} />
             </div>
             <div className="flex gap-2 mt-4">
-              <button
-                onClick={() => setShowUpdateModal(false)}
-                className="flex-1 p-2.5 rounded-lg font-medium text-sm"
-                style={{
-                  backgroundColor: colors.card,
-                  border: `1px solid ${colors.border}`,
-                }}
-              >
+              <button onClick={() => setShowUpdateModal(false)} className="flex-1 p-3 rounded-lg font-medium text-sm"
+                style={{ backgroundColor: colors.cardHover, color: colors.text }}>
                 Cancel
               </button>
-              <button
-                onClick={handleUpdateComplaint}
-                disabled={!updateData.status && !updateData.remarks && !updateData.priority}
-                className="flex-1 p-2.5 rounded-lg font-medium text-sm text-white disabled:opacity-50"
-                style={{ backgroundColor: colors.primary }}
-              >
+              <button onClick={handleUpdateComplaint} disabled={!updateData.status && !updateData.remarks && !updateData.priority}
+                className="flex-1 p-3 rounded-lg font-medium text-sm disabled:opacity-50"
+                style={{ backgroundColor: colors.accent, color: isDark ? "#000" : "#FFF" }}>
                 Update
               </button>
             </div>
@@ -1861,92 +1477,33 @@ const AdminDashboard = () => {
 
       {showOverrideModal && selectedComplaint && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div
-            className="rounded-xl p-4 sm:p-6 max-w-md w-full max-h-[90vh] overflow-y-auto"
-            style={{
-              backgroundColor: colors.card,
-              border: `1px solid ${colors.border}`,
-            }}
-          >
-            <h3 className="text-lg sm:text-xl font-bold mb-3">
-              {overrideData.action === "REOPEN" ? "Reopen Complaint" : "Admin Override"}
-            </h3>
-
+          <div className="rounded-xl p-6 max-w-md w-full" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
+            <h3 className="text-lg font-bold mb-4" style={{ color: colors.accent }}>Admin Override</h3>
             <div className="space-y-3">
-              <div
-                className="mb-3 p-2 rounded-lg text-sm"
-                style={{ backgroundColor: `${colors.border}20` }}
-              >
-                <p className="font-medium text-xs">Complaint:</p>
-                <p className="text-xs opacity-90">{selectedComplaint.title}</p>
-                <p className="text-2xs mt-1">
-                  Status: <span className="font-medium">{selectedComplaint.status}</span>
-                </p>
+              <div className="p-2 rounded-lg" style={{ backgroundColor: colors.cardHover }}>
+                <p className="text-xs" style={{ color: colors.muted }}>Complaint:</p>
+                <p className="text-sm font-medium" style={{ color: colors.text }}>{selectedComplaint.title}</p>
+                <p className="text-2xs mt-1" style={{ color: colors.muted }}>Status: <span className="font-medium" style={{ color: getStatusColor(selectedComplaint.status) }}>{selectedComplaint.status}</span></p>
               </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-medium">Action *</label>
-                <select
-                  value={overrideData.action}
-                  onChange={(e) => setOverrideData({ ...overrideData, action: e.target.value })}
-                  className="w-full p-2.5 text-sm rounded-lg"
-                  style={{
-                    backgroundColor: colors.bg,
-                    borderColor: colors.border,
-                    color: colors.text,
-                  }}
-                >
-                  <option value="">-- Select action --</option>
-                  <option value="REOPEN">Reopen Complaint</option>
-                  <option value="FORCE_RESOLVE">Force Resolve</option>
-                  <option value="FORCE_CLOSE">Force Close</option>
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-medium">Reason *</label>
-                <textarea
-                  placeholder="Explain why..."
-                  value={overrideData.reason}
-                  onChange={(e) => setOverrideData({ ...overrideData, reason: e.target.value })}
-                  className="w-full p-2.5 text-sm rounded-lg"
-                  rows="2"
-                  style={{
-                    backgroundColor: colors.bg,
-                    borderColor: colors.border,
-                    color: colors.text,
-                  }}
-                />
-              </div>
+              <select value={overrideData.action} onChange={(e) => setOverrideData({ ...overrideData, action: e.target.value })}
+                className="w-full p-3 text-sm rounded-lg" style={{ backgroundColor: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }}>
+                <option value="">Select Action</option>
+                <option value="REOPEN">Reopen Complaint</option>
+                <option value="FORCE_RESOLVE">Force Resolve</option>
+                <option value="FORCE_CLOSE">Force Close</option>
+              </select>
+              <textarea placeholder="Reason" value={overrideData.reason} onChange={(e) => setOverrideData({ ...overrideData, reason: e.target.value })}
+                className="w-full p-3 text-sm rounded-lg" rows="2"
+                style={{ backgroundColor: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }} />
             </div>
-
             <div className="flex gap-2 mt-4">
-              <button
-                onClick={() => {
-                  setShowOverrideModal(false);
-                  setOverrideData({ action: "", reason: "", notes: "" });
-                }}
-                className="flex-1 p-2.5 rounded-lg font-medium text-sm"
-                style={{
-                  backgroundColor: colors.card,
-                  borderColor: colors.border,
-                }}
-              >
+              <button onClick={() => { setShowOverrideModal(false); setOverrideData({ action: "", reason: "", notes: "" }); }}
+                className="flex-1 p-3 rounded-lg font-medium text-sm" style={{ backgroundColor: colors.cardHover, color: colors.text }}>
                 Cancel
               </button>
-              <button
-                onClick={handleOverrideComplaint}
-                disabled={!overrideData.action || !overrideData.reason.trim()}
-                className="flex-1 p-2.5 rounded-lg font-medium text-sm text-white disabled:opacity-50"
-                style={{
-                  backgroundColor:
-                    overrideData.action === "REOPEN"
-                      ? colors.warning
-                      : overrideData.action === "FORCE_RESOLVE"
-                      ? colors.success
-                      : colors.primary,
-                }}
-              >
+              <button onClick={handleOverrideComplaint} disabled={!overrideData.action || !overrideData.reason.trim()}
+                className="flex-1 p-3 rounded-lg font-medium text-sm disabled:opacity-50"
+                style={{ backgroundColor: overrideData.action === "REOPEN" ? colors.warning : colors.accent, color: "#FFF" }}>
                 {overrideData.action || "Submit"}
               </button>
             </div>
@@ -1954,54 +1511,14 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* Footer - Mobile Optimized */}
-      <footer
-        className="mt-8 py-4 sm:py-6 px-3 sm:px-4 border-t"
-        style={{
-          borderColor: colors.border,
-          backgroundColor: colors.card,
-        }}
-      >
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
-            <div className="text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start space-x-2">
-                <img
-                  src={currentLogo}
-                  alt="CivicFix Logo"
-                  className="h-8 sm:h-10 md:h-12 w-auto object-contain"
-                />
-                <span className="text-sm sm:text-base font-bold" style={{ color: colors.primary }}>
-                  CivicFix Admin
-                </span>
-              </div>
-              <p className="text-xs opacity-75 mt-1">
-                Complaint Management System - Admin Panel
-              </p>
-            </div>
-            <div className="text-xs opacity-75">
-              © {new Date().getFullYear()} All rights reserved
-            </div>
-          </div>
+      {/* Footer */}
+      <footer className="mt-8 py-6 px-3 sm:px-4 border-t" style={{ borderColor: colors.border, backgroundColor: colors.bg }}>
+        <div className="max-w-7xl mx-auto text-center">
+          <p className="text-xs" style={{ color: colors.muted }}>
+            © {new Date().getFullYear()} CivicFix Admin Panel. All rights reserved.
+          </p>
         </div>
       </footer>
-
-      <style jsx>{`
-        @keyframes slideDown {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-slideDown {
-          animation: slideDown 0.3s ease-out;
-        }
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
     </div>
   );
 };
