@@ -1978,16 +1978,26 @@ const AdminDashboard = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
             <div className="text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start space-x-2">
-                <img
-                  src={currentLogo}
-                  alt="CivicFix Logo"
-                  className="h-8 sm:h-10 md:h-12 w-auto object-contain"
-                />
-                <span className="text-sm sm:text-base font-bold" style={{ color: colors.primary }}>
-                  CivicFix Admin
-                </span>
-              </div>
+              <div
+            onClick={() => navigate("/dashboard")}
+            style={{
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            <span style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: "20px",
+              fontWeight: "700",
+              letterSpacing: "-0.5px",
+              color: colors.text,
+            }}>
+              CIVIC
+              <span style={{ color: colors.accent }}>FIX</span>
+            </span>
+          </div>
               <p className="text-xs opacity-75 mt-1">
                 Complaint Management System - Admin Panel
               </p>
@@ -2020,6 +2030,7 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard; 
+
 
 
 
