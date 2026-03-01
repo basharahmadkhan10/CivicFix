@@ -63,9 +63,9 @@ const CitizenDashboard = () => {
         accentLight: "rgba(151, 171, 51, 0.1)",
         accentHover: "#8A9E2E",
         success: "#38A169",
-        warning: "#F6AD55",
+        warning: "#bb1b11",
         danger: "#FC8181",
-        info: "#4299E1",
+        info: "#97AB33",
         primary: accentColor,
         categoryBg: "#EDF2F7",
         categoryText: "#2D3748",
@@ -83,9 +83,9 @@ const CitizenDashboard = () => {
       accentLight: "rgba(151, 171, 51, 0.15)",
       accentHover: "#A8C03E",
       success: "#68D391",
-      warning: "#FBD38D",
+      warning: "#bb1b11",
       danger: "#FC8181",
-      info: "#63B3ED",
+      info: "#97AB33",
       primary: accentColor,
       categoryBg: "#2D3748",
       categoryText: "#E2E8F0",
@@ -874,4 +874,5 @@ const CitizenDashboard = () => {
 };
 
 export default CitizenDashboard;
+
 
