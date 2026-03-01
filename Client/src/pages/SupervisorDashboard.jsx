@@ -622,20 +622,25 @@ const SupervisorDashboard = () => {
       >
         <div className="flex justify-between items-center">
           {/* Logo */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            <img
-              src={currentLogo}
-              alt="CivicFix Logo"
-              className="h-8 sm:h-10 md:h-12 lg:h-14 w-auto object-contain"
-            />
-            <div className="hidden xs:block">
-              <h1
-                className="text-sm sm:text-base md:text-lg lg:text-xl font-bold"
-                style={{ color: colors.primary }}
-              >
-                Supervisor
-              </h1>
-            </div>
+          <div
+            onClick={() => navigate("/dashboard")}
+            style={{
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            <span style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: "20px",
+              fontWeight: "700",
+              letterSpacing: "-0.5px",
+              color: colors.text,
+            }}>
+              CIVIC
+              <span style={{ color: colors.accent }}>FIX</span>
+            </span>
           </div>
 
           {/* Mobile Menu Button */}
@@ -1808,16 +1813,26 @@ const SupervisorDashboard = () => {
       >
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
-            <div className="flex items-center space-x-2">
-              <img
-                src={currentLogo}
-                alt="CivicFix Logo"
-                className="h-8 w-auto object-contain"
-              />
-              <span className="text-xs font-bold" style={{ color: colors.primary }}>
-                CivicFix Supervisor
-              </span>
-            </div>
+            <div
+            onClick={() => navigate("/dashboard")}
+            style={{
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            <span style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: "20px",
+              fontWeight: "700",
+              letterSpacing: "-0.5px",
+              color: colors.text,
+            }}>
+              CIVIC
+              <span style={{ color: colors.accent }}>FIX</span>
+            </span>
+          </div>
             <div className="text-2xs opacity-75">
               © {new Date().getFullYear()} All rights reserved
             </div>
@@ -1846,4 +1861,5 @@ const SupervisorDashboard = () => {
 };
 
 export default SupervisorDashboard;
+
 
