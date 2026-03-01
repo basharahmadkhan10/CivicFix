@@ -35,8 +35,21 @@ const Login = () => {
   const [displayText, setDisplayText] = useState("");
   const [textIndex, setTextIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   const backgroundImage = theme === "dark" ? bgDark : bgLight;
+
+  // Check if mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const roleMessages = {
     citizen: [
@@ -269,6 +282,12 @@ const Login = () => {
     }
   };
 
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      document.getElementById(`otp-${index - 1}`)?.focus();
+    }
+  };
+
   const handleOtpSubmit = async (e) => {
     if (e) e.preventDefault();
     const otpString = otp.join("");
@@ -390,23 +409,79 @@ const Login = () => {
         .animate-blink {
           animation: blink 1s step-end infinite;
         }
+
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+          input, button {
+            min-height: 44px; /* Better touch targets */
+          }
+          
+          .otp-input {
+            width: calc(16.666% - 4px) !important;
+            aspect-ratio: 1/1;
+          }
+        }
       `}</style>
 
-      <div className="absolute top-4 left-4 z-20 lg:hidden">
+      {/* Mobile Header */}
+      <div className="fixed top-0 left-0 right-0 z-20 flex items-center justify-between p-4 lg:hidden"
+        style={{
+          backgroundColor: colors.cardBackground,
+          borderBottom: `1px solid ${colors.border}`,
+        }}
+      >
         <button
           onClick={() => navigate(`/`)}
           className="p-2 rounded-lg flex items-center justify-center transition-all duration-200 hover:opacity-80"
           style={{
-            backgroundColor: colors.cardBackground,
+            backgroundColor: colors.inputBackground,
             border: `1px solid ${colors.border}`,
             color: colors.text,
           }}
         >
           <ArrowLeft size={18} />
         </button>
+
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold" style={{ color: colors.text }}>
+            CIVIC
+          </span>
+          <span className="text-sm font-semibold" style={{ color: colors.accent }}>
+            FIX
+          </span>
+        </div>
+
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-lg transition-all duration-200 hover:opacity-80"
+          style={{
+            backgroundColor: colors.inputBackground,
+            border: `1px solid ${colors.border}`,
+            color: colors.text,
+          }}
+        >
+          {theme === "dark" ? (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+          ) : (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+          )}
+        </button>
       </div>
 
-      <div className="absolute top-4 right-4 z-20 lg:top-6 lg:right-6">
+      {/* Desktop Theme Toggle */}
+      <div className="hidden lg:block absolute top-6 right-6 z-20">
         <button
           onClick={toggleTheme}
           className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 hover:opacity-80"
@@ -418,35 +493,23 @@ const Login = () => {
         >
           {theme === "dark" ? (
             <>
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                />
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="5" />
+                <line x1="12" y1="1" x2="12" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="23" />
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                <line x1="1" y1="12" x2="3" y2="12" />
+                <line x1="21" y1="12" x2="23" y2="12" />
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
               </svg>
               <span className="text-xs font-medium">Light</span>
             </>
           ) : (
             <>
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-                />
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
               </svg>
               <span className="text-xs font-medium">Dark</span>
             </>
@@ -454,85 +517,240 @@ const Login = () => {
         </button>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center min-h-screen p-4 lg:p-8 order-2 lg:order-1">
+      {/* Mobile - Full width form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center min-h-screen p-4 lg:p-8 order-2 lg:order-1"
+        style={{
+          paddingTop: isMobile ? "80px" : "2rem",
+          paddingBottom: isMobile ? "2rem" : "2rem",
+        }}
+      >
         <div className="w-full max-w-md">
           <div
-            className="rounded-2xl border p-6 lg:p-8 shadow-xl backdrop-blur-sm"
+            className="rounded-2xl border shadow-xl backdrop-blur-sm"
             style={{
-              backgroundColor: colors.cardBackground
+              backgroundColor: colors.cardBackground,
+              borderColor: colors.border,
             }}
           >
-         
-            {showOtpVerification ? (
-              <div className="w-full">
-                <div className="text-center mb-6">
-                  <div
-                    className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-4"
-                    style={{
-                      backgroundColor: colors.accentLight,
-                      color: colors.accent,
-                    }}
-                  >
-                    <Shield size={20} />
+            <div className="p-6 lg:p-8">
+              {showOtpVerification ? (
+                <div className="w-full">
+                  <div className="text-center mb-6">
+                    <div
+                      className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-4 mx-auto"
+                      style={{
+                        backgroundColor: colors.accentLight,
+                        color: colors.accent,
+                      }}
+                    >
+                      <Shield size={20} />
+                    </div>
+                    <h1
+                      className="text-xl lg:text-2xl font-bold mb-2"
+                      style={{ color: colors.text }}
+                    >
+                      Verify OTP
+                    </h1>
+                    <p
+                      className="text-xs lg:text-sm mb-2"
+                      style={{ color: colors.mutedText }}
+                    >
+                      Enter the 6-digit code sent to
+                    </p>
+                    <p
+                      className="text-sm lg:text-base font-medium break-all px-2"
+                      style={{ color: colors.accent }}
+                    >
+                      {email}
+                    </p>
                   </div>
-                  <h1
-                    className="text-2xl font-bold mb-2"
-                    style={{ color: colors.text }}
-                  >
-                    Verify OTP
-                  </h1>
-                  <p
-                    className="text-sm mb-2"
-                    style={{ color: colors.mutedText }}
-                  >
-                    Enter the 6-digit code sent to
-                  </p>
-                  <p
-                    className="text-sm font-medium"
-                    style={{ color: colors.accent }}
-                  >
-                    {email}
-                  </p>
+
+                  {error && (
+                    <div
+                      className="mb-4 p-3 rounded-lg text-xs lg:text-sm flex items-start gap-2"
+                      style={{
+                        backgroundColor: `${colors.error}10`,
+                        color: colors.error,
+                        border: `1px solid ${colors.error}20`,
+                      }}
+                    >
+                      <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
+                      <span>{error}</span>
+                    </div>
+                  )}
+
+                  {message && (
+                    <div
+                      className="mb-4 p-3 rounded-lg text-xs lg:text-sm"
+                      style={{
+                        backgroundColor: `${colors.success}10`,
+                        color: colors.success,
+                        border: `1px solid ${colors.success}20`,
+                      }}
+                    >
+                      {message}
+                    </div>
+                  )}
+
+                  <form onSubmit={handleOtpSubmit} className="space-y-6">
+                    <div className="flex justify-center gap-2">
+                      {[0, 1, 2, 3, 4, 5].map((index) => (
+                        <input
+                          key={index}
+                          id={`otp-${index}`}
+                          type="text"
+                          maxLength="1"
+                          value={otp[index]}
+                          onChange={(e) => handleOtpChange(index, e.target.value)}
+                          onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                          className="w-10 h-10 sm:w-12 sm:h-12 text-center text-base lg:text-lg rounded-lg border focus:outline-none focus:ring-2 transition-all"
+                          style={{
+                            backgroundColor: colors.inputBackground,
+                            borderColor: colors.border,
+                            color: colors.text,
+                            outlineColor: colors.accent,
+                          }}
+                          required
+                          disabled={loading}
+                          inputMode="numeric"
+                          pattern="\d*"
+                        />
+                      ))}
+                    </div>
+
+                    <div className="space-y-4">
+                      <PrimaryButton
+                        type="submit"
+                        loading={loading}
+                        fullWidth
+                        className="text-sm py-3 rounded-lg font-semibold"
+                        style={{
+                          backgroundColor: colors.accent,
+                          color: colors.buttonText,
+                        }}
+                      >
+                        Verify OTP
+                      </PrimaryButton>
+
+                      <div className="flex justify-between items-center">
+                        <button
+                          type="button"
+                          onClick={handleBackToLogin}
+                          className="text-xs lg:text-sm flex items-center gap-1 hover:opacity-80 transition-opacity"
+                          style={{ color: colors.mutedText }}
+                          disabled={loading}
+                        >
+                          <ArrowLeft size={14} />
+                          Back
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleResendOtp}
+                          disabled={!canResendOtp || loading}
+                          className={`text-xs lg:text-sm flex items-center gap-1 ${
+                            canResendOtp
+                              ? "hover:opacity-80"
+                              : "opacity-50 cursor-not-allowed"
+                          } transition-opacity`}
+                          style={{ color: colors.accent }}
+                        >
+                          {canResendOtp ? (
+                            <>
+                              <RefreshCw size={14} />
+                              Resend
+                            </>
+                          ) : (
+                            `Resend in ${countdown}s`
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </form>
                 </div>
-
-                {error && (
-                  <div
-                    className="mb-4 p-3 rounded-lg text-sm flex items-start gap-2"
-                    style={{
-                      backgroundColor: `${colors.error}10`,
-                      color: colors.error,
-                      border: `1px solid ${colors.error}20`,
-                    }}
-                  >
-                    <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
-                    <span>{error}</span>
+              ) : (
+                <div className="w-full">
+                  <div className="text-center mb-6 lg:mb-8">
+                    <h1
+                      className="text-2xl lg:text-4xl font-bold mb-2 tracking-tight"
+                      style={{ color: colors.text }}
+                    >
+                      Welcome Back
+                    </h1>
+                    <p className="text-sm lg:text-base" style={{ color: colors.mutedText }}>
+                      Sign in to continue to CivicFix
+                    </p>
                   </div>
-                )}
 
-                {message && (
                   <div
-                    className="mb-4 p-3 rounded-lg text-sm"
-                    style={{
-                      backgroundColor: `${colors.success}10`,
-                      color: colors.success,
-                      border: `1px solid ${colors.success}20`,
-                    }}
+                    className="grid grid-cols-4 gap-1 p-1 rounded-lg mb-6 lg:mb-8"
+                    style={{ backgroundColor: colors.tabInactiveBg }}
                   >
-                    {message}
+                    {[
+                      { id: "citizen", label: "Citizen" },
+                      { id: "officer", label: "Officer" },
+                      { id: "supervisor", label: "Supervisor" },
+                      { id: "admin", label: "Admin" },
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className="py-2 px-1 text-xs lg:text-sm font-medium rounded-md transition-all duration-200"
+                        style={{
+                          backgroundColor:
+                            activeTab === tab.id ? colors.accent : "transparent",
+                          color:
+                            activeTab === tab.id
+                              ? colors.buttonText
+                              : colors.tabInactiveText,
+                        }}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
                   </div>
-                )}
 
-                <form onSubmit={handleOtpSubmit} className="space-y-6">
-                  <div className="flex justify-center gap-2">
-                    {[0, 1, 2, 3, 4, 5].map((index) => (
+                  {error && (
+                    <div
+                      className="mb-4 p-3 rounded-lg text-xs lg:text-sm flex items-start gap-2"
+                      style={{
+                        backgroundColor: `${colors.error}10`,
+                        color: colors.error,
+                        border: `1px solid ${colors.error}20`,
+                      }}
+                    >
+                      <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
+                      <span>{error}</span>
+                    </div>
+                  )}
+
+                  {message && (
+                    <div
+                      className="mb-4 p-3 rounded-lg text-xs lg:text-sm"
+                      style={{
+                        backgroundColor: `${colors.success}10`,
+                        color: colors.success,
+                        border: `1px solid ${colors.success}20`,
+                      }}
+                    >
+                      {message}
+                    </div>
+                  )}
+
+                  <form onSubmit={handleLoginSubmit} className="space-y-4 lg:space-y-5">
+                    <div>
+                      <label
+                        className="block text-xs lg:text-sm font-medium mb-1.5 lg:mb-2"
+                        style={{ color: colors.text }}
+                      >
+                        Email Address
+                      </label>
                       <input
-                        key={index}
-                        id={`otp-${index}`}
-                        type="text"
-                        maxLength="1"
-                        value={otp[index]}
-                        onChange={(e) => handleOtpChange(index, e.target.value)}
-                        className="w-12 h-12 text-center text-lg rounded-lg border focus:outline-none focus:ring-2 transition-all"
+                        type="email"
+                        placeholder={`Enter your ${activeTab} email`}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full px-3 lg:px-4 py-2.5 lg:py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all text-sm"
                         style={{
                           backgroundColor: colors.inputBackground,
                           borderColor: colors.border,
@@ -541,238 +759,98 @@ const Login = () => {
                         }}
                         required
                         disabled={loading}
+                        inputMode="email"
                       />
-                    ))}
-                  </div>
+                    </div>
 
-                  <div className="space-y-4">
+                    <div>
+                      <label
+                        className="block text-xs lg:text-sm font-medium mb-1.5 lg:mb-2"
+                        style={{ color: colors.text }}
+                      >
+                        Password
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Enter your password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="w-full px-3 lg:px-4 py-2.5 lg:py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all text-sm pr-10 lg:pr-12"
+                          style={{
+                            backgroundColor: colors.inputBackground,
+                            borderColor: colors.border,
+                            color: colors.text,
+                            outlineColor: colors.accent,
+                          }}
+                          required
+                          disabled={loading}
+                        />
+                        <button
+                          type="button"
+                          className="absolute right-2 lg:right-3 top-1/2 transform -translate-y-1/2 p-1"
+                          onClick={() => setShowPassword(!showPassword)}
+                          style={{ color: colors.mutedText }}
+                        >
+                          {showPassword ? (
+                            <EyeOff size={16} />
+                          ) : (
+                            <Eye size={16} />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
                     <PrimaryButton
                       type="submit"
                       loading={loading}
                       fullWidth
-                      className="text-sm py-3 rounded-lg font-semibold"
+                      className="text-sm py-2.5 lg:py-3 rounded-lg font-semibold mt-2"
                       style={{
                         backgroundColor: colors.accent,
                         color: colors.buttonText,
                       }}
                     >
-                      Verify OTP
+                      Sign In as{" "}
+                      {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
                     </PrimaryButton>
-
-                    <div className="flex justify-between items-center">
-                      <button
-                        type="button"
-                        onClick={handleBackToLogin}
-                        className="text-sm flex items-center gap-1 hover:opacity-80 transition-opacity"
-                        style={{ color: colors.mutedText }}
-                        disabled={loading}
-                      >
-                        <ArrowLeft size={14} />
-                        Back
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={handleResendOtp}
-                        disabled={!canResendOtp || loading}
-                        className={`text-sm flex items-center gap-1 ${
-                          canResendOtp
-                            ? "hover:opacity-80"
-                            : "opacity-50 cursor-not-allowed"
-                        } transition-opacity`}
-                        style={{ color: colors.accent }}
-                      >
-                        {canResendOtp ? (
-                          <>
-                            <RefreshCw size={14} />
-                            Resend
-                          </>
-                        ) : (
-                          `Resend in ${countdown}s`
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            ) : (
-              <div className="w-full h-1/2">
-                <div className="text-center mb-8">
-                  <h1
-                    className="text-4xl font-bold mb-2 tracking-tight"
-                    style={{ color: colors.text }}
-                  >
-                    Welcome Back
-                  </h1>
-                  <p className="text-md" style={{ color: colors.mutedText }}>
-                    Sign in to continue to CivicFix
-                  </p>
-                </div>
-
-                <div
-                  className="grid grid-cols-4 gap-2 p-1 rounded-lg mb-8"
-                  style={{ backgroundColor: colors.tabInactiveBg }}
-                >
-                  {[
-                    { id: "citizen", label: "Citizen" },
-                    { id: "officer", label: "Officer" },
-                    { id: "supervisor", label: "Supervisor" },
-                    { id: "admin", label: "Admin" },
-                  ].map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className="py-2 px-1 text-xm font-medium rounded-md transition-all duration-200"
-                      style={{
-                        backgroundColor:
-                          activeTab === tab.id ? colors.accent : "transparent",
-                        color:
-                          activeTab === tab.id
-                            ? colors.buttonText
-                            : colors.tabInactiveText,
-                      }}
-                    >
-                      {tab.label}
-                    </button>
-                  ))}
-                </div>
-
-                {error && (
-                  <div
-                    className="mb-4 p-3 rounded-lg text-sm flex items-start gap-2"
-                    style={{
-                      backgroundColor: `${colors.error}10`,
-                      color: colors.error,
-                      border: `1px solid ${colors.error}20`,
-                    }}
-                  >
-                    <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
-                    <span>{error}</span>
-                  </div>
-                )}
-
-                {message && (
-                  <div
-                    className="mb-4 p-3 rounded-lg text-sm"
-                    style={{
-                      backgroundColor: `${colors.success}10`,
-                      color: colors.success,
-                      border: `1px solid ${colors.success}20`,
-                    }}
-                  >
-                    {message}
-                  </div>
-                )}
-
-                <form onSubmit={handleLoginSubmit} className="space-y-5">
-                  <div>
-                    <label
-                      className="block text-sm font-medium mb-2"
-                      style={{ color: colors.text }}
-                    >
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      placeholder={`Enter your ${activeTab} email`}
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all text-sm"
-                      style={{
-                        backgroundColor: colors.inputBackground,
-                        borderColor: colors.border,
-                        color: colors.text,
-                        outlineColor: colors.accent,
-                      }}
-                      required
-                      disabled={loading}
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      className="block text-sm font-medium mb-2"
-                      style={{ color: colors.text }}
-                    >
-                      Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all text-sm pr-12"
-                        style={{
-                          backgroundColor: colors.inputBackground,
-                          borderColor: colors.border,
-                          color: colors.text,
-                          outlineColor: colors.accent,
-                        }}
-                        required
-                        disabled={loading}
-                      />
-                      <button
-                        type="button"
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                        onClick={() => setShowPassword(!showPassword)}
-                        style={{ color: colors.mutedText }}
-                      >
-                        {showPassword ? (
-                          <EyeOff size={18} />
-                        ) : (
-                          <Eye size={18} />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  <PrimaryButton
-                    type="submit"
-                    loading={loading}
-                    fullWidth
-                    className="text-sm py-3 rounded-lg font-semibold mt-2"
-                    style={{
-                      backgroundColor: colors.accent,
-                      color: colors.buttonText,
-                    }}
-                  >
-                    Sign In as{" "}
-                    {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-                  </PrimaryButton>
-                  {activeTab === "citizen" && (
-                    <div className="text-center pt-2">
-                      <p
-                        className="text-sm"
-                        style={{ color: colors.mutedText }}
-                      >
-                        Don't have an account?{" "}
-                        <Link
-                          to="/signup"
-                          className="font-medium hover:opacity-80 transition-opacity"
-                          style={{ color: colors.accent }}
+                    
+                    {activeTab === "citizen" && (
+                      <div className="text-center pt-2">
+                        <p
+                          className="text-xs lg:text-sm"
+                          style={{ color: colors.mutedText }}
                         >
-                          Sign up
-                        </Link>
-                      </p>
-                    </div>
-                  )}
-                </form>
+                          Don't have an account?{" "}
+                          <Link
+                            to="/signup"
+                            className="font-medium hover:opacity-80 transition-opacity"
+                            style={{ color: colors.accent }}
+                          >
+                            Sign up
+                          </Link>
+                        </p>
+                      </div>
+                    )}
+                  </form>
 
-                <div className="mt-6 text-center">
-                  <p className="text-xs" style={{ color: colors.mutedText }}>
-                    © {new Date().getFullYear()} CivicFix. All rights reserved.
-                  </p>
+                  <div className="mt-4 lg:mt-6 text-center">
+                    <p className="text-xs" style={{ color: colors.mutedText }}>
+                      © {new Date().getFullYear()} CivicFix. All rights reserved.
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
-      <div className="hidden lg:block lg:w-1/2 relative order-1 lg:order-2 rounded-2xl">
+
+      {/* Desktop - Background Image Section */}
+      <div className="hidden lg:block lg:w-1/2 relative order-1 lg:order-2">
         <div className="w-full h-screen relative overflow-hidden">
           <div
-            className="w-215 h-full rounded-2xl"
+            className="w-full h-full"
             style={{
               backgroundImage: `url(${backgroundImage})`,
               backgroundSize: "cover",
@@ -841,8 +919,3 @@ const Login = () => {
 };
 
 export default Login;
-
-
-
-
-
