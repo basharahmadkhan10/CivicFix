@@ -1,55 +1,28 @@
-import nodemailer from "nodemailer";
+import sgMail from '@sendgrid/mail';
 
 export const sendEmail = async ({ to, subject, text }) => {
   console.log(`📧 Attempting to send email to: ${to}`);
   
-  // CORRECTED: Use port 465 for SSL (secure: true)
-  // OR port 587 for TLS (secure: false)
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465, // Changed from 443 to 465
-    secure: true, // true for 465, false for other ports
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-    // Timeout settings
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 10000,
-    debug: true,
-    logger: true,
-    // Optional: Add TLS options
-    tls: {
-      // Do not fail on invalid certs (for testing only)
-      rejectUnauthorized: false
-    }
-  });
+  // Initialize SendGrid with API key
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  
+  const msg = {
+    to: to,
+    from: process.env.FROM_EMAIL, // Verified sender in SendGrid
+    subject: subject,
+    text: text,
+    html: text.replace(/\n/g, '<br>'), // Basic HTML version
+  };
 
   try {
-    // First verify connection configuration
-    await transporter.verify();
-    console.log('✅ SMTP connection verified');
-    
-    const info = await transporter.sendMail({
-      from: `"CivicFix" <${process.env.EMAIL_USER}>`,
-      to,
-      subject,
-      text,
-      // Add HTML version if needed
-      // html: `<p>${text}</p>`,
-    });
-    
-    console.log(`✅ Email sent successfully: ${info.messageId}`);
-    console.log(`📬 Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
-    return info;
+    const response = await sgMail.send(msg);
+    console.log(`✅ Email sent successfully to ${to}`);
+    return { success: true, messageId: response[0]?.headers['x-message-id'] };
   } catch (error) {
-    console.error("❌ Email error:", {
+    console.error("❌ SendGrid Error:", {
       message: error.message,
       code: error.code,
-      command: error.command,
-      response: error.response,
-      stack: error.stack
+      response: error.response?.body
     });
     
     // Throw error so we know it failed
