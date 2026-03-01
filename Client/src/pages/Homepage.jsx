@@ -1077,32 +1077,6 @@ const HomePage = () => {
                   {section.description}
                 </p>
 
-                <Link
-                  to="#"
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    fontSize: isMobile ? "13px" : "14px",
-                    fontWeight: "600",
-                    color: t.accent,
-                    textDecoration: "none",
-                    borderBottom: `1px solid ${t.accent}`,
-                    paddingBottom: "4px",
-                  }}
-                >
-                  Learn More
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M5 12L11 8L5 4" />
-                  </svg>
-                </Link>
               </div>
 
               {/* Image */}
@@ -1499,3 +1473,4 @@ const HomePage = () => {
 };
 
 export default HomePage;
+
