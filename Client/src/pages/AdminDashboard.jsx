@@ -151,9 +151,9 @@ const AdminDashboard = () => {
         accentLight: "rgba(151, 171, 51, 0.1)",
         accentHover: "#8A9E2E",
         success: "#38A169",
-        warning: "#F6AD55",
+        warning: "#bb1b11",
         danger: "#FC8181",
-        info: "#4299E1",
+        info: "#97AB33",
         primary: "#97AB33",
         categoryBg: "#EDF2F7",
         categoryText: "#2D3748",
@@ -170,9 +170,9 @@ const AdminDashboard = () => {
       accentLight: "rgba(151, 171, 51, 0.15)",
       accentHover: "#A8C03E",
       success: "#68D391",
-      warning: "#FBD38D",
+      warning: "#bb1b11",
       danger: "#FC8181",
-      info: "#63B3ED",
+      info: "#97AB33",
       primary: "#97AB33",
       categoryBg: "#2D3748",
       categoryText: "#E2E8F0",
@@ -1047,7 +1047,7 @@ const AdminDashboard = () => {
                 className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
                 style={{ backgroundColor: `${colors.border}20` }}
               >
-                <span>{theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}</span>
+                <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
               </button>
               
               <button
@@ -1058,7 +1058,7 @@ const AdminDashboard = () => {
                 className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
                 style={{ backgroundColor: `${colors.border}20` }}
               >
-                <span>🔄 Refresh</span>
+                <span>Refresh</span>
               </button>
               
               <button
@@ -1069,7 +1069,7 @@ const AdminDashboard = () => {
                 className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
                 style={{ backgroundColor: colors.primary, color: "white" }}
               >
-                <span>➕ New User</span>
+                <span>New User</span>
               </button>
               
               <button
@@ -1080,7 +1080,7 @@ const AdminDashboard = () => {
                 className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
                 style={{ backgroundColor: colors.success, color: "white" }}
               >
-                <span>📥 Export</span>
+                <span>Export</span>
               </button>
               
               <button
@@ -1088,7 +1088,7 @@ const AdminDashboard = () => {
                 className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
                 style={{ backgroundColor: `${colors.border}20` }}
               >
-                <span>👤 Profile</span>
+                <span>Profile</span>
               </button>
               
               <button
@@ -1096,7 +1096,7 @@ const AdminDashboard = () => {
                 className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
                 style={{ color: colors.danger, backgroundColor: `${colors.border}20` }}
               >
-                <span>🚪 Logout</span>
+                <span>Logout</span>
               </button>
             </div>
           </div>
@@ -2015,3 +2015,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard; 
+
