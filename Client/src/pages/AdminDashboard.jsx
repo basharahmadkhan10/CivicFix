@@ -585,17 +585,12 @@ const AdminDashboard = () => {
           `/v1/admin/complaints/${selectedComplaint._id}/assign`,
           { supervisorId: assignData.supervisorId },
         );
-      } else {
-        response = await api.patch(
-          `/v1/admin/complaints/${selectedComplaint._id}/assign-officer`,
-          { officerId: assignData.officerId },
-        );
       }
 
       if (response.data.success) {
         toast.success("Complaint assigned successfully!");
         setShowAssignModal(false);
-        setAssignData({ supervisorId: "", officerId: "", type: "supervisor" });
+        setAssignData({ supervisorId: "", type: "supervisor" });
         fetchDashboardData();
       }
     } catch (error) {
@@ -1695,97 +1690,68 @@ const AdminDashboard = () => {
       )}
 
       {showAssignModal && selectedComplaint && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div
-            className="rounded-xl p-4 sm:p-6 max-w-md w-full"
-            style={{
-              backgroundColor: colors.card,
-              border: `1px solid ${colors.border}`,
-            }}
-          >
-            <h3 className="text-lg sm:text-xl font-bold mb-3">Assign Complaint</h3>
-            <div className="space-y-3">
-              <div className="mb-3">
-                <p className="font-medium text-sm">Complaint:</p>
-                <p className="text-xs opacity-75">{selectedComplaint.title}</p>
-              </div>
-              <select
-                value={assignData.type}
-                onChange={(e) => setAssignData({ ...assignData, type: e.target.value })}
-                className="w-full p-2.5 text-sm rounded-lg"
-                style={{
-                  backgroundColor: colors.bg,
-                  border: `1px solid ${colors.border}`,
-                  color: colors.text,
-                }}
-              >
-                <option value="supervisor">Assign to Supervisor</option>
-                <option value="officer">Assign to Officer</option>
-              </select>
-              {assignData.type === "supervisor" ? (
-                <select
-                  value={assignData.supervisorId}
-                  onChange={(e) => setAssignData({ ...assignData, supervisorId: e.target.value })}
-                  className="w-full p-2.5 text-sm rounded-lg"
-                  style={{
-                    backgroundColor: colors.bg,
-                    border: `1px solid ${colors.border}`,
-                    color: colors.text,
-                  }}
-                >
-                  <option value="">Select Supervisor</option>
-                  {getSupervisors().map((supervisor) => (
-                    <option key={supervisor._id} value={supervisor._id}>
-                      {supervisor.name}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <select
-                  value={assignData.officerId}
-                  onChange={(e) => setAssignData({ ...assignData, officerId: e.target.value })}
-                  className="w-full p-2.5 text-sm rounded-lg"
-                  style={{
-                    backgroundColor: colors.bg,
-                    border: `1px solid ${colors.border}`,
-                    color: colors.text,
-                  }}
-                >
-                  <option value="">Select Officer</option>
-                  {getOfficers().map((officer) => (
-                    <option key={officer._id} value={officer._id}>
-                      {officer.name}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-            <div className="flex gap-2 mt-4">
-              <button
-                onClick={() => setShowAssignModal(false)}
-                className="flex-1 p-2.5 rounded-lg font-medium text-sm"
-                style={{
-                  backgroundColor: colors.card,
-                  border: `1px solid ${colors.border}`,
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAssignComplaint}
-                disabled={
-                  (assignData.type === "supervisor" && !assignData.supervisorId) ||
-                  (assignData.type === "officer" && !assignData.officerId)
-                }
-                className="flex-1 p-2.5 rounded-lg font-medium text-sm text-white disabled:opacity-50"
-                style={{ backgroundColor: colors.primary }}
-              >
-                Assign
-              </button>
-            </div>
-          </div>
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div
+      className="rounded-xl p-4 sm:p-6 max-w-md w-full"
+      style={{
+        backgroundColor: colors.card,
+        border: `1px solid ${colors.border}`,
+      }}
+    >
+      <h3 className="text-lg sm:text-xl font-bold mb-3">Assign Complaint</h3>
+      <div className="space-y-3">
+        <div className="mb-3">
+          <p className="font-medium text-sm">Complaint:</p>
+          <p className="text-xs opacity-75">{selectedComplaint.title}</p>
         </div>
-      )}
+        
+        {/* ✅ Sirf supervisor dropdown - officer code completely hata diya */}
+        <select
+          value={assignData.supervisorId}
+          onChange={(e) => setAssignData({ 
+            ...assignData, 
+            supervisorId: e.target.value,
+            type: "supervisor" // Fixed type
+          })}
+          className="w-full p-2.5 text-sm rounded-lg"
+          style={{
+            backgroundColor: colors.bg,
+            border: `1px solid ${colors.border}`,
+            color: colors.text,
+          }}
+        >
+          <option value="">Select Supervisor</option>
+          {getSupervisors().map((supervisor) => (
+            <option key={supervisor._id} value={supervisor._id}>
+              {supervisor.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      
+      <div className="flex gap-2 mt-4">
+        <button
+          onClick={() => setShowAssignModal(false)}
+          className="flex-1 p-2.5 rounded-lg font-medium text-sm"
+          style={{
+            backgroundColor: colors.card,
+            border: `1px solid ${colors.border}`,
+          }}
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleAssignComplaint}
+          disabled={!assignData.supervisorId}
+          className="flex-1 p-2.5 rounded-lg font-medium text-sm text-white disabled:opacity-50"
+          style={{ backgroundColor: colors.primary }}
+        >
+          Assign
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {showUpdateModal && selectedComplaint && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -2030,6 +1996,7 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard; 
+
 
 
 
