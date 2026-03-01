@@ -2,7 +2,9 @@ import React, { createContext, useState, useContext, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { CheckCircle, XCircle, AlertCircle, Info, X } from "lucide-react";
 import { useTheme } from "./ThemeContext";
+
 const ToastContext = createContext();
+
 export const useToast = () => {
   const context = useContext(ToastContext);
   if (!context) {
@@ -17,7 +19,7 @@ export const ToastProvider = ({ children }) => {
 
   const addToast = useCallback(
     ({ message, type = "info", duration = 2000, position = "top-right" }) => {
-      const id = Date.now();
+      const id = Date.now() + Math.random();
       const newToast = {
         id,
         message,
@@ -71,6 +73,7 @@ export const ToastProvider = ({ children }) => {
     },
     [addToast],
   );
+
   const clearAll = useCallback(() => {
     setToasts([]);
   }, []);
@@ -93,6 +96,11 @@ export const ToastProvider = ({ children }) => {
 };
 
 const ToastContainer = ({ toasts, removeToast, theme }) => {
+  const isDark = theme === "dark";
+  
+  // Green accent color
+  const accentColor = "#97AB33";
+
   // Group toasts by position
   const positions = {
     "top-left": toasts.filter((t) => t.position === "top-left"),
@@ -104,152 +112,112 @@ const ToastContainer = ({ toasts, removeToast, theme }) => {
   };
 
   const getToastColors = (type) => {
-    if (theme === "light") {
-      const baseColors = {
-        bg: "#ffffff",
-        text: "#000000",
-        border: "#e5e7eb",
-        cardBg: "#cad4f3", 
-      };
+    // Base colors based on theme
+    const baseColors = {
+      bg: isDark ? "#111111" : "#FFFFFF",
+      text: isDark ? "#FFFFFF" : "#1A202C",
+      border: isDark ? "#2D3748" : "#E2E8F0",
+      cardHover: isDark ? "#1A1A1A" : "#F7FAFC",
+      muted: isDark ? "#A0AEC0" : "#718096",
+    };
 
-      switch (type) {
-        case "success":
-          return {
-            ...baseColors,
-            icon: "#10b981",
-            accent: "#059669",
-            bgAccent: "#d1fae5",
-            borderAccent: "#a7f3d0",
-          };
-        case "error":
-          return {
-            ...baseColors,
-            icon: "#ef4444",
-            accent: "#dc2626",
-            bgAccent: "#fee2e2",
-            borderAccent: "#fecaca",
-          };
-        case "warning":
-          return {
-            ...baseColors,
-            icon: "#f59e0b",
-            accent: "#d97706",
-            bgAccent: "#fef3c7",
-            borderAccent: "#fde68a",
-          };
-        case "info":
-          return {
-            ...baseColors,
-            icon: "#3b82f6",
-            accent: "#2563eb",
-            bgAccent: "#dbeafe",
-            borderAccent: "#bfdbfe",
-          };
-        default:
-          return {
-            ...baseColors,
-            icon: "#6b7280",
-            accent: "#4b5563",
-            bgAccent: "#f3f4f6",
-            borderAccent: "#e5e7eb",
-          };
-      }
-    } else {
-      const baseColors = {
-        bg: "#111111", 
-        text: "#ffffff",
-        border: "#374151",
-        cardBg: "#1a1a1a",
-      };
-
-      switch (type) {
-        case "success":
-          return {
-            ...baseColors,
-            icon: "#34d399",
-            accent: "#10b981",
-            bgAccent: "#064e3b",
-            borderAccent: "#065f46",
-          };
-        case "error":
-          return {
-            ...baseColors,
-            icon: "#f87171",
-            accent: "#ef4444",
-            bgAccent: "#7f1d1d",
-            borderAccent: "#991b1b",
-          };
-        case "warning":
-          return {
-            ...baseColors,
-            icon: "#fbbf24",
-            accent: "#f59e0b",
-            bgAccent: "#78350f",
-            borderAccent: "#92400e",
-          };
-        case "info":
-          return {
-            ...baseColors,
-            icon: "#60a5fa",
-            accent: "#3b82f6",
-            bgAccent: "#1e3a8a",
-            borderAccent: "#1e40af",
-          };
-        default:
-          return {
-            ...baseColors,
-            icon: "#9ca3af",
-            accent: "#6b7280",
-            bgAccent: "#1f2937",
-            borderAccent: "#374151",
-          };
-      }
+    // Type-specific colors using green accent
+    switch (type) {
+      case "success":
+        return {
+          ...baseColors,
+          icon: accentColor,
+          accent: accentColor,
+          bgAccent: isDark ? "rgba(151, 171, 51, 0.15)" : "rgba(151, 171, 51, 0.1)",
+          borderAccent: isDark ? "#2D3748" : "#E2E8F0",
+        };
+      case "error":
+        return {
+          ...baseColors,
+          icon: "#EF4444",
+          accent: "#EF4444",
+          bgAccent: isDark ? "rgba(239, 68, 68, 0.15)" : "rgba(239, 68, 68, 0.1)",
+          borderAccent: isDark ? "#2D3748" : "#E2E8F0",
+        };
+      case "warning":
+        return {
+          ...baseColors,
+          icon: "#F59E0B",
+          accent: "#F59E0B",
+          bgAccent: isDark ? "rgba(245, 158, 11, 0.15)" : "rgba(245, 158, 11, 0.1)",
+          borderAccent: isDark ? "#2D3748" : "#E2E8F0",
+        };
+      case "info":
+        return {
+          ...baseColors,
+          icon: "#3B82F6",
+          accent: "#3B82F6",
+          bgAccent: isDark ? "rgba(59, 130, 246, 0.15)" : "rgba(59, 130, 246, 0.1)",
+          borderAccent: isDark ? "#2D3748" : "#E2E8F0",
+        };
+      default:
+        return {
+          ...baseColors,
+          icon: accentColor,
+          accent: accentColor,
+          bgAccent: isDark ? "rgba(151, 171, 51, 0.15)" : "rgba(151, 171, 51, 0.1)",
+          borderAccent: isDark ? "#2D3748" : "#E2E8F0",
+        };
     }
   };
 
   const getToastIcon = (type) => {
     switch (type) {
       case "success":
-        return <CheckCircle size={20} />;
+        return <CheckCircle size={isMobile ? 18 : 20} />;
       case "error":
-        return <XCircle size={20} />;
+        return <XCircle size={isMobile ? 18 : 20} />;
       case "warning":
-        return <AlertCircle size={20} />;
+        return <AlertCircle size={isMobile ? 18 : 20} />;
       case "info":
-        return <Info size={20} />;
+        return <Info size={isMobile ? 18 : 20} />;
       default:
-        return <Info size={20} />;
+        return <Info size={isMobile ? 18 : 20} />;
     }
   };
+
+  // Check if mobile
+  const [isMobile, setIsMobile] = React.useState(false);
+  
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 640);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const ToastItem = ({ toast }) => {
     const colors = getToastColors(toast.type);
 
     return (
       <div
-        className="relative mb-3 rounded-xl shadow-lg transform transition-all duration-300 animate-slideIn"
+        className="relative mb-2 sm:mb-3 rounded-xl shadow-lg transform transition-all duration-300 animate-slideIn"
         style={{
           backgroundColor: colors.bg,
           color: colors.text,
           border: `1px solid ${colors.border}`,
-          maxWidth: "400px",
-          minWidth: "300px",
+          maxWidth: isMobile ? "calc(100vw - 32px)" : "400px",
+          minWidth: isMobile ? "calc(100vw - 32px)" : "300px",
+          width: isMobile ? "calc(100vw - 32px)" : "auto",
           backdropFilter: "blur(10px)",
-          boxShadow:
-            theme === "dark"
-              ? "0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3)"
-              : "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+          boxShadow: isDark
+            ? "0 10px 25px -5px rgba(0, 0, 0, 0.5)"
+            : "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
         }}
       >
-        
-        <div
-          className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl"
-          style={{ backgroundColor: colors.accent }}
-        />
-
-        <div className="flex items-start p-4 pl-6">
+        <div className="flex items-start p-3 sm:p-4">
+          {/* Icon */}
           <div
-            className="flex-shrink-0 p-2 rounded-lg mr-3"
+            className="flex-shrink-0 p-1.5 sm:p-2 rounded-lg mr-2 sm:mr-3"
             style={{
               backgroundColor: colors.bgAccent,
               color: colors.icon,
@@ -258,43 +226,64 @@ const ToastContainer = ({ toasts, removeToast, theme }) => {
             {getToastIcon(toast.type)}
           </div>
 
+          {/* Message */}
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium pr-6">{toast.message}</p>
-            {toast.duration > 0 && (
-              <div className="mt-2 flex items-center">
-                <div className="flex-1 h-1 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
-                  <div
-                    className="h-full rounded-full transition-all duration-1000 linear"
-                    style={{
-                      width: `${Math.max(0, 100 - ((Date.now() - toast.timestamp) / toast.duration) * 100)}%`,
-                      backgroundColor: colors.accent,
-                    }}
-                  />
-                </div>
-              </div>
-            )}
+            <p className="text-xs sm:text-sm font-medium pr-4 sm:pr-6" style={{ color: colors.text }}>
+              {toast.message}
+            </p>
           </div>
 
+          {/* Close button */}
           <button
             onClick={() => removeToast(toast.id)}
-            className="flex-shrink-0 ml-2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            style={{ color: colors.text }}
+            className="flex-shrink-0 ml-1 sm:ml-2 p-1 rounded-full hover:bg-opacity-80 transition-colors"
+            style={{ 
+              color: colors.muted,
+              minWidth: isMobile ? '36px' : '32px',
+              minHeight: isMobile ? '36px' : '32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
-            <X size={18} />
+            <X size={isMobile ? 16 : 18} />
           </button>
         </div>
+
+        {/* Progress bar - only show if duration > 0 and not on mobile (to reduce visual noise) */}
+        {toast.duration > 0 && !isMobile && (
+          <div className="px-3 pb-3 sm:px-4 sm:pb-4">
+            <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: colors.border }}>
+              <div
+                className="h-full rounded-full transition-all duration-1000 linear"
+                style={{
+                  width: `${Math.max(0, 100 - ((Date.now() - toast.timestamp) / toast.duration) * 100)}%`,
+                  backgroundColor: colors.icon,
+                }}
+              />
+            </div>
+          </div>
+        )}
       </div>
     );
   };
 
   const positionClasses = {
-    "top-left": "top-4 left-4 items-start",
-    "top-center": "top-4 left-1/2 transform -translate-x-1/2 items-center",
-    "top-right": "top-4 right-4 items-end",
-    "bottom-left": "bottom-4 left-4 items-start",
-    "bottom-center":
-      "bottom-4 left-1/2 transform -translate-x-1/2 items-center",
-    "bottom-right": "bottom-4 right-4 items-end",
+    "top-left": "top-0 left-0 items-start",
+    "top-center": "top-0 left-1/2 transform -translate-x-1/2 items-center",
+    "top-right": "top-0 right-0 items-end",
+    "bottom-left": "bottom-0 left-0 items-start",
+    "bottom-center": "bottom-0 left-1/2 transform -translate-x-1/2 items-center",
+    "bottom-right": "bottom-0 right-0 items-end",
+  };
+
+  const positionStyles = {
+    "top-left": { top: isMobile ? 8 : 16, left: isMobile ? 8 : 16 },
+    "top-center": { top: isMobile ? 8 : 16, left: '50%', transform: 'translateX(-50%)' },
+    "top-right": { top: isMobile ? 8 : 16, right: isMobile ? 8 : 16 },
+    "bottom-left": { bottom: isMobile ? 8 : 16, left: isMobile ? 8 : 16 },
+    "bottom-center": { bottom: isMobile ? 8 : 16, left: '50%', transform: 'translateX(-50%)' },
+    "bottom-right": { bottom: isMobile ? 8 : 16, right: isMobile ? 8 : 16 },
   };
 
   return (
@@ -304,9 +293,11 @@ const ToastContainer = ({ toasts, removeToast, theme }) => {
           positionToasts.length > 0 && (
             <div
               key={position}
-              className={`fixed z-[9999] flex flex-col ${positionClasses[position]}`}
+              className="fixed z-[9999] flex flex-col"
               style={{
+                ...positionStyles[position],
                 pointerEvents: "none",
+                maxWidth: isMobile ? '100vw' : 'auto',
               }}
             >
               {positionToasts.map((toast) => (
@@ -314,6 +305,7 @@ const ToastContainer = ({ toasts, removeToast, theme }) => {
                   key={toast.id}
                   style={{
                     pointerEvents: "auto",
+                    marginBottom: isMobile ? 4 : 8,
                   }}
                 >
                   <ToastItem toast={toast} />
@@ -352,6 +344,13 @@ const ToastContainer = ({ toasts, removeToast, theme }) => {
 
         .animate-slideOut {
           animation: slideOut 0.3s ease-in;
+        }
+
+        /* Mobile-specific styles */
+        @media (max-width: 640px) {
+          .animate-slideIn {
+            animation: slideIn 0.2s ease-out;
+          }
         }
       `}</style>
     </>
