@@ -42,9 +42,9 @@ const ComplaintDetails = () => {
         accent: accentColor,
         accentLight: "rgba(151, 171, 51, 0.1)",
         success: "#38A169",
-        warning: "#F6AD55",
+        warning: "#bb1b11",
         danger: "#FC8181",
-        info: "#4299E1",
+        info: "#97AB33",
         muted: "#718096",
       };
     }
@@ -57,9 +57,9 @@ const ComplaintDetails = () => {
       accent: accentColor,
       accentLight: "rgba(151, 171, 51, 0.15)",
       success: "#68D391",
-      warning: "#FBD38D",
+      warning: "#bb1b11",
       danger: "#FC8181",
-      info: "#63B3ED",
+      info: "#97AB33",
       muted: "#A0AEC0",
     };
   };
@@ -361,3 +361,4 @@ const ComplaintDetails = () => {
 };
 
 export default ComplaintDetails;
+
