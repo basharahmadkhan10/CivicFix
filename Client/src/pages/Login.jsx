@@ -13,6 +13,8 @@ import {
   AlertCircle,
   Eye,
   EyeOff,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 
 const Login = () => {
@@ -36,6 +38,17 @@ const Login = () => {
   const [textIndex, setTextIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  
+  // Password strength states
+  const [passwordFocused, setPasswordFocused] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState({
+    score: 0,
+    hasMinLength: false,
+    hasUpperCase: false,
+    hasLowerCase: false,
+    hasNumber: false,
+    hasSpecialChar: false,
+  });
 
   const backgroundImage = theme === "dark" ? bgDark : bgLight;
 
@@ -114,6 +127,56 @@ const Login = () => {
     setCharIndex(0);
     setTextIndex(0);
   }, [activeTab]);
+
+  // Password strength checker
+  const checkPasswordStrength = (pass) => {
+    const strength = {
+      score: 0,
+      hasMinLength: pass.length >= 8,
+      hasUpperCase: /[A-Z]/.test(pass),
+      hasLowerCase: /[a-z]/.test(pass),
+      hasNumber: /[0-9]/.test(pass),
+      hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(pass),
+    };
+    
+    // Calculate score (0-4)
+    let score = 0;
+    if (strength.hasMinLength) score++;
+    if (strength.hasUpperCase && strength.hasLowerCase) score++;
+    if (strength.hasNumber) score++;
+    if (strength.hasSpecialChar) score++;
+    
+    strength.score = Math.min(4, score);
+    setPasswordStrength(strength);
+  };
+
+  const handlePasswordChange = (e) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    checkPasswordStrength(newPassword);
+  };
+
+  const getPasswordStrengthColor = () => {
+    const colors = {
+      0: theme === "dark" ? "#EF4444" : "#DC2626", // Red
+      1: theme === "dark" ? "#EF4444" : "#DC2626", // Red
+      2: theme === "dark" ? "#F59E0B" : "#D97706", // Orange
+      3: theme === "dark" ? "#10B981" : "#059669", // Green
+      4: theme === "dark" ? "#10B981" : "#059669", // Green
+    };
+    return colors[passwordStrength.score];
+  };
+
+  const getPasswordStrengthText = () => {
+    const texts = {
+      0: "Very Weak",
+      1: "Weak",
+      2: "Fair",
+      3: "Good",
+      4: "Strong",
+    };
+    return texts[passwordStrength.score];
+  };
 
   // Modern theme with #97AB33 accent
   const getThemeColors = () => {
@@ -197,6 +260,13 @@ const Login = () => {
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
+    
+    // Password strength validation
+    if (passwordStrength.score < 2) {
+      setError("Please use a stronger password (at least 8 characters with mix of letters, numbers & symbols)");
+      return;
+    }
+    
     setLoading(true);
     setError("");
     setMessage("");
@@ -245,6 +315,9 @@ const Login = () => {
           setCountdown(60);
           setCanResendOtp(false);
 
+          // Clear OTP when showing verification
+          setOtp(["", "", "", "", "", ""]);
+          
           setTimeout(() => {
             document.getElementById("otp-0")?.focus();
           }, 100);
@@ -273,18 +346,64 @@ const Login = () => {
   };
 
   const handleOtpChange = (index, value) => {
+    // Only allow numbers
     if (!/^\d*$/.test(value)) return;
+    
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
+    
+    // Auto-focus next input
     if (value && index < 5) {
       document.getElementById(`otp-${index + 1}`)?.focus();
     }
   };
 
   const handleOtpKeyDown = (index, e) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
+    // Handle backspace
+    if (e.key === "Backspace") {
+      if (!otp[index] && index > 0) {
+        // Clear current and focus previous
+        const newOtp = [...otp];
+        newOtp[index] = "";
+        setOtp(newOtp);
+        document.getElementById(`otp-${index - 1}`)?.focus();
+      } else if (otp[index]) {
+        // Clear current
+        const newOtp = [...otp];
+        newOtp[index] = "";
+        setOtp(newOtp);
+      }
+    }
+    
+    // Handle left arrow
+    if (e.key === "ArrowLeft" && index > 0) {
       document.getElementById(`otp-${index - 1}`)?.focus();
+    }
+    
+    // Handle right arrow
+    if (e.key === "ArrowRight" && index < 5) {
+      document.getElementById(`otp-${index + 1}`)?.focus();
+    }
+  };
+
+  const handleOtpPaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text");
+    const numbers = pastedData.replace(/\D/g, "").slice(0, 6).split("");
+    
+    const newOtp = [...otp];
+    numbers.forEach((num, idx) => {
+      if (idx < 6) newOtp[idx] = num;
+    });
+    setOtp(newOtp);
+    
+    // Focus next empty or last field
+    const nextEmptyIndex = newOtp.findIndex(val => val === "");
+    if (nextEmptyIndex !== -1) {
+      document.getElementById(`otp-${nextEmptyIndex}`)?.focus();
+    } else {
+      document.getElementById("otp-5")?.focus();
     }
   };
 
@@ -363,6 +482,7 @@ const Login = () => {
 
       if (data.success) {
         setMessage("New OTP sent to your email!");
+        // Clear OTP when resending
         setOtp(["", "", "", "", "", ""]);
         setCountdown(60);
         setCanResendOtp(false);
@@ -379,6 +499,7 @@ const Login = () => {
 
   const handleBackToLogin = () => {
     setShowOtpVerification(false);
+    // Clear OTP when going back
     setOtp(["", "", "", "", "", ""]);
     setError("");
     setMessage("");
@@ -420,6 +541,18 @@ const Login = () => {
             width: calc(16.666% - 4px) !important;
             aspect-ratio: 1/1;
           }
+        }
+
+        /* OTP input styles */
+        .otp-field {
+          -webkit-appearance: none;
+          -moz-appearance: textfield;
+        }
+        
+        .otp-field::-webkit-outer-spin-button,
+        .otp-field::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
         }
       `}</style>
 
@@ -593,27 +726,27 @@ const Login = () => {
                   )}
 
                   <form onSubmit={handleOtpSubmit} className="space-y-6">
-                    <div className="flex justify-center gap-2">
+                    <div className="flex justify-center gap-2" onPaste={handleOtpPaste}>
                       {[0, 1, 2, 3, 4, 5].map((index) => (
                         <input
                           key={index}
                           id={`otp-${index}`}
                           type="text"
+                          inputMode="numeric"
                           maxLength="1"
                           value={otp[index]}
                           onChange={(e) => handleOtpChange(index, e.target.value)}
                           onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                          className="w-10 h-10 sm:w-12 sm:h-12 text-center text-base lg:text-lg rounded-lg border focus:outline-none focus:ring-2 transition-all"
+                          className="otp-field w-10 h-10 sm:w-12 sm:h-12 text-center text-base lg:text-lg rounded-lg border focus:outline-none focus:ring-2 transition-all"
                           style={{
                             backgroundColor: colors.inputBackground,
-                            borderColor: colors.border,
+                            borderColor: otp[index] ? colors.accent : colors.border,
                             color: colors.text,
                             outlineColor: colors.accent,
                           }}
                           required
                           disabled={loading}
-                          inputMode="numeric"
-                          pattern="\d*"
+                          autoComplete="off"
                         />
                       ))}
                     </div>
@@ -775,16 +908,19 @@ const Login = () => {
                           type={showPassword ? "text" : "password"}
                           placeholder="Enter your password"
                           value={password}
-                          onChange={(e) => setPassword(e.target.value)}
+                          onChange={handlePasswordChange}
+                          onFocus={() => setPasswordFocused(true)}
+                          onBlur={() => setPasswordFocused(false)}
                           className="w-full px-3 lg:px-4 py-2.5 lg:py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all text-sm pr-10 lg:pr-12"
                           style={{
                             backgroundColor: colors.inputBackground,
-                            borderColor: colors.border,
+                            borderColor: password ? getPasswordStrengthColor() : colors.border,
                             color: colors.text,
                             outlineColor: colors.accent,
                           }}
                           required
                           disabled={loading}
+                          minLength={8}
                         />
                         <button
                           type="button"
@@ -799,6 +935,68 @@ const Login = () => {
                           )}
                         </button>
                       </div>
+                      
+                      {/* Password strength indicator */}
+                      {password && passwordFocused && (
+                        <div className="mt-2 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex gap-1 flex-1">
+                              {[0, 1, 2, 3].map((i) => (
+                                <div
+                                  key={i}
+                                  className="h-1 flex-1 rounded-full transition-all"
+                                  style={{
+                                    backgroundColor: i < passwordStrength.score 
+                                      ? getPasswordStrengthColor() 
+                                      : colors.border,
+                                  }}
+                                />
+                              ))}
+                            </div>
+                            <span
+                              className="text-xs ml-2 font-medium"
+                              style={{ color: getPasswordStrengthColor() }}
+                            >
+                              {getPasswordStrengthText()}
+                            </span>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-1 text-xs">
+                            <div className="flex items-center gap-1">
+                              {passwordStrength.hasMinLength ? (
+                                <CheckCircle size={12} color={colors.success} />
+                              ) : (
+                                <XCircle size={12} color={colors.error} />
+                              )}
+                              <span style={{ color: colors.mutedText }}>Min 8 chars</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {passwordStrength.hasUpperCase && passwordStrength.hasLowerCase ? (
+                                <CheckCircle size={12} color={colors.success} />
+                              ) : (
+                                <XCircle size={12} color={colors.error} />
+                              )}
+                              <span style={{ color: colors.mutedText }}>Upper & Lower</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {passwordStrength.hasNumber ? (
+                                <CheckCircle size={12} color={colors.success} />
+                              ) : (
+                                <XCircle size={12} color={colors.error} />
+                              )}
+                              <span style={{ color: colors.mutedText }}>Number</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {passwordStrength.hasSpecialChar ? (
+                                <CheckCircle size={12} color={colors.success} />
+                              ) : (
+                                <XCircle size={12} color={colors.error} />
+                              )}
+                              <span style={{ color: colors.mutedText }}>Special char</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <PrimaryButton
