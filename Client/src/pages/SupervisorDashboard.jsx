@@ -95,32 +95,42 @@ const SupervisorDashboard = () => {
   const colors =
     theme === "light"
       ? {
-          bg: "#ffffff",
-          text: "#000000",
-          card: "#e6f0ff",
-          border: "#b8d4ff",
-          accent: "#000000",
-          success: "#10b981",
-          warning: "#f59e0b",
-          danger: "#ef4444",
-          info: "#3b82f6",
-          primary: "#3b82f6",
-          pending: "#f97316",
-          supervisor: "#3b82f6",
+        bg: "#FFFFFF",
+        text: "#1A202C",
+        card: "#FFFFFF",
+        cardHover: "#F7FAFC",
+        border: "#E2E8F0",
+        accent: "#97AB33",
+        accentLight: "rgba(151, 171, 51, 0.1)",
+        accentHover: "#8A9E2E",
+        success: "#38A169",
+        warning: "#F6AD55",
+        danger: "#FC8181",
+        info: "#4299E1",
+        primary: "#97AB33",
+        categoryBg: "#EDF2F7",
+        categoryText: "#2D3748",
+        muted: "#718096",
+        shadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
         }
       : {
-          bg: "#000000",
-          text: "#ffffff",
-          card: "#0a1a2f",
-          border: "#1e3a8a",
-          accent: "#ffffff",
-          success: "#10b981",
-          warning: "#f59e0b",
-          danger: "#ef4444",
-          info: "#60a5fa",
-          primary: "#3b82f6",
-          pending: "#f97316",
-          supervisor: "#3b82f6",
+      bg: "#0A0A0A",
+      text: "#FFFFFF",
+      card: "#111111",
+      cardHover: "#1A1A1A",
+      border: "#2D3748",
+      accent: "#97AB33",
+      accentLight: "rgba(151, 171, 51, 0.15)",
+      accentHover: "#A8C03E",
+      success: "#68D391",
+      warning: "#FBD38D",
+      danger: "#FC8181",
+      info: "#63B3ED",
+      primary: "#97AB33",
+      categoryBg: "#2D3748",
+      categoryText: "#E2E8F0",
+      muted: "#A0AEC0",
+      shadow: "0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)",
         };
 
   const currentLogo = theme === "dark" ? darkLogo : lightLogo;
@@ -1836,3 +1846,4 @@ const SupervisorDashboard = () => {
 };
 
 export default SupervisorDashboard;
+
