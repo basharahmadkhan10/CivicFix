@@ -875,20 +875,25 @@ const AdminDashboard = () => {
       >
         <div className="flex justify-between items-center">
           {/* Logo */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            <img
-              src={currentLogo}
-              alt="CivicFix Logo"
-              className="h-8 sm:h-10 md:h-12 lg:h-14 w-auto object-contain"
-            />
-            <div className="hidden xs:block">
-              <h1
-                className="text-base sm:text-lg md:text-xl font-bold"
-                style={{ color: colors.primary }}
-              >
-                Admin
-              </h1>
-            </div>
+          <div
+            onClick={() => navigate("/dashboard")}
+            style={{
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            <span style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: "20px",
+              fontWeight: "700",
+              letterSpacing: "-0.5px",
+              color: colors.text,
+            }}>
+              CIVIC
+              <span style={{ color: colors.accent }}>FIX</span>
+            </span>
           </div>
 
           {/* Mobile Menu Button */}
@@ -2015,5 +2020,6 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard; 
+
 
 
