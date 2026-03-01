@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import { useToast } from "../context/ToastContext";
-import { useAuth } from "../context/AuthContext";
 import lightLogo from "../assets/images/img01.png";
 import darkLogo from "../assets/images/img02.png";
 import {
@@ -48,10 +47,6 @@ import {
   ChevronLeft,
   Menu,
   X,
-  Settings,
-  Database,
-  Server,
-  Globe,
 } from "lucide-react";
 import api from "../utils/api";
 import Preloader from "../components/Preloader";
@@ -60,7 +55,6 @@ const AdminDashboard = () => {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const toast = useToast();
-  const { logout } = useAuth();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [loading, setLoading] = useState(true);
   const [pageLoaded, setPageLoaded] = useState(false);
@@ -69,7 +63,6 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
   const [stats, setStats] = useState({
     totalComplaints: 0,
     pendingComplaints: 0,
@@ -145,128 +138,45 @@ const AdminDashboard = () => {
   const [selectedStatusFilter, setSelectedStatusFilter] = useState("ALL");
   const [selectedRoleFilter, setSelectedRoleFilter] = useState("ALL");
 
-  // API Base URL - Use environment variable or default to Render backend
-  const API_BASE_URL = process.env.REACT_APP_API_URL || "https://civicfix-backend01.onrender.com";
+  // Admin theme colors - Purple theme
+  const colors =
+    theme === "light"
+      ? {
+          bg: "#ffffff",
+          text: "#000000",
+          card: "#f3e8ff",
+          border: "#d8b4fe",
+          accent: "#000000",
+          success: "#10b981",
+          warning: "#f59e0b",
+          danger: "#ef4444",
+          info: "#8b5cf6",
+          primary: "#8b5cf6",
+          pending: "#f97316",
+          categoryBg: "#e2e8f0",
+          categoryText: "#1e293b",
+        }
+      : {
+          bg: "#000000",
+          text: "#ffffff",
+          card: "#1a0f2e",
+          border: "#4c1d95",
+          accent: "#ffffff",
+          success: "#10b981",
+          warning: "#f59e0b",
+          danger: "#ef4444",
+          info: "#a78bfa",
+          primary: "#8b5cf6",
+          pending: "#f97316",
+          categoryBg: "#4b5563",
+          categoryText: "#f3f4f6",
+        };
 
-  // Theme colors matching CitizenDashboard
-  const getThemeColors = () => {
-    const accentColor = "#97AB33";
-    
-    if (theme === "light") {
-      return {
-        bg: "#FFFFFF",
-        text: "#1A202C",
-        card: "#FFFFFF",
-        cardHover: "#F7FAFC",
-        border: "#E2E8F0",
-        accent: accentColor,
-        accentLight: "rgba(151, 171, 51, 0.1)",
-        accentHover: "#8A9E2E",
-        success: "#38A169",
-        warning: "#F6AD55",
-        danger: "#FC8181",
-        info: "#4299E1",
-        primary: accentColor,
-        categoryBg: "#EDF2F7",
-        categoryText: "#2D3748",
-        muted: "#718096",
-        shadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-      };
-    }
-    return {
-      bg: "#0A0A0A",
-      text: "#FFFFFF",
-      card: "#111111",
-      cardHover: "#1A1A1A",
-      border: "#2D3748",
-      accent: accentColor,
-      accentLight: "rgba(151, 171, 51, 0.15)",
-      accentHover: "#A8C03E",
-      success: "#68D391",
-      warning: "#FBD38D",
-      danger: "#FC8181",
-      info: "#63B3ED",
-      primary: accentColor,
-      categoryBg: "#2D3748",
-      categoryText: "#E2E8F0",
-      muted: "#A0AEC0",
-      shadow: "0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)",
-    };
-  };
-
-  const colors = getThemeColors();
-  const isDark = theme === "dark";
   const currentLogo = theme === "dark" ? darkLogo : lightLogo;
 
-  // FIXED: Image URL helper that handles both localhost and production
-  const getProfileImageUrl = (imagePath) => {
-    if (!imagePath) return null;
-    
-    // If it's already a full URL (http/https), return as is
-    if (imagePath.startsWith("http")) {
-      return imagePath;
-    }
-    
-    // If it's a localhost URL in production, replace with production backend URL
-    if (imagePath.startsWith("http://localhost")) {
-      return imagePath.replace("http://localhost:5000", API_BASE_URL);
-    }
-    
-    // If it's a relative path starting with /uploads
-    if (imagePath.startsWith("/uploads")) {
-      return `${API_BASE_URL}${imagePath}`;
-    }
-    
-    // Default case - return as is
-    return imagePath;
-  };
-
-  // FIXED: Safe image rendering with error handling
-  const renderProfileImage = (user) => {
-    if (!user) return null;
-    
-    const imageUrl = getProfileImageUrl(user.profileImage);
-    
-    if (!imageUrl) {
-      return (
-        <span style={{ color: isDark ? "#000" : "#FFF", fontSize: "12px", fontWeight: "600" }}>
-          {getUserInitials(user.name)}
-        </span>
-      );
-    }
-
-    return (
-      <img 
-        src={imageUrl} 
-        alt={user.name} 
-        className="w-full h-full object-cover"
-        onError={(e) => {
-          console.warn(`Failed to load image: ${imageUrl}`);
-          e.target.style.display = 'none';
-          e.target.parentElement.innerHTML = `<span style="color: ${isDark ? '#000' : '#FFF'}; font-size: 12px; font-weight: 600;">${getUserInitials(user.name)}</span>`;
-        }}
-      />
-    );
-  };
-
   const getUserInitials = (name) => {
-    if (!name) return "A";
+    if (!name) return "U";
     return name.charAt(0).toUpperCase();
-  };
-
-  const refreshUserData = async () => {
-    try {
-      const response = await api.get("/v1/user/me");
-      const freshUser = response.data?.data;
-      if (freshUser) {
-        setUser(freshUser);
-        const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
-        const updatedUser = { ...currentUser, ...freshUser };
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-      }
-    } catch (error) {
-      console.error("Error refreshing user:", error);
-    }
   };
 
   useEffect(() => {
@@ -274,15 +184,16 @@ const AdminDashboard = () => {
       try {
         await Promise.all([
           fetchDashboardData(),
-          refreshUserData(),
+          fetchUserProfile(),
           fetchAnalyticsData(),
         ]);
-        setTimeout(() => {
-          setPageLoaded(true);
-        }, 500);
+        setPageLoaded(true);
       } catch (error) {
         console.error("Failed to load data:", error);
-        toast.error("Failed to load dashboard data");
+        toast.error("Failed to load dashboard data", {
+          position: "top-right",
+          duration: 5000,
+        });
       } finally {
         setLoading(false);
       }
@@ -292,21 +203,54 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (user?.name && pageLoaded) {
-      toast.success(`Welcome back, ${user.name}!`);
+      toast.success(`Welcome back, ${user.name}!`, {
+        position: "top-right",
+        duration: 2000,
+      });
     }
   }, [user, pageLoaded]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (!e.target.closest('.profile-dropdown') && !e.target.closest('.filter-dropdown')) {
-        setProfileDropdownOpen(false);
-        setFilterDropdownOpen(false);
-      }
+    const handleClickOutside = () => {
+      setProfileDropdownOpen(false);
+      setMobileMenuOpen(false);
     };
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const savedUser = localStorage.getItem("user");
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
+        return;
+      }
+      const response = await api.get("/v1/user/me");
+      setUser(response.data?.data || null);
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const tokenData = JSON.parse(atob(token.split(".")[1]));
+          setUser({
+            _id: tokenData.id,
+            name: tokenData.name || "Admin User",
+            email: tokenData.email || "admin@example.com",
+            role: tokenData.role || "ADMIN",
+          });
+        } catch (decodeError) {
+          setUser({
+            name: "Admin User",
+            email: "admin@example.com",
+            role: "ADMIN",
+          });
+        }
+      }
+    }
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -330,7 +274,10 @@ const AdminDashboard = () => {
       setLoading(false);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
-      toast.error("Failed to load dashboard data. Please try again.");
+      toast.error("Failed to load dashboard data. Please try again.", {
+        position: "top-right",
+        duration: 5000,
+      });
       setLoading(false);
     }
   };
@@ -407,22 +354,22 @@ const AdminDashboard = () => {
         categoryCount[category] = (categoryCount[category] || 0) + 1;
       });
 
-      // Fixed: Use colors from theme, not the colors variable itself
-      const categoryColors = [
-        colors.accent,
-        colors.success,
-        colors.warning,
-        colors.info,
-        colors.accent,
-        colors.muted,
-      ];
-
       const categoriesData = Object.entries(categoryCount).map(
-        ([category, count], index) => ({
-          category,
-          count,
-          color: categoryColors[index % categoryColors.length],
-        }),
+        ([category, count], index) => {
+          const colors = [
+            "#8b5cf6",
+            "#10b981",
+            "#f59e0b",
+            "#ef4444",
+            "#3b82f6",
+            "#06b6d4",
+          ];
+          return {
+            category,
+            count,
+            color: colors[index % colors.length],
+          };
+        },
       );
 
       const monthNames = [
@@ -471,12 +418,18 @@ const AdminDashboard = () => {
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
-      toast.warning("Please enter a search query");
+      toast.warning("Please enter a search query", {
+        position: "top-right",
+        duration: 3000,
+      });
       return;
     }
 
     try {
-      toast.info("Searching...");
+      toast.info("Searching...", {
+        position: "top-right",
+        duration: 2000,
+      });
 
       const filteredComplaints = complaints.filter(
         (complaint) =>
@@ -488,27 +441,42 @@ const AdminDashboard = () => {
       );
 
       if (filteredComplaints.length === 0) {
-        toast.warning("No results found");
+        toast.warning("No results found", {
+          position: "top-right",
+          duration: 4000,
+        });
       } else {
-        toast.success(`Found ${filteredComplaints.length} result(s)`);
+        toast.success(`Found ${filteredComplaints.length} result(s)`, {
+          position: "top-right",
+          duration: 3000,
+        });
       }
     } catch (error) {
       console.error("Search error:", error);
-      toast.error("Search failed");
+      toast.error("Search failed", {
+        position: "top-right",
+        duration: 5000,
+      });
     }
   };
 
   const handleFilter = async (status) => {
     setSelectedStatusFilter(status);
-    setFilterDropdownOpen(false);
     try {
       toast.info(
         `Filtering ${status === "ALL" ? "all" : status.toLowerCase()} complaints...`,
+        {
+          position: "top-right",
+          duration: 1500,
+        },
       );
 
       if (status === "ALL") {
         await fetchDashboardData();
-        toast.success("Showing all complaints");
+        toast.success("Showing all complaints", {
+          position: "top-right",
+          duration: 3000,
+        });
         return;
       }
 
@@ -517,22 +485,34 @@ const AdminDashboard = () => {
       );
 
       if (filteredComplaints.length === 0) {
-        toast.warning(`No ${status.toLowerCase()} complaints found`);
+        toast.warning(`No ${status.toLowerCase()} complaints found`, {
+          position: "top-right",
+          duration: 4000,
+        });
       } else {
         toast.success(
           `Showing ${filteredComplaints.length} ${status.toLowerCase()} complaint(s)`,
+          {
+            position: "top-right",
+            duration: 3000,
+          },
         );
       }
     } catch (error) {
       console.error("Filter error:", error);
-      toast.error("Filter failed");
+      toast.error("Filter failed", {
+        position: "top-right",
+        duration: 5000,
+      });
     }
   };
 
   const handleRefresh = () => {
-    toast.info("Refreshing data...");
+    toast.info("Refreshing data...", {
+      position: "top-right",
+      duration: 2000,
+    });
     fetchDashboardData();
-    refreshUserData();
   };
 
   const handleCreateUser = async () => {
@@ -554,6 +534,10 @@ const AdminDashboard = () => {
       console.error("Error creating user:", error);
       toast.error(
         `Failed to create user: ${error.response?.data?.message || error.message}`,
+        {
+          position: "top-right",
+          duration: 5000,
+        },
       );
     }
   };
@@ -576,7 +560,10 @@ const AdminDashboard = () => {
         error.message ||
         `Failed to ${action} user`;
 
-      toast.error(`Failed to ${action} user: ${errorMessage}`);
+      toast.error(`Failed to ${action} user: ${errorMessage}`, {
+        position: "top-right",
+        duration: 5000,
+      });
     }
   };
 
@@ -607,6 +594,10 @@ const AdminDashboard = () => {
       console.error("Error assigning complaint:", error);
       toast.error(
         `Failed to assign complaint: ${error.response?.data?.message || error.message || "Unknown error"}`,
+        {
+          position: "top-right",
+          duration: 5000,
+        },
       );
     }
   };
@@ -629,6 +620,10 @@ const AdminDashboard = () => {
       console.error("Error updating complaint:", error);
       toast.error(
         `Failed to update complaint: ${error.response?.data?.message || error.message}`,
+        {
+          position: "top-right",
+          duration: 5000,
+        },
       );
     }
   };
@@ -641,7 +636,10 @@ const AdminDashboard = () => {
         overrideData.action === "REOPEN" &&
         selectedComplaint.status !== "RESOLVED"
       ) {
-        toast.error("Only resolved complaints can be reopened");
+        toast.error("Only resolved complaints can be reopened", {
+          position: "top-right",
+          duration: 5000,
+        });
         return;
       }
 
@@ -659,6 +657,10 @@ const AdminDashboard = () => {
       if (response.data.success) {
         toast.success(
           `Complaint ${overrideData.action.toLowerCase()}d successfully!`,
+          {
+            position: "top-right",
+            duration: 5000,
+          },
         );
         setShowOverrideModal(false);
         setOverrideData({ action: "", reason: "", notes: "" });
@@ -677,7 +679,10 @@ const AdminDashboard = () => {
         errorMsg = error.response.data.message;
       }
 
-      toast.error(`Override failed: ${errorMsg}`);
+      toast.error(`Override failed: ${errorMsg}`, {
+        position: "top-right",
+        duration: 5000,
+      });
     }
   };
 
@@ -699,18 +704,28 @@ const AdminDashboard = () => {
       toast.success("Report exported successfully!");
     } catch (error) {
       console.error("Error exporting report:", error);
-      toast.error("Failed to export report");
+      toast.error("Failed to export report", {
+        position: "top-right",
+        duration: 5000,
+      });
     }
   };
 
   const handleLogout = () => {
-    logout();
-    toast.success("Logged out successfully!");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    toast.success("Logged out successfully!", {
+      position: "top-right",
+      duration: 3000,
+    });
     navigate("/login");
   };
 
   const navigateToProfile = () => {
-    toast.info("Loading profile...");
+    toast.info("Loading profile...", {
+      position: "top-right",
+      duration: 1500,
+    });
     navigate("/profile");
     setProfileDropdownOpen(false);
     setMobileMenuOpen(false);
@@ -720,43 +735,43 @@ const AdminDashboard = () => {
     switch (status) {
       case "CREATED": return colors.info;
       case "ASSIGNED": return colors.warning;
-      case "IN_PROGRESS": return colors.accent;
+      case "IN_PROGRESS": return colors.primary;
       case "RESOLVED": return colors.success;
       case "REJECTED": return colors.danger;
-      case "ESCALATED": return colors.warning;
-      default: return colors.muted;
+      case "ESCALATED": return "#f97316";
+      default: return "#6b7280";
     }
   };
 
   const getRoleColor = (role) => {
     switch (role) {
-      case "ADMIN": return colors.accent;
+      case "ADMIN": return colors.primary;
       case "SUPERVISOR": return colors.info;
       case "OFFICER": return colors.warning;
       case "CITIZEN": return colors.success;
-      default: return colors.muted;
+      default: return "#6b7280";
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case "CREATED": return <AlertCircle size={14} />;
-      case "ASSIGNED": return <Clock size={14} />;
-      case "IN_PROGRESS": return <Target size={14} />;
-      case "RESOLVED": return <CheckCircle size={14} />;
-      case "REJECTED": return <XCircle size={14} />;
-      case "ESCALATED": return <AlertTriangle size={14} />;
-      default: return <AlertCircle size={14} />;
+      case "CREATED": return <AlertCircle size={16} />;
+      case "ASSIGNED": return <Clock size={16} />;
+      case "IN_PROGRESS": return <Target size={16} />;
+      case "RESOLVED": return <CheckCircle size={16} />;
+      case "REJECTED": return <XCircle size={16} />;
+      case "ESCALATED": return <AlertTriangle size={16} />;
+      default: return <AlertCircle size={16} />;
     }
   };
 
   const getRoleIcon = (role) => {
     switch (role) {
-      case "ADMIN": return <Shield size={14} />;
-      case "SUPERVISOR": return <UserCheck size={14} />;
-      case "OFFICER": return <User size={14} />;
-      case "CITIZEN": return <Users size={14} />;
-      default: return <User size={14} />;
+      case "ADMIN": return <Shield size={16} />;
+      case "SUPERVISOR": return <UserCheck size={16} />;
+      case "OFFICER": return <User size={16} />;
+      case "CITIZEN": return <Users size={16} />;
+      default: return <User size={16} />;
     }
   };
 
@@ -807,30 +822,29 @@ const AdminDashboard = () => {
   const StatCard = ({ title, value, color, icon, subtitle, onClick }) => (
     <div
       onClick={onClick}
-      className="p-3 sm:p-4 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+      className="p-4 sm:p-6 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer"
       style={{
         backgroundColor: colors.card,
-        border: `1px solid ${color}30`,
-        boxShadow: colors.shadow,
+        border: `1px solid ${colors.border}`,
       }}
     >
-      <div className="flex justify-between items-start mb-2">
+      <div className="flex justify-between items-start mb-3 sm:mb-4">
         <div
-          className="p-1.5 rounded-lg"
+          className="p-1.5 sm:p-2 rounded-lg"
           style={{ backgroundColor: `${color}20` }}
         >
-          <div style={{ color, fontSize: 18 }}>{icon}</div>
+          <div style={{ color }}>{icon}</div>
         </div>
-        <ChevronRight size={16} style={{ color: colors.muted }} />
+        <ChevronRight size={18} className="opacity-50" />
       </div>
-      <h3 className="text-lg sm:text-xl font-bold mb-0.5" style={{ color: colors.text }}>
+      <h3 className="text-xl sm:text-2xl font-bold mb-1" style={{ color: colors.text }}>
         {value}
       </h3>
-      <p className="text-xs sm:text-sm" style={{ color: colors.muted }}>
+      <p className="text-sm sm:text-base" style={{ color: colors.text }}>
         {title}
       </p>
       {subtitle && (
-        <p className="text-2xs sm:text-xs mt-1" style={{ color: colors.muted }}>
+        <p className="text-xs sm:text-sm mt-1 opacity-75" style={{ color: colors.text }}>
           {subtitle}
         </p>
       )}
@@ -840,188 +854,162 @@ const AdminDashboard = () => {
   return (
     <div
       className="min-h-screen"
-      style={{ 
-        backgroundColor: colors.bg, 
-        color: colors.text,
-        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-      }}
+      style={{ backgroundColor: colors.bg, color: colors.text }}
     >
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        * { font-family: 'Inter', sans-serif; }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-slideDown { animation: slideDown 0.3s ease-out; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
-
-      {/* Clean Header - No border on nav */}
+      {/* Header - Mobile Optimized */}
       <header
-        className="sticky top-0 z-50 px-3 py-2"
+        className="sticky top-0 z-50 border-b px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4"
         style={{
           backgroundColor: colors.bg,
+          borderColor: colors.border,
           backdropFilter: "blur(10px)",
         }}
       >
         <div className="flex justify-between items-center">
           {/* Logo */}
-          <div
-            onClick={() => navigate("/dashboard")}
-            style={{
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-            }}
-          >
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <img
               src={currentLogo}
-              alt="CivicFix"
-              style={{ height: "28px", width: "auto", objectFit: "contain" }}
+              alt="CivicFix Logo"
+              className="h-8 sm:h-10 md:h-12 lg:h-14 w-auto object-contain"
             />
-            <span style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: "18px",
-              fontWeight: "700",
-              letterSpacing: "-0.5px",
-              color: colors.text,
-            }}>
-              CIVIC
-              <span style={{ color: colors.accent }}>FIX</span>
-            </span>
+            <div className="hidden xs:block">
+              <h1
+                className="text-base sm:text-lg md:text-xl font-bold"
+                style={{ color: colors.primary }}
+              >
+                Admin
+              </h1>
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
           <button
-            onClick={(e) => { e.stopPropagation(); setMobileMenuOpen(!mobileMenuOpen); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setMobileMenuOpen(!mobileMenuOpen);
+            }}
             className="md:hidden p-2 rounded-lg"
             style={{
-              backgroundColor: colors.cardHover,
+              backgroundColor: colors.card,
+              border: `1px solid ${colors.border}`,
             }}
           >
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center space-x-2">
+          <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
             <button
               onClick={toggleTheme}
+              className="flex items-center gap-1 lg:gap-2 px-2 lg:px-3 py-1.5 lg:py-2 rounded-xl border transition-colors duration-200 hover:scale-105"
               style={{
-                width: "36px",
-                height: "36px",
-                borderRadius: "8px",
-                backgroundColor: colors.cardHover,
-                color: colors.text,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                transition: "all 0.2s ease",
-                border: "none",
+                backgroundColor: theme === "dark" ? "#0a0a0a" : "#f5f5f5",
+                borderColor: theme === "dark" ? "#1a1a1a" : "#e5e5e5",
+                color: theme === "dark" ? "#ffffff" : "#000000",
               }}
             >
-              {isDark ? (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="5" />
-                  <line x1="12" y1="1" x2="12" y2="3" />
-                  <line x1="12" y1="21" x2="12" y2="23" />
-                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                  <line x1="1" y1="12" x2="3" y2="12" />
-                  <line x1="21" y1="12" x2="23" y2="12" />
-                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                </svg>
+              {theme === "dark" ? (
+                <>
+                  <svg className="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                  <span className="text-xs lg:text-sm font-medium">Light</span>
+                </>
               ) : (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                </svg>
+                <>
+                  <svg className="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                  <span className="text-xs lg:text-sm font-medium">Dark</span>
+                </>
               )}
             </button>
 
             <button
               onClick={handleRefresh}
-              className="p-2 rounded-lg transition-all duration-200 hover:opacity-80"
+              className="p-2 lg:p-2.5 rounded-xl transition-all duration-300 hover:scale-110"
               style={{
-                backgroundColor: colors.cardHover,
-                width: "36px",
-                height: "36px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                backgroundColor: colors.card,
+                border: `1px solid ${colors.border}`,
               }}
+              title="Refresh Dashboard"
             >
-              <RefreshCw size={18} />
+              <RefreshCw size={16} className="lg:w-[18px] lg:h-[18px]" />
             </button>
 
             <button
               onClick={() => setShowUserModal(true)}
-              className="px-3 py-2 rounded-lg font-medium flex items-center space-x-1 transition-all duration-200 hover:opacity-90 text-sm"
+              className="px-2 lg:px-3 py-1.5 lg:py-2 rounded-xl font-medium flex items-center space-x-1 lg:space-x-2 transition-all duration-300 hover:scale-105"
               style={{
-                backgroundColor: colors.accent,
-                color: isDark ? "#000" : "#FFF",
-                height: "36px",
+                backgroundColor: colors.primary,
+                color: "white",
               }}
             >
-              <UserPlus size={16} />
-              <span>New User</span>
+              <UserPlus size={16} className="lg:w-[18px] lg:h-[18px]" />
+              <span className="text-xs lg:text-sm">New User</span>
             </button>
 
             <button
               onClick={handleExportReport}
-              className="px-3 py-2 rounded-lg font-medium flex items-center space-x-1 transition-all duration-200 hover:opacity-90 text-sm"
+              className="px-2 lg:px-3 py-1.5 lg:py-2 rounded-xl font-medium flex items-center space-x-1 lg:space-x-2 transition-all duration-300 hover:scale-105"
               style={{
                 backgroundColor: colors.success,
-                color: "#FFF",
-                height: "36px",
+                color: "white",
               }}
             >
-              <DownloadCloud size={16} />
-              <span>Export</span>
+              <DownloadCloud size={16} className="lg:w-[18px] lg:h-[18px]" />
+              <span className="text-xs lg:text-sm hidden lg:inline">Export</span>
             </button>
 
-            {/* Profile Dropdown */}
-            <div className="relative profile-dropdown">
+            <div className="relative">
               <button
-                className="flex items-center space-x-2 p-1.5 rounded-lg"
-                onClick={(e) => { e.stopPropagation(); setProfileDropdownOpen(!profileDropdownOpen); }}
-                style={{
-                  backgroundColor: colors.cardHover,
-                  height: "36px",
+                className="flex items-center space-x-1 lg:space-x-2 p-1 lg:p-2"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setProfileDropdownOpen(!profileDropdownOpen);
                 }}
               >
                 <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center overflow-hidden"
-                  style={{ backgroundColor: colors.accent }}
+                  className="w-6 h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center text-xs lg:text-sm"
+                  style={{
+                    backgroundColor: colors.primary,
+                    color: "white",
+                  }}
                 >
-                  {renderProfileImage(user)}
+                  <span>{getUserInitials(user?.name)}</span>
                 </div>
-                <span className="font-medium hidden lg:inline text-sm">{user?.name?.split(" ")[0] || "Admin"}</span>
+                <span className="font-medium text-xs lg:text-sm hidden lg:inline">
+                  {user?.name || "Admin"}
+                </span>
               </button>
 
               {profileDropdownOpen && (
                 <div
-                  className="absolute right-0 mt-2 w-48 rounded-lg py-2 z-50"
+                  className="absolute right-0 mt-2 w-36 lg:w-44 rounded-xl py-1 lg:py-2 z-50"
                   style={{
                     backgroundColor: colors.card,
                     border: `1px solid ${colors.border}`,
-                    boxShadow: colors.shadow,
+                    boxShadow: `0 10px 25px rgba(0, 0, 0, 0.2)`,
                   }}
                 >
-                  <button 
-                    onClick={navigateToProfile} 
-                    className="flex items-center space-x-2 w-full px-4 py-3 hover:bg-opacity-80 text-left transition-colors"
-                    style={{ color: colors.text }}
+                  <button
+                    onClick={navigateToProfile}
+                    className="flex items-center space-x-2 w-full px-3 lg:px-4 py-2 hover:bg-opacity-80 text-left text-xs lg:text-sm"
+                    style={{ backgroundColor: `${colors.border}10` }}
                   >
-                    <User size={16} />
+                    <User size={14} className="lg:w-4 lg:h-4" />
                     <span>Profile</span>
                   </button>
-                  <button 
-                    onClick={handleLogout} 
-                    className="flex items-center space-x-2 w-full px-4 py-3 hover:bg-opacity-80 text-left transition-colors"
-                    style={{ color: colors.danger }}
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center space-x-2 w-full px-3 lg:px-4 py-2 hover:bg-opacity-80 text-left text-xs lg:text-sm"
+                    style={{
+                      color: colors.danger,
+                      backgroundColor: `${colors.border}10`,
+                    }}
                   >
-                    <LogOut size={16} />
+                    <LogOut size={14} className="lg:w-4 lg:h-4" />
                     <span>Logout</span>
                   </button>
                 </div>
@@ -1037,105 +1025,137 @@ const AdminDashboard = () => {
             style={{
               backgroundColor: colors.card,
               border: `1px solid ${colors.border}`,
-              boxShadow: colors.shadow,
+              position: 'relative',
+              zIndex: 100,
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col space-y-2">
               <button
-                onClick={toggleTheme}
-                className="w-full text-left py-3 px-3 rounded-lg flex items-center gap-2 text-sm"
-                style={{ backgroundColor: colors.cardHover, color: colors.text }}
+                onClick={() => {
+                  toggleTheme();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
+                style={{ backgroundColor: `${colors.border}20` }}
               >
-                {isDark ? "☀️ Light Mode" : "🌙 Dark Mode"}
+                <span>{theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}</span>
               </button>
-              <button 
-                onClick={() => { handleRefresh(); setMobileMenuOpen(false); }}
-                className="w-full text-left py-3 px-3 rounded-lg text-sm"
-                style={{ backgroundColor: colors.cardHover, color: colors.text }}
+              
+              <button
+                onClick={() => {
+                  handleRefresh();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
+                style={{ backgroundColor: `${colors.border}20` }}
               >
-                <span className="flex items-center gap-2">🔄 Refresh</span>
+                <span>🔄 Refresh</span>
               </button>
-              <button 
-                onClick={() => { setShowUserModal(true); setMobileMenuOpen(false); }}
-                className="w-full text-left py-3 px-3 rounded-lg text-sm"
-                style={{ backgroundColor: colors.accent, color: isDark ? "#000" : "#FFF" }}
+              
+              <button
+                onClick={() => {
+                  setShowUserModal(true);
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
+                style={{ backgroundColor: colors.primary, color: "white" }}
               >
-                <span className="flex items-center gap-2">➕ New User</span>
+                <span>➕ New User</span>
               </button>
-              <button 
-                onClick={() => { handleExportReport(); setMobileMenuOpen(false); }}
-                className="w-full text-left py-3 px-3 rounded-lg text-sm"
-                style={{ backgroundColor: colors.success, color: "#FFF" }}
+              
+              <button
+                onClick={() => {
+                  handleExportReport();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
+                style={{ backgroundColor: colors.success, color: "white" }}
               >
-                <span className="flex items-center gap-2">📥 Export Report</span>
+                <span>📥 Export</span>
               </button>
-              <button 
+              
+              <button
                 onClick={navigateToProfile}
-                className="w-full text-left py-3 px-3 rounded-lg text-sm"
-                style={{ backgroundColor: colors.cardHover, color: colors.text }}
+                className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
+                style={{ backgroundColor: `${colors.border}20` }}
               >
-                <span className="flex items-center gap-2">👤 Profile</span>
+                <span>👤 Profile</span>
               </button>
-              <button 
+              
+              <button
                 onClick={handleLogout}
-                className="w-full text-left py-3 px-3 rounded-lg text-sm"
-                style={{ backgroundColor: colors.cardHover, color: colors.danger }}
+                className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
+                style={{ color: colors.danger, backgroundColor: `${colors.border}20` }}
               >
-                <span className="flex items-center gap-2">🚪 Logout</span>
+                <span>🚪 Logout</span>
               </button>
             </div>
           </div>
         )}
 
-        {/* Tabs */}
-        <div className="flex mt-3 space-x-1">
+        {/* Tabs - Mobile Optimized */}
+        <div className="flex mt-3 overflow-x-auto hide-scrollbar">
           {["dashboard", "complaints", "users"].map((tab) => (
             <button
               key={tab}
-              onClick={() => { setActiveTab(tab); setMobileMenuOpen(false); }}
-              className="flex-1 py-2.5 text-xs sm:text-sm font-medium rounded-lg transition-all"
+              onClick={() => {
+                setActiveTab(tab);
+                toast.info(`Switched to ${tab} tab`, {
+                  position: "top-right",
+                  duration: 2000,
+                });
+                setMobileMenuOpen(false);
+              }}
+              className="flex-1 min-w-20 py-2 text-xs sm:text-sm font-medium relative group"
               style={{
-                backgroundColor: activeTab === tab ? colors.accent : "transparent",
-                color: activeTab === tab ? (isDark ? "#000" : "#FFF") : colors.muted,
+                color: activeTab === tab ? colors.primary : colors.text,
+                opacity: activeTab === tab ? 1 : 0.7,
               }}
             >
-              {tab === "dashboard" ? "Dashboard" : tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {activeTab === tab && (
+                <div
+                  className="absolute bottom-0 left-1/4 right-1/4 h-0.5 rounded-full"
+                  style={{ backgroundColor: colors.primary }}
+                />
+              )}
             </button>
           ))}
         </div>
       </header>
 
-      <main className="px-3 py-4 max-w-7xl mx-auto">
+      {/* Main Content - Mobile Optimized */}
+      <main className="p-3 sm:p-4 md:p-6">
         {activeTab === "dashboard" && (
           <>
             {/* Welcome Section */}
-            <div className="mb-4">
-              <h1 className="text-xl sm:text-2xl font-bold mb-1">
+            <div className="mb-6 sm:mb-8 md:mb-12 mt-4">
+              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-2">
                 Welcome Back{" "}
-                <span className="block sm:inline" style={{ color: colors.accent }}>
+                <span className="font-bold block sm:inline text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl italic">
                   {user?.name?.split(" ")[0] || "Admin"}
                 </span>
               </h1>
-              <p className="text-xs sm:text-sm" style={{ color: colors.muted }}>
+              <p className="text-xs sm:text-sm md:text-base opacity-75">
                 Here's what's happening with your system today.
               </p>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-2 mb-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mb-6">
               <StatCard
                 title="Total Complaints"
                 value={stats.totalComplaints || 0}
                 color={colors.info}
-                icon={<FileText size={16} />}
+                icon={<FileText size={20} />}
                 onClick={() => setActiveTab("complaints")}
               />
               <StatCard
                 title="Active Users"
                 value={stats.activeUsers || 0}
                 color={colors.success}
-                icon={<Users size={16} />}
+                icon={<Users size={20} />}
                 subtitle={`Total: ${stats.totalUsers || 0}`}
                 onClick={() => setActiveTab("users")}
               />
@@ -1143,134 +1163,110 @@ const AdminDashboard = () => {
                 title="SLA Compliance"
                 value={`${stats.slaCompliance || 0}%`}
                 color={colors.warning}
-                icon={<CheckCircle size={16} />}
+                icon={<CheckCircle size={20} />}
               />
               <StatCard
                 title="System Uptime"
                 value={`${stats.systemUptime || 99.9}%`}
-                color={colors.accent}
-                icon={<Server size={16} />}
+                color={colors.primary}
+                icon={<Home size={20} />}
               />
             </div>
 
             {/* Role Stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-              <div className="p-3 rounded-lg text-center" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
-                <div className="text-lg font-bold mb-0.5" style={{ color: colors.info }}>{stats.supervisors || 0}</div>
-                <div className="text-2xs" style={{ color: colors.muted }}>Supervisors</div>
-              </div>
-              <div className="p-3 rounded-lg text-center" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
-                <div className="text-lg font-bold mb-0.5" style={{ color: colors.warning }}>{stats.officers || 0}</div>
-                <div className="text-2xs" style={{ color: colors.muted }}>Officers</div>
-              </div>
-              <div className="p-3 rounded-lg text-center" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
-                <div className="text-lg font-bold mb-0.5" style={{ color: colors.success }}>{stats.citizens || 0}</div>
-                <div className="text-2xs" style={{ color: colors.muted }}>Citizens</div>
-              </div>
-              <div className="p-3 rounded-lg text-center" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
-                <div className="text-lg font-bold mb-0.5" style={{ color: colors.accent }}>{stats.avgResolutionTime || 0}</div>
-                <div className="text-2xs" style={{ color: colors.muted }}>Avg Resolution</div>
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="grid grid-cols-2 gap-2 mb-4">
-              <button 
-                onClick={() => setShowUserModal(true)}
-                className="p-3 rounded-lg text-left transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                style={{ 
-                  backgroundColor: colors.card, 
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mb-6">
+              <div
+                className="p-3 sm:p-4 rounded-xl text-center"
+                style={{
+                  backgroundColor: colors.card,
                   border: `1px solid ${colors.border}`,
                 }}
               >
-                <div className="flex items-center space-x-2 mb-1">
-                  <div className="p-1.5 rounded-lg" style={{ backgroundColor: `${colors.accent}20` }}>
-                    <UserPlus size={14} style={{ color: colors.accent }} />
-                  </div>
-                  <div className="font-medium text-xs" style={{ color: colors.text }}>Add User</div>
+                <div className="text-lg sm:text-xl md:text-2xl font-bold mb-1" style={{ color: colors.info }}>
+                  {stats.supervisors || 0}
                 </div>
-                <p className="text-2xs" style={{ color: colors.muted }}>Create new user</p>
-              </button>
-
-              <button 
-                onClick={() => setActiveTab("complaints")}
-                className="p-3 rounded-lg text-left transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                style={{ 
-                  backgroundColor: colors.card, 
+                <div className="text-xs sm:text-sm opacity-75">Supervisors</div>
+              </div>
+              <div
+                className="p-3 sm:p-4 rounded-xl text-center"
+                style={{
+                  backgroundColor: colors.card,
                   border: `1px solid ${colors.border}`,
                 }}
               >
-                <div className="flex items-center space-x-2 mb-1">
-                  <div className="p-1.5 rounded-lg" style={{ backgroundColor: `${colors.info}20` }}>
-                    <FileText size={14} style={{ color: colors.info }} />
-                  </div>
-                  <div className="font-medium text-xs" style={{ color: colors.text }}>View All</div>
+                <div className="text-lg sm:text-xl md:text-2xl font-bold mb-1" style={{ color: colors.warning }}>
+                  {stats.officers || 0}
                 </div>
-                <p className="text-2xs" style={{ color: colors.muted }}>Manage complaints</p>
-              </button>
-
-              <button 
-                onClick={handleExportReport}
-                className="p-3 rounded-lg text-left transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                style={{ 
-                  backgroundColor: colors.card, 
+                <div className="text-xs sm:text-sm opacity-75">Officers</div>
+              </div>
+              <div
+                className="p-3 sm:p-4 rounded-xl text-center"
+                style={{
+                  backgroundColor: colors.card,
                   border: `1px solid ${colors.border}`,
                 }}
               >
-                <div className="flex items-center space-x-2 mb-1">
-                  <div className="p-1.5 rounded-lg" style={{ backgroundColor: `${colors.success}20` }}>
-                    <DownloadCloud size={14} style={{ color: colors.success }} />
-                  </div>
-                  <div className="font-medium text-xs" style={{ color: colors.text }}>Export</div>
+                <div className="text-lg sm:text-xl md:text-2xl font-bold mb-1" style={{ color: colors.success }}>
+                  {stats.citizens || 0}
                 </div>
-                <p className="text-2xs" style={{ color: colors.muted }}>Download report</p>
-              </button>
-
-              <button 
-                onClick={handleRefresh}
-                className="p-3 rounded-lg text-left transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                style={{ 
-                  backgroundColor: colors.card, 
+                <div className="text-xs sm:text-sm opacity-75">Citizens</div>
+              </div>
+              <div
+                className="p-3 sm:p-4 rounded-xl text-center"
+                style={{
+                  backgroundColor: colors.card,
                   border: `1px solid ${colors.border}`,
                 }}
               >
-                <div className="flex items-center space-x-2 mb-1">
-                  <div className="p-1.5 rounded-lg" style={{ backgroundColor: `${colors.warning}20` }}>
-                    <RefreshCw size={14} style={{ color: colors.warning }} />
-                  </div>
-                  <div className="font-medium text-xs" style={{ color: colors.text }}>Refresh</div>
+                <div className="text-lg sm:text-xl md:text-2xl font-bold mb-1" style={{ color: colors.primary }}>
+                  {stats.avgResolutionTime || 0}
                 </div>
-                <p className="text-2xs" style={{ color: colors.muted }}>Update data</p>
-              </button>
+                <div className="text-xs sm:text-sm opacity-75">Avg. Resolution (days)</div>
+              </div>
             </div>
 
             {/* Recent Activity */}
-            <div className="p-3 rounded-lg" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
-              <div className="flex justify-between items-center mb-3">
-                <h2 className="text-sm font-bold" style={{ color: colors.text }}>Recent Activity</h2>
-                <button onClick={() => setActiveTab("complaints")} className="text-xs" style={{ color: colors.accent }}>
+            <div
+              className="p-4 sm:p-6 rounded-xl"
+              style={{
+                backgroundColor: colors.card,
+                border: `1px solid ${colors.border}`,
+              }}
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-base sm:text-lg md:text-xl font-bold">Recent Activity</h2>
+                <button
+                  onClick={() => setActiveTab("complaints")}
+                  className="text-xs sm:text-sm opacity-75 hover:opacity-100"
+                  style={{ color: colors.primary }}
+                >
                   View All →
                 </button>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {auditTrail.slice(0, 5).map((audit, index) => (
-                  <div key={index} className="flex items-start gap-2 p-2 rounded-lg" style={{ backgroundColor: colors.cardHover }}>
-                    <div className="p-1 rounded shrink-0" style={{ backgroundColor: `${getRoleColor(audit.role)}20` }}>
+                  <div
+                    key={index}
+                    className="flex items-start gap-2 p-2 rounded-lg"
+                    style={{ backgroundColor: `${colors.border}20` }}
+                  >
+                    <div
+                      className="p-1.5 rounded flex-shrink-0"
+                      style={{ backgroundColor: getRoleColor(audit.role) + "20" }}
+                    >
                       {getRoleIcon(audit.role)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-xs truncate" style={{ color: colors.text }}>{audit.action}</div>
-                      <div className="text-2xs" style={{ color: colors.muted }}>by {audit.actor?.name || "System"}</div>
-                      <div className="text-2xs mt-0.5" style={{ color: colors.muted }}>{new Date(audit.createdAt).toLocaleString()}</div>
+                      <div className="font-medium text-xs sm:text-sm truncate">{audit.action}</div>
+                      <div className="text-xs opacity-75">
+                        by {audit.actor?.name || "System"}
+                      </div>
+                      <div className="text-2xs opacity-50 mt-0.5">
+                        {new Date(audit.createdAt).toLocaleString()}
+                      </div>
                     </div>
                   </div>
                 ))}
-                {auditTrail.length === 0 && (
-                  <div className="text-center py-4">
-                    <Activity size={24} className="mx-auto mb-2" style={{ color: colors.muted }} />
-                    <p className="text-xs" style={{ color: colors.muted }}>No recent activity</p>
-                  </div>
-                )}
               </div>
             </div>
           </>
@@ -1278,150 +1274,157 @@ const AdminDashboard = () => {
 
         {activeTab === "complaints" && (
           <div>
-            {/* Search and Filter */}
-            <div className="flex flex-col gap-2 mb-3">
-              <h1 className="text-lg sm:text-xl font-bold" style={{ color: colors.text }}>Complaints Management</h1>
-              
-              {/* Search Bar */}
-              <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2" size={14} style={{ color: colors.muted }} />
-                <input 
-                  type="text" 
-                  placeholder="Search complaints..." 
-                  value={searchQuery} 
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                  className="w-full pl-8 pr-8 py-2.5 text-xs rounded-lg focus:outline-none focus:ring-1"
-                  style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}`, color: colors.text }} 
-                />
-                {searchQuery && (
-                  <button 
-                    onClick={() => setSearchQuery("")} 
-                    className="absolute right-8 top-1/2 transform -translate-y-1/2"
-                  >
-                    <X size={12} style={{ color: colors.muted }} />
-                  </button>
-                )}
-                <button 
-                  onClick={handleSearch} 
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2"
-                >
-                  <Search size={12} style={{ color: colors.muted }} />
-                </button>
+            <div className="flex flex-col gap-3 mb-4">
+              <div>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1">
+                  All Complaints
+                </h1>
+                <p className="text-xs sm:text-sm opacity-75">
+                  Manage all complaints in the system
+                </p>
               </div>
-
-              {/* Filter Dropdown */}
-              <div className="relative filter-dropdown">
-                <button
-                  onClick={(e) => { e.stopPropagation(); setFilterDropdownOpen(!filterDropdownOpen); }}
-                  className="w-full px-3 py-2.5 rounded-lg text-xs flex items-center justify-between"
-                  style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}`, color: colors.text }}
-                >
-                  <span className="flex items-center gap-1">
-                    <Filter size={12} />
-                    {selectedStatusFilter === "ALL" ? "All Status" : selectedStatusFilter}
-                  </span>
-                  <ChevronRight size={12} style={{ transform: filterDropdownOpen ? 'rotate(90deg)' : 'rotate(0)' }} />
-                </button>
-
-                {filterDropdownOpen && (
-                  <div
-                    className="absolute left-0 right-0 mt-1 rounded-lg py-1 z-10"
+              <div className="flex flex-col gap-3">
+                <div className="relative w-full">
+                  <Search
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2"
+                    size={16}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Search complaints..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                    className="w-full pl-9 pr-4 py-2 text-sm rounded-lg focus:outline-none focus:ring-2"
                     style={{
                       backgroundColor: colors.card,
                       border: `1px solid ${colors.border}`,
-                      boxShadow: colors.shadow,
+                      focusRingColor: colors.primary,
+                    }}
+                  />
+                </div>
+                <div className="flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
+                  <button
+                    onClick={() => handleFilter("ALL")}
+                    className="px-3 py-1.5 rounded-lg text-xs whitespace-nowrap flex-shrink-0"
+                    style={{
+                      backgroundColor: selectedStatusFilter === "ALL" ? colors.primary : colors.card,
+                      color: selectedStatusFilter === "ALL" ? "white" : colors.text,
+                      border: `1px solid ${colors.border}`,
                     }}
                   >
-                    {["ALL", "CREATED", "ASSIGNED", "IN_PROGRESS", "RESOLVED", "REJECTED", "ESCALATED"].map((status) => (
-                      <button
-                        key={status}
-                        onClick={() => handleFilter(status)}
-                        className="w-full px-3 py-2 text-left text-xs hover:opacity-80"
-                        style={{ 
-                          backgroundColor: selectedStatusFilter === status ? colors.accentLight : 'transparent',
-                          color: colors.text 
-                        }}
-                      >
-                        {status === "ALL" ? "All Status" : status}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                    All
+                  </button>
+                  {["CREATED", "ASSIGNED", "IN_PROGRESS", "RESOLVED", "REJECTED"].map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => handleFilter(status)}
+                      className="px-3 py-1.5 rounded-lg text-xs whitespace-nowrap flex-shrink-0"
+                      style={{
+                        backgroundColor: selectedStatusFilter === status ? getStatusColor(status) : colors.card,
+                        color: selectedStatusFilter === status ? "white" : colors.text,
+                        border: `1px solid ${colors.border}`,
+                      }}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Complaints List */}
             {filteredComplaints.length === 0 ? (
-              <div className="text-center py-8 rounded-lg" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
-                <FileText size={32} className="mx-auto mb-2" style={{ color: colors.muted }} />
-                <h3 className="text-sm font-bold mb-1" style={{ color: colors.text }}>No complaints found</h3>
-                <p className="text-xs mb-3" style={{ color: colors.muted }}>
-                  {searchQuery ? "No complaints match your search." : "There are no complaints yet."}
+              <div className="text-center py-8">
+                <AlertCircle size={40} className="mx-auto mb-3 opacity-50" />
+                <h3 className="text-base font-bold mb-1">No complaints found</h3>
+                <p className="text-xs opacity-75">
+                  {searchQuery ? "No complaints match your search criteria." : "No complaints in the system yet."}
                 </p>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {filteredComplaints.map((complaint) => (
-                  <div 
-                    key={complaint._id} 
-                    className="p-3 rounded-lg transition-all duration-200"
-                    style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}
+                  <div
+                    key={complaint._id}
+                    className="p-3 rounded-lg"
+                    style={{
+                      backgroundColor: colors.card,
+                      border: `1px solid ${colors.border}`,
+                    }}
                   >
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span 
-                          className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-2xs font-medium"
-                          style={{ backgroundColor: `${getStatusColor(complaint.status)}20`, color: getStatusColor(complaint.status) }}
+                    <div className="flex flex-col gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium"
+                          style={{
+                            backgroundColor: `${getStatusColor(complaint.status)}20`,
+                            color: getStatusColor(complaint.status),
+                          }}
                         >
-                          {getStatusIcon(complaint.status)} {complaint.status}
+                          {getStatusIcon(complaint.status)}
+                          <span>{complaint.status}</span>
                         </span>
-                        <span className="text-2xs" style={{ color: colors.muted }}>
+                        <span className="text-xs opacity-75">
                           {new Date(complaint.createdAt).toLocaleDateString()}
                         </span>
                       </div>
-                      <button
-                        onClick={() => setSelectedComplaint(complaint)}
-                        className="p-1 rounded"
-                        style={{ color: colors.muted }}
-                      >
-                        <MoreVertical size={14} />
-                      </button>
-                    </div>
-                    
-                    <h3 className="font-bold text-xs mb-1 line-clamp-1" style={{ color: colors.text }}>{complaint.title}</h3>
-                    
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-2xs flex items-center gap-0.5" style={{ color: colors.muted }}>
-                        <MapPin size={10} /> {complaint.area}
-                      </span>
-                      <span className="text-2xs px-1.5 py-0.5 rounded-full" style={{ backgroundColor: colors.categoryBg, color: colors.categoryText }}>
-                        {complaint.category}
-                      </span>
-                    </div>
 
-                    <div className="flex gap-1.5">
-                      <button 
-                        onClick={() => { setSelectedComplaint(complaint); setShowUpdateModal(true); }} 
-                        className="flex-1 px-2 py-1.5 rounded text-2xs font-medium"
-                        style={{ backgroundColor: colors.accent, color: isDark ? "#000" : "#FFF" }}
-                      >
-                        Update
-                      </button>
-                      <button 
-                        onClick={() => { setSelectedComplaint(complaint); setShowAssignModal(true); }} 
-                        className="flex-1 px-2 py-1.5 rounded text-2xs font-medium"
-                        style={{ backgroundColor: colors.cardHover, color: colors.text }}
-                      >
-                        Assign
-                      </button>
-                      <button 
-                        onClick={() => { setSelectedComplaint(complaint); setShowOverrideModal(true); }} 
-                        className="flex-1 px-2 py-1.5 rounded text-2xs font-medium"
-                        style={{ backgroundColor: colors.warning, color: isDark ? "#000" : "#FFF" }}
-                      >
-                        Override
-                      </button>
+                      <h3 className="font-bold text-sm">{complaint.title}</h3>
+                      
+                      <div className="text-xs opacity-75 line-clamp-2">
+                        {complaint.description?.substring(0, 100)}
+                        {complaint.description?.length > 100 ? "..." : ""}
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2 text-xs">
+                        <span className="flex items-center">
+                          <MapPin size={10} className="mr-1" />
+                          {complaint.area || "N/A"}
+                        </span>
+                        <span>•</span>
+                        <span>{complaint.user?.name || "N/A"}</span>
+                      </div>
+
+                      <div className="flex gap-2 mt-1">
+                        <button
+                          onClick={() => {
+                            setSelectedComplaint(complaint);
+                            setShowUpdateModal(true);
+                          }}
+                          className="flex-1 px-2 py-1.5 rounded text-xs font-medium"
+                          style={{
+                            backgroundColor: colors.card,
+                            border: `1px solid ${colors.border}`,
+                          }}
+                        >
+                          Update
+                        </button>
+
+                        {complaint.status !== "RESOLVED" ? (
+                          <button
+                            onClick={() => {
+                              setSelectedComplaint(complaint);
+                              setShowAssignModal(true);
+                            }}
+                            className="flex-1 px-2 py-1.5 rounded text-xs font-medium text-white"
+                            style={{ backgroundColor: colors.info }}
+                          >
+                            Assign
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              setSelectedComplaint(complaint);
+                              setOverrideData({ action: "REOPEN", reason: "", notes: "" });
+                              setShowOverrideModal(true);
+                            }}
+                            className="flex-1 px-2 py-1.5 rounded text-xs font-medium text-white"
+                            style={{ backgroundColor: colors.warning }}
+                          >
+                            Reopen
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -1432,107 +1435,155 @@ const AdminDashboard = () => {
 
         {activeTab === "users" && (
           <div>
-            {/* Search and Filter */}
-            <div className="flex flex-col gap-2 mb-3">
-              <h1 className="text-lg sm:text-xl font-bold" style={{ color: colors.text }}>User Management</h1>
-              
-              {/* Search Bar */}
-              <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2" size={14} style={{ color: colors.muted }} />
-                <input 
-                  type="text" 
-                  placeholder="Search users..." 
-                  value={searchQuery} 
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-8 pr-3 py-2.5 text-xs rounded-lg focus:outline-none focus:ring-1"
-                  style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}`, color: colors.text }} 
-                />
+            <div className="flex flex-col gap-3 mb-4">
+              <div>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1">
+                  User Management
+                </h1>
+                <p className="text-xs sm:text-sm opacity-75">Manage all system users</p>
               </div>
-
-              {/* Role Filter */}
-              <div className="flex gap-1 overflow-x-auto pb-1 hide-scrollbar">
-                {["ALL", "ADMIN", "SUPERVISOR", "OFFICER", "CITIZEN"].map((role) => (
-                  <button 
-                    key={role} 
-                    onClick={() => setSelectedRoleFilter(role)} 
-                    className="px-2.5 py-1.5 rounded-lg text-2xs whitespace-nowrap transition-all flex-shrink-0"
-                    style={{ 
-                      backgroundColor: selectedRoleFilter === role ? colors.accent : colors.cardHover, 
-                      color: selectedRoleFilter === role ? (isDark ? "#000" : "#FFF") : colors.text, 
+              <div className="flex flex-col gap-3">
+                <div className="relative w-full">
+                  <Search
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2"
+                    size={16}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Search users..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2 text-sm rounded-lg focus:outline-none focus:ring-2"
+                    style={{
+                      backgroundColor: colors.card,
+                      border: `1px solid ${colors.border}`,
+                    }}
+                  />
+                </div>
+                <div className="flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
+                  <button
+                    onClick={() => setSelectedRoleFilter("ALL")}
+                    className="px-3 py-1.5 rounded-lg text-xs whitespace-nowrap flex-shrink-0"
+                    style={{
+                      backgroundColor: selectedRoleFilter === "ALL" ? colors.primary : colors.card,
+                      color: selectedRoleFilter === "ALL" ? "white" : colors.text,
+                      border: `1px solid ${colors.border}`,
                     }}
                   >
-                    {role === "ALL" ? "All" : role}
+                    All
                   </button>
-                ))}
+                  {["ADMIN", "SUPERVISOR", "OFFICER", "CITIZEN"].map((role) => (
+                    <button
+                      key={role}
+                      onClick={() => setSelectedRoleFilter(role)}
+                      className="px-3 py-1.5 rounded-lg text-xs whitespace-nowrap flex-shrink-0"
+                      style={{
+                        backgroundColor: selectedRoleFilter === role ? getRoleColor(role) : colors.card,
+                        color: selectedRoleFilter === role ? "white" : colors.text,
+                        border: `1px solid ${colors.border}`,
+                      }}
+                    >
+                      {role}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Users List */}
             {filteredUsers.length === 0 ? (
-              <div className="text-center py-8 rounded-lg" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
-                <Users size={32} className="mx-auto mb-2" style={{ color: colors.muted }} />
-                <h3 className="text-sm font-bold mb-1" style={{ color: colors.text }}>No users found</h3>
-                <p className="text-xs mb-3" style={{ color: colors.muted }}>
-                  {searchQuery ? "No users match your search." : "There are no users yet."}
+              <div className="text-center py-8">
+                <Users size={40} className="mx-auto mb-3 opacity-50" />
+                <h3 className="text-base font-bold mb-1">No users found</h3>
+                <p className="text-xs opacity-75 mb-3">
+                  {searchQuery ? "No users match your search." : "No users in the system yet."}
                 </p>
-                <button 
-                  onClick={() => setShowUserModal(true)} 
-                  className="px-4 py-2 rounded-lg font-medium text-xs"
-                  style={{ backgroundColor: colors.accent, color: isDark ? "#000" : "#FFF" }}
+                <button
+                  onClick={() => setShowUserModal(true)}
+                  className="px-4 py-2 rounded-lg text-sm font-medium"
+                  style={{ backgroundColor: colors.primary, color: "white" }}
                 >
-                  Create New User
+                  Create First User
                 </button>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {filteredUsers.map((user) => (
-                  <div 
-                    key={user._id} 
-                    className="p-3 rounded-lg transition-all duration-200"
-                    style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}
+                  <div
+                    key={user._id}
+                    className="p-3 rounded-lg"
+                    style={{
+                      backgroundColor: colors.card,
+                      border: `1px solid ${colors.border}`,
+                    }}
                   >
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <div className="flex items-center gap-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
                         <div
-                          className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden shrink-0"
-                          style={{ backgroundColor: getRoleColor(user.role) }}
+                          className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                          style={{ backgroundColor: getRoleColor(user.role), color: "white" }}
                         >
-                          {renderProfileImage(user)}
+                          {getRoleIcon(user.role)}
                         </div>
-                        <div>
-                          <h3 className="font-bold text-xs" style={{ color: colors.text }}>{user.name}</h3>
-                          <p className="text-2xs" style={{ color: colors.muted }}>{user.email}</p>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-bold text-sm truncate">{user.name}</h3>
+                          <p className="text-xs opacity-75 truncate">{user.email}</p>
                         </div>
                       </div>
-                      <span 
-                        className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-2xs font-medium"
-                        style={{ backgroundColor: `${getRoleColor(user.role)}20`, color: getRoleColor(user.role) }}
-                      >
-                        {getRoleIcon(user.role)} {user.role}
-                      </span>
+                      <div className="relative group flex-shrink-0">
+                        <button
+                          className="p-1.5 rounded-lg"
+                          style={{ backgroundColor: `${colors.border}50` }}
+                        >
+                          <MoreVertical size={14} />
+                        </button>
+                        <div
+                          className="absolute right-0 mt-1 w-36 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10"
+                          style={{
+                            backgroundColor: colors.card,
+                            border: `1px solid ${colors.border}`,
+                          }}
+                        >
+                          <div className="py-1">
+                            {user.isActive === false ? (
+                              <button
+                                onClick={() => handleManageUser(user._id, "activate")}
+                                className="flex items-center gap-2 w-full px-3 py-1.5 hover:bg-opacity-80 text-left text-xs"
+                              >
+                                <Play size={12} />
+                                Activate
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleManageUser(user._id, "deactivate")}
+                                className="flex items-center gap-2 w-full px-3 py-1.5 hover:bg-opacity-80 text-left text-xs"
+                              >
+                                <Pause size={12} />
+                                Deactivate
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleManageUser(user._id, "reset_password")}
+                              className="flex items-center gap-2 w-full px-3 py-1.5 hover:bg-opacity-80 text-left text-xs"
+                            >
+                              <RotateCcw size={12} />
+                              Reset Password
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-
-                    {user.department && (
-                      <p className="text-2xs mb-2" style={{ color: colors.muted }}>
-                        Dept: {user.department}
-                      </p>
-                    )}
-
-                    <div className="flex gap-1.5 mt-2">
-                      <button 
-                        onClick={() => handleManageUser(user._id, user.isActive ? "DEACTIVATE" : "ACTIVATE")} 
-                        className="flex-1 px-2 py-1.5 rounded text-2xs font-medium"
-                        style={{ backgroundColor: user.isActive ? colors.warning : colors.success, color: "#FFF" }}
-                      >
-                        {user.isActive ? "Deactivate" : "Activate"}
-                      </button>
-                      <button 
-                        onClick={() => { setSelectedUser(user); /* Show edit modal */ }} 
-                        className="flex-1 px-2 py-1.5 rounded text-2xs font-medium"
-                        style={{ backgroundColor: colors.cardHover, color: colors.text }}
-                      >
-                        Edit
-                      </button>
+                    
+                    <div className="mt-2 grid grid-cols-2 gap-1 text-xs">
+                      <div>
+                        <span className="opacity-75">Role:</span>
+                        <span className="ml-1 font-medium">{user.role}</span>
+                      </div>
+                      <div>
+                        <span className="opacity-75">Status:</span>
+                        <span className={`ml-1 font-medium ${user.isActive ? "text-green-600" : "text-red-600"}`}>
+                          {user.isActive ? "Active" : "Inactive"}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -1542,101 +1593,415 @@ const AdminDashboard = () => {
         )}
       </main>
 
-      {/* Modals remain the same but with mobile-friendly styling */}
-      {/* Create User Modal */}
+      {/* Modals - Mobile Optimized */}
       {showUserModal && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" onClick={() => setShowUserModal(false)}>
-          <div className="absolute inset-0 bg-black bg-opacity-50" />
-          <div 
-            className="relative w-full sm:max-w-md rounded-t-xl sm:rounded-lg p-4 animate-slideDown"
-            style={{ backgroundColor: colors.card }}
-            onClick={(e) => e.stopPropagation()}
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div
+            className="rounded-xl p-4 sm:p-6 max-w-md w-full max-h-[90vh] overflow-y-auto"
+            style={{
+              backgroundColor: colors.card,
+              border: `1px solid ${colors.border}`,
+            }}
           >
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="text-sm font-bold" style={{ color: colors.text }}>Create New User</h3>
-              <button onClick={() => setShowUserModal(false)} className="p-1 rounded">
-                <X size={16} style={{ color: colors.muted }} />
-              </button>
-            </div>
-
+            <h3 className="text-lg sm:text-xl font-bold mb-3">Create New User</h3>
             <div className="space-y-3">
               <input
                 type="text"
                 placeholder="Full Name"
                 value={newUserData.name}
                 onChange={(e) => setNewUserData({ ...newUserData, name: e.target.value })}
-                className="w-full px-3 py-2 text-xs rounded-lg"
-                style={{ backgroundColor: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }}
+                className="w-full p-2.5 text-sm rounded-lg"
+                style={{
+                  backgroundColor: colors.bg,
+                  border: `1px solid ${colors.border}`,
+                  color: colors.text,
+                }}
               />
-
               <input
                 type="email"
                 placeholder="Email"
                 value={newUserData.email}
                 onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
-                className="w-full px-3 py-2 text-xs rounded-lg"
-                style={{ backgroundColor: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }}
+                className="w-full p-2.5 text-sm rounded-lg"
+                style={{
+                  backgroundColor: colors.bg,
+                  border: `1px solid ${colors.border}`,
+                  color: colors.text,
+                }}
               />
-
               <input
                 type="password"
                 placeholder="Password"
                 value={newUserData.password}
                 onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })}
-                className="w-full px-3 py-2 text-xs rounded-lg"
-                style={{ backgroundColor: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }}
+                className="w-full p-2.5 text-sm rounded-lg"
+                style={{
+                  backgroundColor: colors.bg,
+                  border: `1px solid ${colors.border}`,
+                  color: colors.text,
+                }}
               />
-
               <select
                 value={newUserData.role}
                 onChange={(e) => setNewUserData({ ...newUserData, role: e.target.value })}
-                className="w-full px-3 py-2 text-xs rounded-lg"
-                style={{ backgroundColor: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }}
+                className="w-full p-2.5 text-sm rounded-lg"
+                style={{
+                  backgroundColor: colors.bg,
+                  border: `1px solid ${colors.border}`,
+                  color: colors.text,
+                }}
               >
                 <option value="CITIZEN">Citizen</option>
                 <option value="OFFICER">Officer</option>
                 <option value="SUPERVISOR">Supervisor</option>
                 <option value="ADMIN">Admin</option>
               </select>
-
-              <input
-                type="text"
-                placeholder="Department (optional)"
-                value={newUserData.department}
-                onChange={(e) => setNewUserData({ ...newUserData, department: e.target.value })}
-                className="w-full px-3 py-2 text-xs rounded-lg"
-                style={{ backgroundColor: colors.bg, border: `1px solid ${colors.border}`, color: colors.text }}
-              />
-
-              <div className="flex gap-2 pt-2">
-                <button
-                  onClick={() => setShowUserModal(false)}
-                  className="flex-1 px-3 py-2 rounded-lg text-xs font-medium"
-                  style={{ backgroundColor: colors.cardHover, color: colors.text }}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleCreateUser}
-                  className="flex-1 px-3 py-2 rounded-lg text-xs font-medium"
-                  style={{ backgroundColor: colors.accent, color: isDark ? "#000" : "#FFF" }}
-                >
-                  Create
-                </button>
-              </div>
+            </div>
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => setShowUserModal(false)}
+                className="flex-1 p-2.5 rounded-lg font-medium text-sm"
+                style={{
+                  backgroundColor: colors.card,
+                  border: `1px solid ${colors.border}`,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateUser}
+                disabled={!newUserData.name || !newUserData.email || !newUserData.password}
+                className="flex-1 p-2.5 rounded-lg font-medium text-sm text-white disabled:opacity-50"
+                style={{ backgroundColor: colors.primary }}
+              >
+                Create
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Clean Footer */}
-      <footer className="mt-4 py-4 px-3">
-        <div className="max-w-7xl mx-auto text-center">
-          <p className="text-2xs" style={{ color: colors.muted }}>
-            © {new Date().getFullYear()} CivicFix Admin Panel. All rights reserved.
-          </p>
+      {showAssignModal && selectedComplaint && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div
+            className="rounded-xl p-4 sm:p-6 max-w-md w-full"
+            style={{
+              backgroundColor: colors.card,
+              border: `1px solid ${colors.border}`,
+            }}
+          >
+            <h3 className="text-lg sm:text-xl font-bold mb-3">Assign Complaint</h3>
+            <div className="space-y-3">
+              <div className="mb-3">
+                <p className="font-medium text-sm">Complaint:</p>
+                <p className="text-xs opacity-75">{selectedComplaint.title}</p>
+              </div>
+              <select
+                value={assignData.type}
+                onChange={(e) => setAssignData({ ...assignData, type: e.target.value })}
+                className="w-full p-2.5 text-sm rounded-lg"
+                style={{
+                  backgroundColor: colors.bg,
+                  border: `1px solid ${colors.border}`,
+                  color: colors.text,
+                }}
+              >
+                <option value="supervisor">Assign to Supervisor</option>
+                <option value="officer">Assign to Officer</option>
+              </select>
+              {assignData.type === "supervisor" ? (
+                <select
+                  value={assignData.supervisorId}
+                  onChange={(e) => setAssignData({ ...assignData, supervisorId: e.target.value })}
+                  className="w-full p-2.5 text-sm rounded-lg"
+                  style={{
+                    backgroundColor: colors.bg,
+                    border: `1px solid ${colors.border}`,
+                    color: colors.text,
+                  }}
+                >
+                  <option value="">Select Supervisor</option>
+                  {getSupervisors().map((supervisor) => (
+                    <option key={supervisor._id} value={supervisor._id}>
+                      {supervisor.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <select
+                  value={assignData.officerId}
+                  onChange={(e) => setAssignData({ ...assignData, officerId: e.target.value })}
+                  className="w-full p-2.5 text-sm rounded-lg"
+                  style={{
+                    backgroundColor: colors.bg,
+                    border: `1px solid ${colors.border}`,
+                    color: colors.text,
+                  }}
+                >
+                  <option value="">Select Officer</option>
+                  {getOfficers().map((officer) => (
+                    <option key={officer._id} value={officer._id}>
+                      {officer.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => setShowAssignModal(false)}
+                className="flex-1 p-2.5 rounded-lg font-medium text-sm"
+                style={{
+                  backgroundColor: colors.card,
+                  border: `1px solid ${colors.border}`,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAssignComplaint}
+                disabled={
+                  (assignData.type === "supervisor" && !assignData.supervisorId) ||
+                  (assignData.type === "officer" && !assignData.officerId)
+                }
+                className="flex-1 p-2.5 rounded-lg font-medium text-sm text-white disabled:opacity-50"
+                style={{ backgroundColor: colors.primary }}
+              >
+                Assign
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showUpdateModal && selectedComplaint && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div
+            className="rounded-xl p-4 sm:p-6 max-w-md w-full"
+            style={{
+              backgroundColor: colors.card,
+              border: `1px solid ${colors.border}`,
+            }}
+          >
+            <h3 className="text-lg sm:text-xl font-bold mb-3">Update Complaint</h3>
+            <div className="space-y-3">
+              <div className="mb-3">
+                <p className="font-medium text-sm">Complaint:</p>
+                <p className="text-xs opacity-75">{selectedComplaint.title}</p>
+              </div>
+              <select
+                value={updateData.status}
+                onChange={(e) => setUpdateData({ ...updateData, status: e.target.value })}
+                className="w-full p-2.5 text-sm rounded-lg"
+                style={{
+                  backgroundColor: colors.bg,
+                  border: `1px solid ${colors.border}`,
+                  color: colors.text,
+                }}
+              >
+                <option value="">Select Status</option>
+                <option value="CREATED">Created</option>
+                <option value="ASSIGNED">Assigned</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="RESOLVED">Resolved</option>
+                <option value="REJECTED">Rejected</option>
+              </select>
+              <select
+                value={updateData.priority}
+                onChange={(e) => setUpdateData({ ...updateData, priority: e.target.value })}
+                className="w-full p-2.5 text-sm rounded-lg"
+                style={{
+                  backgroundColor: colors.bg,
+                  border: `1px solid ${colors.border}`,
+                  color: colors.text,
+                }}
+              >
+                <option value="">Select Priority</option>
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+                <option value="CRITICAL">Critical</option>
+              </select>
+              <textarea
+                placeholder="Remarks"
+                value={updateData.remarks}
+                onChange={(e) => setUpdateData({ ...updateData, remarks: e.target.value })}
+                className="w-full p-2.5 text-sm rounded-lg"
+                rows="3"
+                style={{
+                  backgroundColor: colors.bg,
+                  border: `1px solid ${colors.border}`,
+                  color: colors.text,
+                }}
+              />
+            </div>
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => setShowUpdateModal(false)}
+                className="flex-1 p-2.5 rounded-lg font-medium text-sm"
+                style={{
+                  backgroundColor: colors.card,
+                  border: `1px solid ${colors.border}`,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdateComplaint}
+                disabled={!updateData.status && !updateData.remarks && !updateData.priority}
+                className="flex-1 p-2.5 rounded-lg font-medium text-sm text-white disabled:opacity-50"
+                style={{ backgroundColor: colors.primary }}
+              >
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showOverrideModal && selectedComplaint && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div
+            className="rounded-xl p-4 sm:p-6 max-w-md w-full max-h-[90vh] overflow-y-auto"
+            style={{
+              backgroundColor: colors.card,
+              border: `1px solid ${colors.border}`,
+            }}
+          >
+            <h3 className="text-lg sm:text-xl font-bold mb-3">
+              {overrideData.action === "REOPEN" ? "Reopen Complaint" : "Admin Override"}
+            </h3>
+
+            <div className="space-y-3">
+              <div
+                className="mb-3 p-2 rounded-lg text-sm"
+                style={{ backgroundColor: `${colors.border}20` }}
+              >
+                <p className="font-medium text-xs">Complaint:</p>
+                <p className="text-xs opacity-90">{selectedComplaint.title}</p>
+                <p className="text-2xs mt-1">
+                  Status: <span className="font-medium">{selectedComplaint.status}</span>
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-medium">Action *</label>
+                <select
+                  value={overrideData.action}
+                  onChange={(e) => setOverrideData({ ...overrideData, action: e.target.value })}
+                  className="w-full p-2.5 text-sm rounded-lg"
+                  style={{
+                    backgroundColor: colors.bg,
+                    borderColor: colors.border,
+                    color: colors.text,
+                  }}
+                >
+                  <option value="">-- Select action --</option>
+                  <option value="REOPEN">Reopen Complaint</option>
+                  <option value="FORCE_RESOLVE">Force Resolve</option>
+                  <option value="FORCE_CLOSE">Force Close</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-medium">Reason *</label>
+                <textarea
+                  placeholder="Explain why..."
+                  value={overrideData.reason}
+                  onChange={(e) => setOverrideData({ ...overrideData, reason: e.target.value })}
+                  className="w-full p-2.5 text-sm rounded-lg"
+                  rows="2"
+                  style={{
+                    backgroundColor: colors.bg,
+                    borderColor: colors.border,
+                    color: colors.text,
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => {
+                  setShowOverrideModal(false);
+                  setOverrideData({ action: "", reason: "", notes: "" });
+                }}
+                className="flex-1 p-2.5 rounded-lg font-medium text-sm"
+                style={{
+                  backgroundColor: colors.card,
+                  borderColor: colors.border,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleOverrideComplaint}
+                disabled={!overrideData.action || !overrideData.reason.trim()}
+                className="flex-1 p-2.5 rounded-lg font-medium text-sm text-white disabled:opacity-50"
+                style={{
+                  backgroundColor:
+                    overrideData.action === "REOPEN"
+                      ? colors.warning
+                      : overrideData.action === "FORCE_RESOLVE"
+                      ? colors.success
+                      : colors.primary,
+                }}
+              >
+                {overrideData.action || "Submit"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Footer - Mobile Optimized */}
+      <footer
+        className="mt-8 py-4 sm:py-6 px-3 sm:px-4 border-t"
+        style={{
+          borderColor: colors.border,
+          backgroundColor: colors.card,
+        }}
+      >
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div className="text-center sm:text-left">
+              <div className="flex items-center justify-center sm:justify-start space-x-2">
+                <img
+                  src={currentLogo}
+                  alt="CivicFix Logo"
+                  className="h-8 sm:h-10 md:h-12 w-auto object-contain"
+                />
+                <span className="text-sm sm:text-base font-bold" style={{ color: colors.primary }}>
+                  CivicFix Admin
+                </span>
+              </div>
+              <p className="text-xs opacity-75 mt-1">
+                Complaint Management System - Admin Panel
+              </p>
+            </div>
+            <div className="text-xs opacity-75">
+              © {new Date().getFullYear()} All rights reserved
+            </div>
+          </div>
         </div>
       </footer>
+
+      <style jsx>{`
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slideDown {
+          animation: slideDown 0.3s ease-out;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 };
