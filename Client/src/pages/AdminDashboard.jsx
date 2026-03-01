@@ -145,6 +145,9 @@ const AdminDashboard = () => {
   const [selectedStatusFilter, setSelectedStatusFilter] = useState("ALL");
   const [selectedRoleFilter, setSelectedRoleFilter] = useState("ALL");
 
+  // API Base URL - Use environment variable or default to Render backend
+  const API_BASE_URL = process.env.REACT_APP_API_URL || "https://civicfix-backend01.onrender.com";
+
   // Theme colors matching CitizenDashboard
   const getThemeColors = () => {
     const accentColor = "#97AB33";
@@ -195,13 +198,55 @@ const AdminDashboard = () => {
   const isDark = theme === "dark";
   const currentLogo = theme === "dark" ? darkLogo : lightLogo;
 
+  // FIXED: Image URL helper that handles both localhost and production
   const getProfileImageUrl = (imagePath) => {
     if (!imagePath) return null;
-    if (imagePath.startsWith("http")) return imagePath;
-    if (imagePath.startsWith("/uploads")) {
-      return `http://localhost:5000${imagePath}`;
+    
+    // If it's already a full URL (http/https), return as is
+    if (imagePath.startsWith("http")) {
+      return imagePath;
     }
+    
+    // If it's a localhost URL in production, replace with production backend URL
+    if (imagePath.startsWith("http://localhost")) {
+      return imagePath.replace("http://localhost:5000", API_BASE_URL);
+    }
+    
+    // If it's a relative path starting with /uploads
+    if (imagePath.startsWith("/uploads")) {
+      return `${API_BASE_URL}${imagePath}`;
+    }
+    
+    // Default case - return as is
     return imagePath;
+  };
+
+  // FIXED: Safe image rendering with error handling
+  const renderProfileImage = (user) => {
+    if (!user) return null;
+    
+    const imageUrl = getProfileImageUrl(user.profileImage);
+    
+    if (!imageUrl) {
+      return (
+        <span style={{ color: isDark ? "#000" : "#FFF", fontSize: "12px", fontWeight: "600" }}>
+          {getUserInitials(user.name)}
+        </span>
+      );
+    }
+
+    return (
+      <img 
+        src={imageUrl} 
+        alt={user.name} 
+        className="w-full h-full object-cover"
+        onError={(e) => {
+          console.warn(`Failed to load image: ${imageUrl}`);
+          e.target.style.display = 'none';
+          e.target.parentElement.innerHTML = `<span style="color: ${isDark ? '#000' : '#FFF'}; font-size: 12px; font-weight: 600;">${getUserInitials(user.name)}</span>`;
+        }}
+      />
+    );
   };
 
   const getUserInitials = (name) => {
@@ -949,13 +994,7 @@ const AdminDashboard = () => {
                   className="w-7 h-7 rounded-full flex items-center justify-center overflow-hidden"
                   style={{ backgroundColor: colors.accent }}
                 >
-                  {user?.profileImage ? (
-                    <img src={getProfileImageUrl(user.profileImage)} alt={user.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <span style={{ color: isDark ? "#000" : "#FFF", fontSize: "12px", fontWeight: "600" }}>
-                      {getUserInitials(user?.name)}
-                    </span>
-                  )}
+                  {renderProfileImage(user)}
                 </div>
                 <span className="font-medium hidden lg:inline text-sm">{user?.name?.split(" ")[0] || "Admin"}</span>
               </button>
@@ -1458,13 +1497,7 @@ const AdminDashboard = () => {
                           className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden shrink-0"
                           style={{ backgroundColor: getRoleColor(user.role) }}
                         >
-                          {user.profileImage ? (
-                            <img src={getProfileImageUrl(user.profileImage)} alt={user.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <span style={{ color: isDark ? "#000" : "#FFF", fontSize: "12px", fontWeight: "600" }}>
-                              {getUserInitials(user.name)}
-                            </span>
-                          )}
+                          {renderProfileImage(user)}
                         </div>
                         <div>
                           <h3 className="font-bold text-xs" style={{ color: colors.text }}>{user.name}</h3>
