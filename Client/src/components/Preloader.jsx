@@ -104,14 +104,12 @@ const Preloader = ({ isLoading = true }) => {
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
-
-      {/* soft radial glow with accent color */}
+}
       <div
         className="absolute inset-0 pointer-events-none"
       />
 
       <div className="relative flex flex-col items-center gap-8 fade-in">
-        {/* logo text with accent */}
         <div className="flex items-center gap-2 mb-2">
           <span style={{
             fontFamily: "'Inter', sans-serif",
@@ -124,10 +122,8 @@ const Preloader = ({ isLoading = true }) => {
             <span style={{ color: palette.accent }}>FIX</span>
           </span>
         </div>
-
-        {/* animated icon */}
+        
         <div className="relative w-[160px] h-[160px]">
-          {/* outer ring with accent */}
           <svg
             className="absolute left-[8px] top-[18px] gear gear-big"
             width="120"
@@ -200,8 +196,6 @@ const Preloader = ({ isLoading = true }) => {
             }}
           />
         </div>
-
-        {/* loader line with accent */}
         <div className="w-[240px]">
           <div
             className="h-[3px] w-full rounded-full overflow-hidden"
@@ -212,16 +206,12 @@ const Preloader = ({ isLoading = true }) => {
               style={{ backgroundColor: palette.accent }}
             />
           </div>
-
-          {/* loading text with proper font */}
           <div
             className="mt-4 text-xs tracking-[0.3em] uppercase text-center font-medium"
             style={{ color: palette.muted }}
           >
             Loading
           </div>
-          
-          {/* subtle brand message */}
           <div
             className="mt-6 text-[10px] tracking-wider text-center"
             style={{ color: palette.accent, opacity: 0.6 }}
@@ -235,4 +225,5 @@ const Preloader = ({ isLoading = true }) => {
 };
 
 export default Preloader;
+
 
