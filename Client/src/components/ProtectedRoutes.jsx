@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import Preloader from "../components/Preloader"; // Import your preloader
+import Preloader from "../components/Preloader"; 
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, isAuthenticated, loading } = useAuth();
@@ -15,8 +15,6 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     console.log(
       "ProtectedRoute: Role not authorized, redirecting to appropriate dashboard",
     );
-
-    // Redirect to appropriate dashboard based on role
     switch (user?.role) {
       case "CITIZEN":
         return <Navigate to="/dashboard" replace />;
@@ -35,3 +33,4 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 };
 
 export default ProtectedRoute;
+
