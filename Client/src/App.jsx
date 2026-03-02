@@ -23,14 +23,10 @@ function App() {
   }, []);
   return (
           <Routes>
-            {/* ===== PUBLIC ROUTES ===== */}
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
 
-            {/* ===== PROTECTED ROUTES ===== */}
-
-            {/* CITIZEN DASHBOARD */}
             <Route
               path="/dashboard"
               element={
@@ -40,7 +36,6 @@ function App() {
               }
             />
 
-            {/* OFFICER DASHBOARD */}
             <Route
               path="/officer-dashboard"
               element={
@@ -50,7 +45,6 @@ function App() {
               }
             />
 
-            {/* SUPERVISOR DASHBOARD */}
             <Route
               path="/supervisor-dashboard"
               element={
@@ -60,7 +54,6 @@ function App() {
               }
             />
 
-            {/* ADMIN DASHBOARD */}
             <Route
               path="/admin-dashboard"
               element={
@@ -110,8 +103,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
-            {/* ===== FALLBACK ===== */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
   );
