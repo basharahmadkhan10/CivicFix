@@ -57,7 +57,7 @@ export const loginUser = async (credentials) => {
     if (!isMatch) {
       user.loginAttempts += 1;
       if (user.loginAttempts >= 5) {
-        user.lockUntil = Date.now() + 15 * 60 * 1000; // 15 minutes
+        user.lockUntil = Date.now() + 15 * 60 * 1000; 
       }
       await user.save();
       throw { statusCode: 401, message: "Invalid email or password" };
@@ -79,29 +79,22 @@ export const loginUser = async (credentials) => {
     };
   }
 
-    // 🔴 SABHI USERS KE LIYE OTP - including citizens
     const otp = user.generateOTP(OTP_PURPOSE.LOGIN);
     await user.save();
-    
-    // Log OTP to console
     console.log("=================================");
-    console.log(`🔐 OTP for ${user.email} (${user.role}): ${otp}`);
-    console.log(`🔐 Expires: ${new Date(user.otp.expiresAt).toLocaleString()}`);
+    console.log(`OTP for ${user.email} (${user.role}): ${otp}`);
+    console.log(`Expires: ${new Date(user.otp.expiresAt).toLocaleString()}`);
     console.log("=================================");
-    
-    // Send email in background
     sendEmail({
       to: user.email,
       subject: "Login OTP",
       text: `Your login OTP is: ${otp}. This OTP will expire in 5 minutes.`,
     }).catch(err => console.error("Background email failed:", err.message));
-
-    // Return OTP required response for ALL users
     return {
       success: true,
       message: "OTP sent for verification",
       otpRequired: true,
-      email: user.email // Email bhej rahe hain frontend ko for OTP verification
+      email: user.email 
     };
 
   } catch (error) {
@@ -153,7 +146,7 @@ export const forgotPassword = async (emailData) => {
     await user.save();
     
     console.log("=================================");
-    console.log(`🔐 Password Reset OTP for ${user.email}: ${otp}`);
+    console.log(`Password Reset OTP for ${user.email}: ${otp}`);
     console.log("=================================");
     
     await sendEmail({
@@ -190,4 +183,5 @@ export const resetPassword = async (resetData) => {
     throw error;
   }
 };
+
 
