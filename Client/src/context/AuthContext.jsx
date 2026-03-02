@@ -1,7 +1,6 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 const AuthContext = createContext();
-const navigate = useNavigate();
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -11,6 +10,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -143,4 +143,5 @@ const signup = async (userData) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 
 };
+
 
