@@ -38,8 +38,6 @@ const Login = () => {
   const [textIndex, setTextIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-  
-  // Password strength states
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState({
     score: 0,
@@ -51,8 +49,6 @@ const Login = () => {
   });
 
   const backgroundImage = theme === "dark" ? bgDark : bgLight;
-
-  // Check if mobile on mount and resize
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -95,8 +91,6 @@ const Login = () => {
       setCanResendOtp(true);
     }
   }, [showOtpVerification, countdown]);
-
-  // Typing effect
   useEffect(() => {
     const messages = roleMessages[activeTab];
     const currentMessage = messages[textIndex];
@@ -128,7 +122,6 @@ const Login = () => {
     setTextIndex(0);
   }, [activeTab]);
 
-  // Password strength checker
   const checkPasswordStrength = (pass) => {
     const strength = {
       score: 0,
@@ -138,8 +131,6 @@ const Login = () => {
       hasNumber: /[0-9]/.test(pass),
       hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(pass),
     };
-    
-    // Calculate score (0-4)
     let score = 0;
     if (strength.hasMinLength) score++;
     if (strength.hasUpperCase && strength.hasLowerCase) score++;
@@ -158,11 +149,11 @@ const Login = () => {
 
   const getPasswordStrengthColor = () => {
     const colors = {
-      0: theme === "dark" ? "#EF4444" : "#DC2626", // Red
-      1: theme === "dark" ? "#EF4444" : "#DC2626", // Red
-      2: theme === "dark" ? "#F59E0B" : "#D97706", // Orange
-      3: theme === "dark" ? "#10B981" : "#059669", // Green
-      4: theme === "dark" ? "#10B981" : "#059669", // Green
+      0: theme === "dark" ? "#EF4444" : "#DC2626", 
+      1: theme === "dark" ? "#EF4444" : "#DC2626", 
+      2: theme === "dark" ? "#F59E0B" : "#D97706", 
+      3: theme === "dark" ? "#10B981" : "#059669", 
+      4: theme === "dark" ? "#10B981" : "#059669", 
     };
     return colors[passwordStrength.score];
   };
@@ -177,8 +168,6 @@ const Login = () => {
     };
     return texts[passwordStrength.score];
   };
-
-  // Modern theme with #97AB33 accent
   const getThemeColors = () => {
     const accentColor = "#97AB33";
 
@@ -261,7 +250,6 @@ const Login = () => {
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     if (loading || showOtpVerification) return;
-    // Password strength validation
     if (passwordStrength.score < 2) {
       setError("Please use a stronger password (at least 8 characters with mix of letters, numbers & symbols)");
       return;
@@ -314,8 +302,6 @@ const Login = () => {
           setMessage("Please enter the OTP sent to your email");
           setCountdown(60);
           setCanResendOtp(false);
-
-          // Clear OTP when showing verification
           setOtp(["", "", "", "", "", ""]);
           
           setTimeout(() => {
@@ -346,42 +332,32 @@ const Login = () => {
   };
 
   const handleOtpChange = (index, value) => {
-    // Only allow numbers
     if (!/^\d*$/.test(value)) return;
     
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
-    
-    // Auto-focus next input
     if (value && index < 5) {
       document.getElementById(`otp-${index + 1}`)?.focus();
     }
   };
 
   const handleOtpKeyDown = (index, e) => {
-    // Handle backspace
     if (e.key === "Backspace") {
       if (!otp[index] && index > 0) {
-        // Clear current and focus previous
         const newOtp = [...otp];
         newOtp[index] = "";
         setOtp(newOtp);
         document.getElementById(`otp-${index - 1}`)?.focus();
       } else if (otp[index]) {
-        // Clear current
         const newOtp = [...otp];
         newOtp[index] = "";
         setOtp(newOtp);
       }
     }
-    
-    // Handle left arrow
     if (e.key === "ArrowLeft" && index > 0) {
       document.getElementById(`otp-${index - 1}`)?.focus();
     }
-    
-    // Handle right arrow
     if (e.key === "ArrowRight" && index < 5) {
       document.getElementById(`otp-${index + 1}`)?.focus();
     }
@@ -397,8 +373,6 @@ const Login = () => {
       if (idx < 6) newOtp[idx] = num;
     });
     setOtp(newOtp);
-    
-    // Focus next empty or last field
     const nextEmptyIndex = newOtp.findIndex(val => val === "");
     if (nextEmptyIndex !== -1) {
       document.getElementById(`otp-${nextEmptyIndex}`)?.focus();
@@ -432,11 +406,9 @@ const Login = () => {
       );
 
       const data = await response.json();
-
       if (!response.ok) {
         throw new Error(data.message || "OTP verification failed");
       }
-
       if (data.success) {
         const token = data?.data?.token;
         const userData = data?.data?.user;
@@ -444,7 +416,6 @@ const Login = () => {
         if (!token || !userData) {
           throw new Error("Invalid OTP response structure");
         }
-
         login(token, userData);
         setMessage("OTP verified! Redirecting...");
         const dashboardRoute = getDashboardRoute(userData.role);
@@ -482,7 +453,6 @@ const Login = () => {
 
       if (data.success) {
         setMessage("New OTP sent to your email!");
-        // Clear OTP when resending
         setOtp(["", "", "", "", "", ""]);
         setCountdown(60);
         setCanResendOtp(false);
@@ -499,15 +469,12 @@ const Login = () => {
 
   const handleBackToLogin = () => {
     setShowOtpVerification(false);
-    // Clear OTP when going back
     setOtp(["", "", "", "", "", ""]);
     setError("");
     setMessage("");
     setPendingLoginData(null);
   };
-
   const getTabColor = () => colors.accent; 
-
   return (
     <div
       className="min-h-screen flex flex-col lg:flex-row overflow-hidden"
@@ -555,8 +522,6 @@ const Login = () => {
           margin: 0;
         }
       `}</style>
-
-      {/* Mobile Header */}
       <div className="fixed top-0 left-0 right-0 z-20 flex items-center justify-between p-4 lg:hidden"
         style={{
           backgroundColor: colors.cardBackground,
@@ -612,8 +577,6 @@ const Login = () => {
           )}
         </button>
       </div>
-
-      {/* Desktop Theme Toggle */}
       <div className="hidden lg:block absolute top-6 right-6 z-20">
         <button
           onClick={toggleTheme}
@@ -649,8 +612,6 @@ const Login = () => {
           )}
         </button>
       </div>
-
-      {/* Mobile - Full width form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center min-h-screen p-4 lg:p-8 order-2 lg:order-1"
         style={{
           paddingTop: isMobile ? "80px" : "2rem",
@@ -935,8 +896,6 @@ const Login = () => {
                           )}
                         </button>
                       </div>
-                      
-                      {/* Password strength indicator */}
                       {password && passwordFocused && (
                         <div className="mt-2 space-y-2">
                           <div className="flex items-center justify-between">
@@ -1043,8 +1002,6 @@ const Login = () => {
           </div>
         </div>
       </div>
-
-      {/* Desktop - Background Image Section */}
       <div className="hidden lg:block lg:w-1/2 relative order-1 lg:order-2">
         <div className="w-full h-screen relative overflow-hidden">
           <div
@@ -1117,4 +1074,5 @@ const Login = () => {
 };
 
 export default Login;
+
 
