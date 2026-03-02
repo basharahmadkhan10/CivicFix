@@ -2,9 +2,7 @@ import React, { createContext, useState, useContext, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { CheckCircle, XCircle, AlertCircle, Info, X } from "lucide-react";
 import { useTheme } from "./ThemeContext";
-
 const ToastContext = createContext();
-
 export const useToast = () => {
   const context = useContext(ToastContext);
   if (!context) {
@@ -98,10 +96,7 @@ export const ToastProvider = ({ children }) => {
 const ToastContainer = ({ toasts, removeToast, theme }) => {
   const isDark = theme === "dark";
   
-  // Green accent color
   const accentColor = "#97AB33";
-
-  // Group toasts by position
   const positions = {
     "top-left": toasts.filter((t) => t.position === "top-left"),
     "top-center": toasts.filter((t) => t.position === "top-center"),
@@ -112,7 +107,6 @@ const ToastContainer = ({ toasts, removeToast, theme }) => {
   };
 
   const getToastColors = (type) => {
-    // Base colors based on theme
     const baseColors = {
       bg: isDark ? "#111111" : "#FFFFFF",
       text: isDark ? "#FFFFFF" : "#1A202C",
@@ -121,7 +115,6 @@ const ToastContainer = ({ toasts, removeToast, theme }) => {
       muted: isDark ? "#A0AEC0" : "#718096",
     };
 
-    // Type-specific colors using green accent
     switch (type) {
       case "success":
         return {
@@ -181,14 +174,12 @@ const ToastContainer = ({ toasts, removeToast, theme }) => {
     }
   };
 
-  // Check if mobile
   const [isMobile, setIsMobile] = React.useState(false);
   
   React.useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 640);
     };
-    
     checkMobile();
     window.addEventListener('resize', checkMobile);
     
@@ -215,7 +206,6 @@ const ToastContainer = ({ toasts, removeToast, theme }) => {
         }}
       >
         <div className="flex items-start p-3 sm:p-4">
-          {/* Icon */}
           <div
             className="flex-shrink-0 p-1.5 sm:p-2 rounded-lg mr-2 sm:mr-3"
             style={{
@@ -225,15 +215,11 @@ const ToastContainer = ({ toasts, removeToast, theme }) => {
           >
             {getToastIcon(toast.type)}
           </div>
-
-          {/* Message */}
           <div className="flex-1 min-w-0">
             <p className="text-xs sm:text-sm font-medium pr-4 sm:pr-6" style={{ color: colors.text }}>
               {toast.message}
             </p>
           </div>
-
-          {/* Close button */}
           <button
             onClick={() => removeToast(toast.id)}
             className="flex-shrink-0 ml-1 sm:ml-2 p-1 rounded-full hover:bg-opacity-80 transition-colors"
@@ -249,8 +235,6 @@ const ToastContainer = ({ toasts, removeToast, theme }) => {
             <X size={isMobile ? 16 : 18} />
           </button>
         </div>
-
-        {/* Progress bar - only show if duration > 0 and not on mobile (to reduce visual noise) */}
         {toast.duration > 0 && !isMobile && (
           <div className="px-3 pb-3 sm:px-4 sm:pb-4">
             <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: colors.border }}>
@@ -356,3 +340,4 @@ const ToastContainer = ({ toasts, removeToast, theme }) => {
     </>
   );
 };
+
