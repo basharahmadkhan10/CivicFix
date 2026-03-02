@@ -260,7 +260,7 @@ const Login = () => {
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    
+    if (loading || showOtpVerification) return;
     // Password strength validation
     if (passwordStrength.score < 2) {
       setError("Please use a stronger password (at least 8 characters with mix of letters, numbers & symbols)");
@@ -1117,3 +1117,4 @@ const Login = () => {
 };
 
 export default Login;
+
