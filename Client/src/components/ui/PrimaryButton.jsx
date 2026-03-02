@@ -22,8 +22,7 @@ const PrimaryButton = ({
     theme === "dark"
       ? "bg-white text-black hover:bg-gray-100"
       : "bg-black text-white hover:bg-gray-900";
-
-  // Only pass type when it's a real button
+  
   const componentProps =
     Component === "button"
       ? { type: type || "button", disabled: disabled || loading, ...props }
@@ -66,3 +65,4 @@ const PrimaryButton = ({
 };
 
 export default PrimaryButton;
+
