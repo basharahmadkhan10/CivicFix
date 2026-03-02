@@ -79,8 +79,6 @@ const ProfilePage = () => {
 
   const colors = getThemeColors();
   const isDark = theme === "dark";
-
-  // Helper function to get full image URL
   const getFullImageUrl = (imagePath) => {
     if (!imagePath) return null;
     if (imagePath.startsWith("http")) return imagePath;
@@ -102,8 +100,6 @@ const ProfilePage = () => {
 
       if (userData) {
         console.log("User data received:", userData);
-
-        // Format dateOfBirth if it exists
         let formattedDate = "";
         if (userData.dateOfBirth) {
           const date = new Date(userData.dateOfBirth);
@@ -130,16 +126,12 @@ const ProfilePage = () => {
         setFormData(formattedData);
         setOriginalData(formattedData);
         setProfileImage(userData.profileImage);
-
-        // Update localStorage with fresh data
         const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
         const updatedUser = { ...currentUser, ...userData };
         localStorage.setItem("user", JSON.stringify(updatedUser));
       }
     } catch (error) {
       console.error("Error fetching profile:", error);
-
-      // Fallback to localStorage data
       const savedUser = localStorage.getItem("user");
       if (savedUser) {
         try {
@@ -180,28 +172,21 @@ const ProfilePage = () => {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    // Validate file type
     if (!file.type.startsWith("image/")) {
       toast.error("Please upload an image file");
       return;
     }
-
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error("Image size should be less than 5MB");
       return;
     }
 
     setNewProfileImageFile(file);
-
-    // Create preview URL
     const reader = new FileReader();
     reader.onloadend = () => {
       setNewProfileImagePreview(reader.result);
     };
     reader.readAsDataURL(file);
-
     toast.info("New profile image selected");
   };
 
@@ -214,8 +199,6 @@ const ProfilePage = () => {
   const handleSaveProfile = async () => {
     try {
       setSaving(true);
-
-      // Validation
       if (!formData.name.trim()) {
         toast.error("Name is required");
         setSaving(false);
@@ -223,8 +206,6 @@ const ProfilePage = () => {
       }
 
       const updateData = new FormData();
-
-      // Add text fields
       updateData.append("name", formData.name);
       if (formData.phone !== originalData.phone) {
         updateData.append("phone", formData.phone);
@@ -235,12 +216,9 @@ const ProfilePage = () => {
       if (formData.dateOfBirth !== originalData.dateOfBirth) {
         updateData.append("dateOfBirth", formData.dateOfBirth);
       }
-
-      // Add profile image if changed
       if (newProfileImageFile) {
         updateData.append("profileImage", newProfileImageFile);
       }
-
       toast.info("Updating profile...");
 
       const response = await api.patch("/v1/user/me", updateData, {
@@ -251,8 +229,6 @@ const ProfilePage = () => {
 
       if (response.data.success) {
         const updatedUser = response.data.data;
-
-        // Update localStorage with new user data
         const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
         const newUserData = {
           ...currentUser,
@@ -260,8 +236,6 @@ const ProfilePage = () => {
         };
 
         localStorage.setItem("user", JSON.stringify(newUserData));
-
-        // Update local state
         const updatedFormData = {
           ...formData,
           profileImage: updatedUser.profileImage,
@@ -275,8 +249,6 @@ const ProfilePage = () => {
         setIsEditing(false);
 
         toast.success("Profile updated successfully!");
-
-        // Refresh the page to show updated image
         setTimeout(() => {
           window.location.reload();
         }, 1500);
@@ -307,13 +279,10 @@ const ProfilePage = () => {
     toast.success("Logged out successfully");
     navigate("/login");
   };
-
-  // Show preloader while loading
   if (loading || !pageLoaded) {
     return <Preloader />;
   }
 
-  // Determine which image to display
   const displayImage =
     newProfileImagePreview ||
     (profileImage ? getFullImageUrl(profileImage) : null);
@@ -332,7 +301,6 @@ const ProfilePage = () => {
         * { font-family: 'Inter', sans-serif; }
       `}</style>
 
-      {/* Header with back button and theme toggle */}
       <div className="flex justify-between items-center mb-6">
         <button
           onClick={() => {
@@ -373,7 +341,6 @@ const ProfilePage = () => {
         </button>
       </div>
 
-      {/* Header */}
       <header className="mb-8 text-center">
         <h1 className="text-2xl md:text-3xl font-bold mb-2" style={{ color: colors.accent }}>
           My Profile
@@ -384,7 +351,6 @@ const ProfilePage = () => {
       </header>
 
       <div className="max-w-4xl mx-auto">
-        {/* Profile Card */}
         <div
           className="rounded-xl p-6 mb-6"
           style={{
@@ -393,7 +359,6 @@ const ProfilePage = () => {
           }}
         >
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-            {/* Profile Image */}
             <div className="relative">
               <div
                 className="w-32 h-32 rounded-full overflow-hidden border-2"
@@ -453,8 +418,6 @@ const ProfilePage = () => {
                 </div>
               )}
             </div>
-
-            {/* Profile Info */}
             <div className="flex-1 text-center md:text-left">
               <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
                 <div>
@@ -517,7 +480,6 @@ const ProfilePage = () => {
                 )}
               </div>
 
-              {/* Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 <div
                   className="text-center p-3 rounded-lg"
@@ -548,8 +510,6 @@ const ProfilePage = () => {
                   <div className="text-xs" style={{ color: colors.muted }}>Pending</div>
                 </div>
               </div>
-
-              {/* Member Since */}
               <div className="flex items-center justify-center md:justify-start gap-2 text-sm" style={{ color: colors.muted }}>
                 <Calendar size={14} style={{ color: colors.accent }} />
                 <span>Member since {formData.joinDate}</span>
@@ -558,7 +518,6 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/* Personal Information Form */}
         <div
           className="rounded-xl p-6 mb-6"
           style={{
@@ -571,7 +530,6 @@ const ProfilePage = () => {
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Name */}
             <div>
               <label className="block mb-2 text-sm font-medium flex items-center gap-2" style={{ color: colors.text }}>
                 <User size={16} style={{ color: colors.accent }} />
@@ -600,8 +558,6 @@ const ProfilePage = () => {
                 </div>
               )}
             </div>
-
-            {/* Email */}
             <div>
               <label className="block mb-2 text-sm font-medium flex items-center gap-2" style={{ color: colors.text }}>
                 <Mail size={16} style={{ color: colors.accent }} />
@@ -616,7 +572,6 @@ const ProfilePage = () => {
               <p className="text-xs mt-1" style={{ color: colors.muted }}>Email cannot be changed</p>
             </div>  
 
-            {/* Role */}
             <div>
               <label className="block mb-2 text-sm font-medium flex items-center gap-2" style={{ color: colors.text }}>
                 <Shield size={16} style={{ color: colors.accent }} />
@@ -632,7 +587,6 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/* Account Actions */}
         <div
           className="rounded-xl p-6 mb-6"
           style={{
@@ -664,7 +618,6 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/* Important Notes */}
         <div
           className="p-4 rounded-lg"
           style={{
@@ -687,3 +640,4 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
+
