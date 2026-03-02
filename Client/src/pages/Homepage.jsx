@@ -314,14 +314,8 @@ const HomePage = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-  const [visibleSections, setVisibleSections] = useState({});
-  const [parallaxOffset, setParallaxOffset] = useState(0);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   const sectionRefs = useRef([]);
-  const featureRefs = useRef([]);
-  const statsRef = useRef(null);
-  const heroRef = useRef(null);
   const rafId = useRef(null);
 
   useEffect(() => {
@@ -345,42 +339,24 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-      setParallaxOffset(window.scrollY * 0.3);
-    };
+    const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth - 0.5) * 20,
-        y: (e.clientY / window.innerHeight - 0.5) * 20
-      });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          const index = sectionRefs.current.findIndex(
-            (ref) => ref === entry.target
-          );
-          if (index !== -1) {
-            setVisibleSections(prev => ({
-              ...prev,
-              [index]: entry.isIntersecting
-            }));
-            if (entry.isIntersecting) setActiveSection(index);
+          if (entry.isIntersecting) {
+            const index = sectionRefs.current.findIndex(
+              (ref) => ref === entry.target,
+            );
+            if (index !== -1) setActiveSection(index);
           }
         });
       },
-      { threshold: 0.2, rootMargin: "0px" }
+      { threshold: 0.4 },
     );
 
     sectionRefs.current.forEach((section) => {
@@ -388,47 +364,6 @@ const HomePage = () => {
     });
 
     return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const featureObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const index = featureRefs.current.findIndex(
-            (ref) => ref === entry.target
-          );
-          if (index !== -1) {
-            setVisibleSections(prev => ({
-              ...prev,
-              [`feature-${index}`]: entry.isIntersecting
-            }));
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: "0px" }
-    );
-
-    featureRefs.current.forEach((feature) => {
-      if (feature) featureObserver.observe(feature);
-    });
-
-    return () => featureObserver.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const statsObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setVisibleSections(prev => ({ ...prev, stats: true }));
-          }
-        });
-      },
-      { threshold: 0.3 }
-    );
-
-    if (statsRef.current) statsObserver.observe(statsRef.current);
-    return () => statsObserver.disconnect();
   }, []);
 
   useEffect(() => {
@@ -471,31 +406,6 @@ const HomePage = () => {
     imgGov,
     imgComm,
   ];
-
-  const getSectionAnimation = (index) => {
-    const isVisible = visibleSections[index];
-    const direction = SECTIONS[index]?.reverse ? -1 : 1;
-    
-    return {
-      opacity: isVisible ? 1 : 0,
-      transform: isVisible 
-        ? 'translateX(0) scale(1)' 
-        : `translateX(${direction * 50}px) scale(0.95)`,
-      filter: isVisible ? 'blur(0)' : 'blur(10px)',
-      transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-    };
-  };
-
-  const getFeatureAnimation = (index) => {
-    const isVisible = visibleSections[`feature-${index}`];
-    const delay = index * 0.1;
-    
-    return {
-      opacity: isVisible ? 1 : 0,
-      transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(50px) scale(0.9)',
-      transition: `all 0.5s cubic-bezier(0.4, 0, 0.2, 1) ${delay}s`,
-    };
-  };
 
   const MobileMenu = () => (
     <div
@@ -646,58 +556,34 @@ const HomePage = () => {
       }}
     >
       <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-        }
-        @keyframes glow {
-          0%, 100% { box-shadow: 0 0 20px ${t.accentLight}; }
-          50% { box-shadow: 0 0 40px ${t.accentLight}; }
-        }
-        @keyframes slideInLeft {
-          from { opacity: 0; transform: translateX(-100px) scale(0.9); filter: blur(10px); }
-          to { opacity: 1; transform: translateX(0) scale(1); filter: blur(0); }
-        }
-        @keyframes slideInRight {
-          from { opacity: 0; transform: translateX(100px) scale(0.9); filter: blur(10px); }
-          to { opacity: 1; transform: translateX(0) scale(1); filter: blur(0); }
-        }
-        @keyframes slideInUp {
-          from { opacity: 0; transform: translateY(100px) scale(0.9); filter: blur(10px); }
-          to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-        }
-        @keyframes scaleIn {
-          from { opacity: 0; transform: scale(0.8); filter: blur(5px); }
-          to { opacity: 1; transform: scale(1); filter: blur(0); }
-        }
-        @keyframes rotateIn {
-          from { opacity: 0; transform: rotate(-10deg) scale(0.9); }
-          to { opacity: 1; transform: rotate(0) scale(1); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         
-        .parallax-element {
-          transition: transform 0.1s ease-out;
-        }
+        .animate-fadeIn { animation: fadeIn 0.6s ease forwards; }
+        .animate-slideDown { animation: slideDown 0.3s ease forwards; }
+        .animate-pulse { animation: pulse 2s ease-in-out infinite; }
         
-        .glow-on-hover:hover {
-          animation: glow 2s infinite;
-        }
-        
-        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { 
-          background: ${t.accent}40; 
-          border-radius: 4px;
-          transition: background 0.3s ease;
-        }
-        ::-webkit-scrollbar-thumb:hover { background: ${t.accent}80; }
+        ::-webkit-scrollbar-thumb { background: ${t.accent}40; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: ${t.accent}60; }
 
+        /* Mobile responsive styles */
         @media (max-width: 768px) {
-          .hide-on-mobile { display: none !important; }
-          .show-on-mobile { display: block !important; }
+          .hide-on-mobile {
+            display: none !important;
+          }
+          
+          .show-on-mobile {
+            display: block !important;
+          }
         }
+
         @media (min-width: 769px) {
-          .hide-on-desktop { display: none !important; }
+          .hide-on-desktop {
+            display: none !important;
+          }
         }
       `}</style>
 
@@ -707,9 +593,8 @@ const HomePage = () => {
           inset: 0,
           pointerEvents: "none",
           zIndex: 0,
-          background: `radial-gradient(circle at ${50 + mousePosition.x}% ${50 + mousePosition.y}%, ${t.accentLight} 0%, transparent 50%)`,
-          opacity: 0.3,
-          transition: "background 0.1s ease",
+          background: `radial-gradient(circle at 50% 50%, ${t.accentLight} 0%, transparent 70%)`,
+          opacity: 0.5,
         }}
       />
 
@@ -745,8 +630,6 @@ const HomePage = () => {
               display: "flex",
               alignItems: "center",
               gap: "4px",
-              transform: `scale(${1 - scrollY * 0.001})`,
-              transition: "transform 0.3s ease",
             }}
           >
             <span style={{
@@ -769,7 +652,9 @@ const HomePage = () => {
             </span>
           </div>
 
+          {/* Desktop Navigation */}
           <div className="hide-on-mobile" style={{ display: "flex", alignItems: "center", gap: "32px" }}>
+            {/* Section dots */}
             <div style={{ display: "flex", gap: "8px" }}>
               {SECTIONS.map((_, index) => {
                 const sectionIndex = index + 1;
@@ -795,7 +680,7 @@ const HomePage = () => {
                         borderRadius: "50%",
                         backgroundColor: isActive ? t.accent : t.textMuted,
                         opacity: isActive ? 1 : 0.3,
-                        transform: isActive ? "scale(1.5)" : "scale(1)",
+                        transform: isActive ? "scale(1.2)" : "scale(1)",
                         transition: "all 0.3s ease",
                       }}
                     />
@@ -816,17 +701,13 @@ const HomePage = () => {
                   border: `1px solid ${t.border}`,
                   borderRadius: "6px",
                   transition: "all 0.2s ease",
-                  position: "relative",
-                  overflow: "hidden",
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = t.accentLight;
-                  e.currentTarget.style.borderColor = t.accent;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.borderColor = t.border;
-                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = t.accentLight)
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = "transparent")
+                }
               >
                 Sign In
               </Link>
@@ -842,17 +723,9 @@ const HomePage = () => {
                   textDecoration: "none",
                   borderRadius: "6px",
                   transition: "all 0.2s ease",
-                  position: "relative",
-                  overflow: "hidden",
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                  e.currentTarget.style.boxShadow = `0 5px 15px ${t.accent}`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = "none";
-                }}
+                onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
               >
                 Get Started
               </Link>
@@ -871,14 +744,6 @@ const HomePage = () => {
                   alignItems: "center",
                   justifyContent: "center",
                   transition: "all 0.2s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = t.accentLight;
-                  e.currentTarget.style.borderColor = t.accent;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = t.toggleBg;
-                  e.currentTarget.style.borderColor = t.border;
                 }}
               >
                 {isDark ? (
@@ -932,37 +797,17 @@ const HomePage = () => {
           </button>
         </div>
       </nav>
-      
       <MobileMenu />
-
       <section
-        ref={(el) => {
-          sectionRefs.current[0] = el;
-          heroRef.current = el;
-        }}
+        ref={(el) => (sectionRefs.current[0] = el)}
         style={{
           minHeight: "100vh",
           display: "flex",
           alignItems: "center",
           padding: isMobile ? "100px 20px 60px" : "120px 48px 80px",
           position: "relative",
-          overflow: "hidden",
         }}
       >
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            width: "80%",
-            height: "80%",
-            transform: `translate(-50%, -50%) rotate(${scrollY * 0.1}deg)`,
-            background: `radial-gradient(circle, ${t.accentLight} 0%, transparent 70%)`,
-            opacity: 0.3,
-            filter: "blur(50px)",
-          }}
-        />
-
         <div
           style={{
             maxWidth: "1200px",
@@ -970,11 +815,9 @@ const HomePage = () => {
             width: "100%",
             position: "relative",
             zIndex: 2,
-            transform: `translateY(${scrollY * 0.2}px)`,
-            transition: "transform 0.1s ease",
           }}
         >
-          <div style={{ marginBottom: isMobile ? "16px" : "24px" }}>
+          <div className="animate-fadeIn" style={{ marginBottom: isMobile ? "16px" : "24px" }}>
             <span
               style={{
                 fontSize: isMobile ? "12px" : "14px",
@@ -982,10 +825,6 @@ const HomePage = () => {
                 letterSpacing: "2px",
                 textTransform: "uppercase",
                 color: t.accent,
-                background: t.accentLight,
-                padding: "4px 12px",
-                borderRadius: "20px",
-                display: "inline-block",
               }}
             >
               Community Issue Platform
@@ -993,44 +832,28 @@ const HomePage = () => {
           </div>
 
           <h1
+            className="animate-fadeIn"
             style={{
               fontSize: isMobile ? "clamp(36px, 10vw, 48px)" : "clamp(48px, 8vw, 96px)",
               fontWeight: "700",
               lineHeight: 1.1,
               letterSpacing: "-0.02em",
               marginBottom: isMobile ? "16px" : "24px",
-              transform: `translateX(${mousePosition.x * 0.5}px) translateY(${mousePosition.y * 0.5}px)`,
-              transition: "transform 0.1s ease",
             }}
           >
             Fix Your City,
             <br />
-            <span style={{ color: t.accent, position: "relative" }}>
-              Together
-              <span
-                style={{
-                  position: "absolute",
-                  bottom: "10px",
-                  left: 0,
-                  width: "100%",
-                  height: "20px",
-                  background: t.accentLight,
-                  filter: "blur(20px)",
-                  zIndex: -1,
-                }}
-              />
-            </span>
+            <span style={{ color: t.accent }}>Together</span>
           </h1>
 
           <p
+            className="animate-fadeIn"
             style={{
               fontSize: isMobile ? "16px" : "18px",
               lineHeight: 1.6,
               color: t.textMuted,
               maxWidth: "500px",
               marginBottom: isMobile ? "30px" : "40px",
-              transform: `translateX(${mousePosition.x * 0.3}px)`,
-              transition: "transform 0.1s ease",
             }}
           >
             CivicFix connects citizens with local government for transparent
@@ -1038,6 +861,7 @@ const HomePage = () => {
           </p>
 
           <div
+            className="animate-fadeIn"
             style={{
               display: "flex",
               gap: isMobile ? "12px" : "16px",
@@ -1057,17 +881,13 @@ const HomePage = () => {
                 borderRadius: "8px",
                 transition: "all 0.2s ease",
                 textAlign: "center",
-                position: "relative",
-                overflow: "hidden",
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.boxShadow = `0 10px 25px ${t.accent}`;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "none";
-              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.transform = "translateY(-2px)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.transform = "translateY(0)")
+              }
             >
               Start Reporting
             </Link>
@@ -1088,12 +908,10 @@ const HomePage = () => {
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = t.accentLight;
                 e.currentTarget.style.borderColor = t.accent;
-                e.currentTarget.style.transform = "translateY(-2px)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = "transparent";
                 e.currentTarget.style.borderColor = t.border;
-                e.currentTarget.style.transform = "translateY(0)";
               }}
             >
               Sign In
@@ -1101,6 +919,7 @@ const HomePage = () => {
           </div>
 
           <div
+            className="animate-fadeIn"
             style={{
               display: "flex",
               alignItems: "center",
@@ -1120,14 +939,13 @@ const HomePage = () => {
             />
           </div>
         </div>
-
         {!isMobile && (
           <div
             style={{
               position: "absolute",
               bottom: "40px",
               left: "50%",
-              transform: `translateX(-50%) translateY(${scrollY * 0.1}px)`,
+              transform: "translateX(-50%)",
               opacity: Math.max(0, 1 - scrollY / 300),
               transition: "opacity 0.3s ease",
             }}
@@ -1156,12 +974,9 @@ const HomePage = () => {
           </div>
         )}
       </section>
-
       {SECTIONS.map((section, index) => {
         const sectionIndex = index + 1;
         const image = sectionImages[index];
-        const isVisible = visibleSections[sectionIndex];
-        const animation = getSectionAnimation(sectionIndex);
 
         return (
           <section
@@ -1171,25 +986,8 @@ const HomePage = () => {
               padding: isMobile ? "60px 20px" : "100px 48px",
               backgroundColor: index % 2 === 0 ? t.background : t.sectionBg,
               borderTop: `1px solid ${t.border}`,
-              position: "relative",
-              overflow: "hidden",
             }}
           >
-            <div
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: section.reverse ? "10%" : "90%",
-                width: "300px",
-                height: "300px",
-                background: `radial-gradient(circle, ${t.accentLight} 0%, transparent 70%)`,
-                borderRadius: "50%",
-                filter: "blur(50px)",
-                transform: `translate(${parallaxOffset}px, -50%)`,
-                opacity: 0.3,
-              }}
-            />
-
             <div
               style={{
                 maxWidth: "1200px",
@@ -1198,39 +996,41 @@ const HomePage = () => {
                 gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
                 gap: isMobile ? "40px" : "80px",
                 alignItems: "center",
+                direction: section.reverse && !isMobile ? "rtl" : "ltr",
               }}
             >
-              <div style={animation}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    marginBottom: "16px",
-                  }}
-                >
+             
+              <div style={{ direction: "ltr" }}>
+                {activeSection === sectionIndex && (
                   <div
                     style={{
-                      width: "4px",
-                      height: "24px",
-                      backgroundColor: t.accent,
-                      borderRadius: "2px",
-                      transform: isVisible ? "scaleY(1)" : "scaleY(0)",
-                      transition: "transform 0.5s ease 0.3s",
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontSize: "12px",
-                      fontWeight: "600",
-                      letterSpacing: "1px",
-                      textTransform: "uppercase",
-                      color: t.accent,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      marginBottom: "16px",
                     }}
                   >
-                    {section.tagLabel}
-                  </span>
-                </div>
+                    <div
+                      style={{
+                        width: "4px",
+                        height: "24px",
+                        backgroundColor: t.accent,
+                        borderRadius: "2px",
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        letterSpacing: "1px",
+                        textTransform: "uppercase",
+                        color: t.accent,
+                      }}
+                    >
+                      {section.tagLabel}
+                    </span>
+                  </div>
+                )}
 
                 <h2
                   style={{
@@ -1264,21 +1064,12 @@ const HomePage = () => {
                 >
                   {section.description}
                 </p>
-              </div>
 
-              <div
-                style={{
-                  ...animation,
-                  transitionDelay: "0.2s",
-                  transform: isVisible 
-                    ? section.reverse 
-                      ? 'translateX(0) rotate(0)' 
-                      : 'translateX(0) rotate(0)'
-                    : section.reverse
-                      ? 'translateX(100px) rotate(-10deg)'
-                      : 'translateX(-100px) rotate(10deg)',
-                }}
-              >
+              </div>
+              <div style={{ 
+                direction: "ltr",
+                order: isMobile && section.reverse ? -1 : 0 
+              }}>
                 <div
                   onMouseEnter={() => setHoveredImage(index)}
                   onMouseLeave={() => setHoveredImage(null)}
@@ -1290,10 +1081,9 @@ const HomePage = () => {
                     border: `1px solid ${t.border}`,
                     boxShadow:
                       hoveredImage === index
-                        ? `0 30px 60px ${t.shadow}`
-                        : `0 10px 30px ${t.shadow}`,
+                        ? `0 20px 40px ${t.shadow}`
+                        : "none",
                     transition: "all 0.3s ease",
-                    transform: hoveredImage === index ? "scale(1.02)" : "scale(1)",
                   }}
                 >
                   <img
@@ -1305,28 +1095,16 @@ const HomePage = () => {
                       objectFit: "cover",
                       filter: t.imgFilter,
                       transform:
-                        hoveredImage === index ? "scale(1.1)" : "scale(1)",
+                        hoveredImage === index ? "scale(1.05)" : "scale(1)",
                       transition: "transform 0.5s ease",
                     }}
                   />
-                  
-                  {hoveredImage === index && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        background: `linear-gradient(45deg, ${t.accent}40, transparent)`,
-                        pointerEvents: "none",
-                      }}
-                    />
-                  )}
                 </div>
               </div>
             </div>
           </section>
         );
       })}
-
       <section
         style={{
           padding: isMobile ? "60px 20px" : "100px 48px",
@@ -1346,9 +1124,6 @@ const HomePage = () => {
                 fontSize: isMobile ? "clamp(28px, 6vw, 36px)" : "clamp(36px, 5vw, 48px)",
                 fontWeight: "700",
                 marginBottom: "16px",
-                transform: visibleSections.features ? "translateY(0)" : "translateY(50px)",
-                opacity: visibleSections.features ? 1 : 0,
-                transition: "all 0.5s ease",
               }}
             >
               Everything You Need
@@ -1360,9 +1135,6 @@ const HomePage = () => {
                 maxWidth: "600px",
                 margin: "0 auto",
                 padding: isMobile ? "0 20px" : "0",
-                transform: visibleSections.features ? "translateY(0)" : "translateY(30px)",
-                opacity: visibleSections.features ? 0.8 : 0,
-                transition: "all 0.5s ease 0.1s",
               }}
             >
               Powerful tools designed to make community reporting simple and
@@ -1380,67 +1152,54 @@ const HomePage = () => {
             {FEATURES.map((feature, index) => (
               <div
                 key={index}
-                ref={(el) => (featureRefs.current[index] = el)}
+                onMouseEnter={() => setHoveredCard(index)}
+                onMouseLeave={() => setHoveredCard(null)}
                 style={{
-                  ...getFeatureAnimation(index),
+                  padding: isMobile ? "24px" : "32px",
+                  backgroundColor: t.cardBg,
+                  border: `1px solid ${hoveredCard === index ? t.accent : t.border}`,
+                  borderRadius: "12px",
+                  transition: "all 0.3s ease",
+                  transform:
+                    hoveredCard === index && !isMobile
+                      ? "translateY(-4px)"
+                      : "translateY(0)",
+                  boxShadow:
+                    hoveredCard === index ? `0 12px 30px ${t.shadow}` : "none",
                 }}
               >
                 <div
-                  onMouseEnter={() => setHoveredCard(index)}
-                  onMouseLeave={() => setHoveredCard(null)}
                   style={{
-                    padding: isMobile ? "24px" : "32px",
-                    backgroundColor: t.cardBg,
-                    border: `1px solid ${hoveredCard === index ? t.accent : t.border}`,
-                    borderRadius: "12px",
-                    transition: "all 0.3s ease",
-                    transform:
-                      hoveredCard === index && !isMobile
-                        ? "translateY(-8px) scale(1.02)"
-                        : "translateY(0) scale(1)",
-                    boxShadow:
-                      hoveredCard === index ? `0 20px 40px ${t.shadow}` : "none",
-                    height: "100%",
-                    cursor: "pointer",
+                    fontSize: "32px",
+                    marginBottom: "16px",
                   }}
                 >
-                  <div
-                    style={{
-                      fontSize: "32px",
-                      marginBottom: "16px",
-                      color: hoveredCard === index ? t.accent : t.text,
-                      transition: "color 0.3s ease",
-                    }}
-                  >
-                    {feature.icon}
-                  </div>
-                  <h3
-                    style={{
-                      fontSize: isMobile ? "16px" : "18px",
-                      fontWeight: "600",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    {feature.title}
-                  </h3>
-                  <p
-                    style={{
-                      fontSize: isMobile ? "13px" : "14px",
-                      lineHeight: 1.6,
-                      color: t.textMuted,
-                    }}
-                  >
-                    {feature.description}
-                  </p>
+                  {feature.icon}
                 </div>
+                <h3
+                  style={{
+                    fontSize: isMobile ? "16px" : "18px",
+                    fontWeight: "600",
+                    marginBottom: "8px",
+                  }}
+                >
+                  {feature.title}
+                </h3>
+                <p
+                  style={{
+                    fontSize: isMobile ? "13px" : "14px",
+                    lineHeight: 1.6,
+                    color: t.textMuted,
+                  }}
+                >
+                  {feature.description}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
-
       <section
-        ref={statsRef}
         style={{
           padding: isMobile ? "60px 20px" : "80px 48px",
           backgroundColor: t.background,
@@ -1465,11 +1224,6 @@ const HomePage = () => {
                 backgroundColor: t.cardBg,
                 border: `1px solid ${t.border}`,
                 borderRadius: "12px",
-                transform: visibleSections.stats 
-                  ? "translateY(0) scale(1)" 
-                  : "translateY(50px) scale(0.9)",
-                opacity: visibleSections.stats ? 1 : 0,
-                transition: `all 0.5s ease ${index * 0.1}s`,
               }}
             >
               <div
@@ -1505,7 +1259,6 @@ const HomePage = () => {
           ))}
         </div>
       </section>
-
       <section
         style={{
           padding: isMobile ? "80px 20px" : "120px 48px",
@@ -1516,19 +1269,6 @@ const HomePage = () => {
           overflow: "hidden",
         }}
       >
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            width: "100%",
-            height: "100%",
-            transform: "translate(-50%, -50%)",
-            background: `radial-gradient(circle at ${50 + mousePosition.x}% ${50 + mousePosition.y}%, ${t.accentLight} 0%, transparent 50%)`,
-            opacity: 0.2,
-          }}
-        />
-
         <div
           style={{
             maxWidth: "800px",
@@ -1582,14 +1322,12 @@ const HomePage = () => {
                 transition: "all 0.2s ease",
                 textAlign: "center",
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-4px)";
-                e.currentTarget.style.boxShadow = `0 15px 30px ${t.accent}`;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "none";
-              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.transform = "translateY(-2px)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.transform = "translateY(0)")
+              }
             >
               Start Free Today
             </Link>
@@ -1610,12 +1348,10 @@ const HomePage = () => {
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = t.accentLight;
                 e.currentTarget.style.borderColor = t.accent;
-                e.currentTarget.style.transform = "translateY(-2px)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = "transparent";
                 e.currentTarget.style.borderColor = t.border;
-                e.currentTarget.style.transform = "translateY(0)";
               }}
             >
               Sign In
@@ -1623,7 +1359,6 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-
       <footer
         style={{
           padding: isMobile ? "40px 20px 30px" : "60px 48px 40px",
