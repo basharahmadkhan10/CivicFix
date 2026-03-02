@@ -1,5 +1,7 @@
 import { createContext, useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 const AuthContext = createContext();
+const navigate = useNavigate();
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -122,10 +124,9 @@ const signup = async (userData) => {
   };
 
   const logout = () => {
-    console.log("AuthContext.logout called");
-    clearAuthData();
-    window.location.href = "/login";
-  };
+  clearAuthData();
+  navigate("/login", { replace: true });
+};
   const value = {
     user,
     loading,
@@ -142,3 +143,4 @@ const signup = async (userData) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 
 };
+
