@@ -110,6 +110,7 @@ const SupervisorDashboard = () => {
         primary: "#97AB33",
         categoryBg: "#EDF2F7",
         categoryText: "#2D3748",
+        pending: "#97AB33",
         muted: "#718096",
         shadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
         }
@@ -125,6 +126,7 @@ const SupervisorDashboard = () => {
       success: "#68D391",
       warning: "#FBD38D",
       danger: "#FC8181",
+      pending: "#97AB33",
       info: "#63B3ED",
       primary: "#97AB33",
       categoryBg: "#2D3748",
@@ -1650,22 +1652,65 @@ const SupervisorDashboard = () => {
           >
             <h3 className="text-base font-bold mb-3">Verify Complaint</h3>
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-2">
-                {selectedComplaint.images?.citizen?.length > 0 && (
-                  <img
-                    src={selectedComplaint.images.citizen[0]}
-                    alt="Original"
-                    className="w-full h-20 object-cover rounded-lg"
-                  />
-                )}
-                {selectedComplaint.images?.officer && (
-                  <img
-                    src={selectedComplaint.images.officer}
-                    alt="Resolution"
-                    className="w-full h-20 object-cover rounded-lg"
-                  />
-                )}
-              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+  {/* Citizen Image */}
+  <div
+    className="rounded-xl overflow-hidden"
+    style={{
+      border: `1px solid ${colors.border}`,
+      backgroundColor: colors.bg,
+    }}
+  >
+    <div className="px-3 py-2 text-xs font-medium opacity-75">
+      Citizen (Before)
+    </div>
+
+    <div className="p-2 flex items-center justify-center">
+      <img
+        src={
+          selectedComplaint.images?.citizen?.[0] ||
+          "https://via.placeholder.com/800x600?text=No+Citizen+Image"
+        }
+        alt="Citizen"
+        className="w-full max-h-[320px] object-contain rounded-lg"
+        onError={(e) => {
+          e.currentTarget.src =
+            "https://via.placeholder.com/800x600?text=No+Image";
+        }}
+      />
+    </div>
+  </div>
+
+  {/* Officer Image */}
+  <div
+    className="rounded-xl overflow-hidden"
+    style={{
+      border: `1px solid ${colors.border}`,
+      backgroundColor: colors.bg,
+    }}
+  >
+    <div className="px-3 py-2 text-xs font-medium opacity-75">
+      Officer (After)
+    </div>
+
+    <div className="p-2 flex items-center justify-center">
+      <img
+        src={
+          selectedComplaint.images?.officer ||
+          "https://via.placeholder.com/800x600?text=No+Officer+Image"
+        }
+        alt="Officer"
+        className="w-full max-h-[320px] object-contain rounded-lg"
+        onError={(e) => {
+          e.currentTarget.src =
+            "https://via.placeholder.com/800x600?text=No+Image";
+        }}
+      />
+    </div>
+  </div>
+
+</div>
 
               <div className="flex gap-2">
                 <button
@@ -1864,6 +1909,7 @@ const SupervisorDashboard = () => {
 };
 
 export default SupervisorDashboard;
+
 
 
 
