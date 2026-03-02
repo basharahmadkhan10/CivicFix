@@ -172,8 +172,6 @@ const ComplaintDetails = () => {
   return (
     <div className="min-h-screen p-3 sm:p-4 md:p-6" style={{ backgroundColor: colors.bg, color: colors.text, fontFamily: "'Inter', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap'); * { font-family: 'Inter', sans-serif; }`}</style>
-
-      {/* Header with theme toggle like dashboard */}
       <div className="flex justify-between items-center mb-6">
         <button 
           onClick={() => navigate("/dashboard")} 
@@ -207,8 +205,6 @@ const ComplaintDetails = () => {
           )}
         </button>
       </div>
-
-      {/* Title and Status */}
       <div className="mb-6">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3">{complaint.title}</h1>
         <div className="flex flex-wrap items-center gap-2">
@@ -225,8 +221,6 @@ const ComplaintDetails = () => {
             {complaint.category}
           </span>
         </div>
-
-        {/* Action Buttons */}
         {["CREATED", "ASSIGNED"].includes(complaint.status) && (
           <div className="flex gap-2 mt-4">
             <button 
@@ -246,18 +240,12 @@ const ComplaintDetails = () => {
           </div>
         )}
       </div>
-
-      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Description */}
           <div className="p-6 rounded-lg" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
             <h2 className="text-base sm:text-lg font-bold mb-3" style={{ color: colors.accent }}>Description</h2>
             <p className="text-sm sm:text-base whitespace-pre-wrap" style={{ color: colors.muted }}>{complaint.description}</p>
           </div>
-
-          {/* Images */}
           {complaint.images?.citizen && complaint.images.citizen.length > 0 && (
             <div className="p-6 rounded-lg" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
               <h2 className="text-base sm:text-lg font-bold mb-3 flex items-center" style={{ color: colors.accent }}>
@@ -288,9 +276,7 @@ const ComplaintDetails = () => {
           )}
         </div>
 
-        {/* Right Column */}
         <div className="space-y-6">
-          {/* Information */}
           <div className="p-6 rounded-lg" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
             <h2 className="text-base sm:text-lg font-bold mb-3" style={{ color: colors.accent }}>Information</h2>
             <div className="space-y-3 text-sm">
@@ -323,7 +309,6 @@ const ComplaintDetails = () => {
             </div>
           </div>
 
-          {/* Timeline */}
           {timeline.length > 0 && (
             <div className="p-6 rounded-lg" style={{ backgroundColor: colors.card, border: `1px solid ${colors.border}` }}>
               <h2 className="text-base sm:text-lg font-bold mb-3" style={{ color: colors.accent }}>Timeline</h2>
@@ -346,8 +331,6 @@ const ComplaintDetails = () => {
           )}
         </div>
       </div>
-
-      {/* Image Modal */}
       {selectedImage && (
         <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4" onClick={closeImageModal}>
           <div className="relative max-w-4xl max-h-full">
@@ -361,4 +344,5 @@ const ComplaintDetails = () => {
 };
 
 export default ComplaintDetails;
+
 
