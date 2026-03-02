@@ -22,9 +22,6 @@ function App() {
     console.log("API URL:", import.meta.env.VITE_API_URL);
   }, []);
   return (
-    <ThemeProvider>
-      <ToastProvider>
-        <AuthProvider>
           <Routes>
             {/* ===== PUBLIC ROUTES ===== */}
             <Route path="/" element={<Home />} />
@@ -117,9 +114,6 @@ function App() {
             {/* ===== FALLBACK ===== */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-        </AuthProvider>
-      </ToastProvider>
-    </ThemeProvider>
   );
 }
 
