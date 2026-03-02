@@ -180,8 +180,6 @@ const EditComplaint = () => {
   return (
     <div className="min-h-screen p-3 sm:p-4 md:p-6" style={{ backgroundColor: colors.bg, color: colors.text, fontFamily: "'Inter', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap'); * { font-family: 'Inter', sans-serif; }`}</style>
-
-      {/* Header with theme toggle */}
       <div className="flex justify-between items-center mb-6">
         <button 
           onClick={() => navigate(`/complaints/${id}`)} 
@@ -215,16 +213,11 @@ const EditComplaint = () => {
           )}
         </button>
       </div>
-
-      {/* Header */}
       <header className="mb-6 text-center">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold" style={{ color: colors.accent }}>Edit Complaint</h1>
         <p className="text-xs sm:text-sm mt-1" style={{ color: colors.muted }}>Update your complaint details</p>
       </header>
-
-      {/* Form */}
       <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
-        {/* Title */}
         <div className="mb-4">
           <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>Title <span className="text-red-500">*</span></label>
           <input 
@@ -239,7 +232,6 @@ const EditComplaint = () => {
           />
         </div>
 
-        {/* Category and Area */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>Category <span className="text-red-500">*</span></label>
@@ -270,7 +262,6 @@ const EditComplaint = () => {
           </div>
         </div>
 
-        {/* Description */}
         <div className="mb-4">
           <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>Description <span className="text-red-500">*</span></label>
           <textarea 
@@ -285,7 +276,6 @@ const EditComplaint = () => {
           />
         </div>
 
-        {/* Existing Images */}
         {originalImages.length > 0 && (
           <div className="mb-4">
             <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>Existing Images</label>
@@ -327,7 +317,6 @@ const EditComplaint = () => {
           </div>
         )}
 
-        {/* Add New Images */}
         <div className="mb-4">
           <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>Add More Images (Optional)</label>
           <div className="mb-3">
@@ -351,7 +340,6 @@ const EditComplaint = () => {
             <p className="text-xs mt-1" style={{ color: colors.muted }}>{existingImages.length + newImages.length} / 5 images</p>
           </div>
 
-          {/* New Images Preview */}
           {newImages.length > 0 && (
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
               {newImages.map((image, index) => (
@@ -371,7 +359,6 @@ const EditComplaint = () => {
           )}
         </div>
 
-        {/* Image Summary */}
         <div className="mb-4 p-3 rounded-lg" style={{ backgroundColor: colors.cardHover }}>
           <h3 className="font-medium mb-2" style={{ color: colors.accent }}>Image Summary</h3>
           <div className="grid grid-cols-2 gap-2 text-xs">
@@ -385,7 +372,6 @@ const EditComplaint = () => {
           </div>
         </div>
 
-        {/* Important Notes */}
         <div className="mb-4 p-3 rounded-lg" style={{ backgroundColor: colors.cardHover }}>
           <div className="flex items-start gap-2">
             <AlertCircle size={16} style={{ color: colors.accent }} />
@@ -400,7 +386,6 @@ const EditComplaint = () => {
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex gap-3">
           <button 
             type="button" 
@@ -425,3 +410,4 @@ const EditComplaint = () => {
 };
 
 export default EditComplaint;
+
