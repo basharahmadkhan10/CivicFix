@@ -66,6 +66,18 @@ export const loginUser = async (credentials) => {
     user.loginAttempts = 0;
     user.lockUntil = undefined;
     await user.save();
+    if (
+  user.otp?.expiresAt &&
+  user.otp.expiresAt > Date.now() &&
+  user.otp.purpose === OTP_PURPOSE.LOGIN
+  ) {
+  return {
+    success: true,
+    message: "OTP already sent. Please verify.",
+    otpRequired: true,
+    email: user.email,
+    };
+  }
 
     // 🔴 SABHI USERS KE LIYE OTP - including citizens
     const otp = user.generateOTP(OTP_PURPOSE.LOGIN);
@@ -178,3 +190,4 @@ export const resetPassword = async (resetData) => {
     throw error;
   }
 };
+
