@@ -77,7 +77,7 @@ const complaintSchema = new mongoose.Schema(
     },
     sla: {
       assignedAt: Date,
-      dueBy: Date, // Auto-calculated: assignedAt + 7 days
+      dueBy: Date, 
       escalatedAt: Date,
       escalationLevel: { type: Number, default: 0 },
     },
@@ -91,3 +91,4 @@ const complaintSchema = new mongoose.Schema(
 );
 const Complaint = mongoose.model("Complaint", complaintSchema);
 export default Complaint;
+
