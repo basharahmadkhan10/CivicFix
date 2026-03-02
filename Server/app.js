@@ -12,6 +12,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
+app.set("trust proxy", 1);
 app.use(
   cors({
     origin: "https://civicfix-frontend02.onrender.com",
@@ -31,4 +32,5 @@ app.use("/api/v1/officer", officerRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(globalErrorHandler);
 export default app;
+
 
