@@ -162,7 +162,7 @@ export const assignToOfficerService = async (
         assignedToOfficer: savedComplaint.assignedToOfficer
       });
     } catch (saveError) {
-      console.error("❌ Save error:", saveError);
+      console.error("Save error:", saveError);
       throw saveError;
     }
     const verifyComplaint = await Complaint.findById(complaintId);
@@ -303,3 +303,4 @@ export const rejectComplaintService = async (
     throw error;
   }
 };
+
