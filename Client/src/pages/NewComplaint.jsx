@@ -4,7 +4,6 @@ import { useTheme } from "../context/ThemeContext";
 import { useToast } from "../context/ToastContext";
 import { ArrowLeft, Upload, X, AlertCircle, Loader2 } from "lucide-react";
 import api from "../utils/api";
-
 const NewComplaint = () => {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
@@ -65,8 +64,7 @@ const NewComplaint = () => {
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    const MAX_SIZE = 5 * 1024 * 1024; // 5MB
-    
+    const MAX_SIZE = 5 * 1024 * 1024; 
     const validFiles = files.filter((file) => {
       if (file.size > MAX_SIZE) {
         toast.error(`${file.name} exceeds 5MB limit`);
@@ -77,7 +75,6 @@ const NewComplaint = () => {
 
     const availableSlots = 5 - images.length;
     const imagesToAdd = validFiles.slice(0, availableSlots);
-
     if (files.length > availableSlots) {
       toast.warning(`You can only add ${availableSlots} more images`);
     }
@@ -121,22 +118,18 @@ const NewComplaint = () => {
     try {
       setLoading(true);
       toast.info("Creating complaint...");
-
       const submitFormData = new FormData();
       submitFormData.append("title", formData.title);
       submitFormData.append("description", formData.description);
       submitFormData.append("category", formData.category);
       submitFormData.append("area", formData.area);
       submitFormData.append("priority", formData.priority);
-
       images.forEach((image) => {
         submitFormData.append("image", image);
       });
-
       const response = await api.post("/v1/complaints", submitFormData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
       if (response.data.success) {
         toast.success("Complaint created successfully!");
         setTimeout(() => navigate("/dashboard"), 1500);
@@ -162,8 +155,6 @@ const NewComplaint = () => {
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         * { font-family: 'Inter', sans-serif; }
       `}</style>
-
-      {/* Header with theme toggle */}
       <div className="flex justify-between items-center mb-6">
         <button
           onClick={() => navigate("/dashboard")}
@@ -173,7 +164,6 @@ const NewComplaint = () => {
           <ArrowLeft size={18} className="mr-1" />
           Back
         </button>
-        
         <button
           onClick={toggleTheme}
           className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:opacity-80"
@@ -198,8 +188,6 @@ const NewComplaint = () => {
           )}
         </button>
       </div>
-
-      {/* Header */}
       <header className="mb-6 text-center">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold" style={{ color: colors.accent }}>
           Create New Complaint
@@ -208,10 +196,7 @@ const NewComplaint = () => {
           Report an issue in your area
         </p>
       </header>
-
-      {/* Form */}
       <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
-        {/* Title */}
         <div className="mb-4">
           <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>
             Title <span className="text-red-500">*</span>
@@ -230,8 +215,6 @@ const NewComplaint = () => {
             {formData.title.length}/10 characters
           </div>
         </div>
-
-        {/* Category, Area, Priority */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
           <div>
             <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>
@@ -267,7 +250,6 @@ const NewComplaint = () => {
               required
             />
           </div>
-
           <div>
             <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>
               Priority <span className="text-red-500">*</span>
@@ -286,8 +268,6 @@ const NewComplaint = () => {
             </select>
           </div>
         </div>
-
-        {/* Description */}
         <div className="mb-4">
           <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>
             Description <span className="text-red-500">*</span>
@@ -306,8 +286,6 @@ const NewComplaint = () => {
             {formData.description.length}/50 characters
           </div>
         </div>
-
-        {/* Image Upload */}
         <div className="mb-4">
           <label className="block mb-2 text-sm font-medium" style={{ color: colors.text }}>
             Images (Optional - Max 5)
@@ -336,7 +314,6 @@ const NewComplaint = () => {
             </p>
           </div>
 
-          {/* Image Preview */}
           {images.length > 0 && (
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
               {images.map((image, index) => (
@@ -362,7 +339,6 @@ const NewComplaint = () => {
           )}
         </div>
 
-        {/* Important Notes */}
         <div
           className="mb-4 p-4 rounded-lg"
           style={{ backgroundColor: colors.cardHover }}
@@ -380,7 +356,6 @@ const NewComplaint = () => {
           </div>
         </div>
 
-        {/* Submit Buttons */}
         <div className="flex gap-3">
           <button
             type="button"
@@ -412,3 +387,4 @@ const NewComplaint = () => {
 };
 
 export default NewComplaint;
+
