@@ -84,19 +84,14 @@ const AdminDashboard = () => {
     responseTimes: [],
   });
 
-  // Modal states
   const [showUserModal, setShowUserModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showReassignModal, setShowReassignModal] = useState(false);
   const [showEscalateModal, setShowEscalateModal] = useState(false);
   const [showOverrideModal, setShowOverrideModal] = useState(false);
-
-  // Selected items
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
-
-  // Form states
   const [newUserData, setNewUserData] = useState({
     name: "",
     email: "",
@@ -134,11 +129,8 @@ const AdminDashboard = () => {
     notes: "",
   });
 
-  // Filter states
   const [selectedStatusFilter, setSelectedStatusFilter] = useState("ALL");
   const [selectedRoleFilter, setSelectedRoleFilter] = useState("ALL");
-
-  // Admin theme colors - Purple theme
   const colors =
     theme === "light"
       ? {
@@ -181,12 +173,10 @@ const AdminDashboard = () => {
         };
 
   const currentLogo = theme === "dark" ? darkLogo : lightLogo;
-
   const getUserInitials = (name) => {
     if (!name) return "U";
     return name.charAt(0).toUpperCase();
   };
-
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -217,8 +207,6 @@ const AdminDashboard = () => {
       });
     }
   }, [user, pageLoaded]);
-
-  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = () => {
       setProfileDropdownOpen(false);
@@ -549,7 +537,6 @@ const AdminDashboard = () => {
       );
     }
   };
-
   const handleManageUser = async (userId, action) => {
     try {
       const response = await api.patch(`/v1/admin/users/${userId}/manage`, {
@@ -859,7 +846,6 @@ const AdminDashboard = () => {
       className="min-h-screen"
       style={{ backgroundColor: colors.bg, color: colors.text }}
     >
-      {/* Header - Mobile Optimized */}
       <header
         className="sticky top-0 z-50 border-b px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4"
         style={{
@@ -869,7 +855,6 @@ const AdminDashboard = () => {
         }}
       >
         <div className="flex justify-between items-center">
-          {/* Logo */}
           <div
             onClick={() => navigate("/dashboard")}
             style={{
@@ -890,8 +875,6 @@ const AdminDashboard = () => {
               <span style={{ color: colors.accent }}>FIX</span>
             </span>
           </div>
-
-          {/* Mobile Menu Button */}
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -905,8 +888,6 @@ const AdminDashboard = () => {
           >
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
-
-          {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
             <button
               onClick={toggleTheme}
@@ -1026,7 +1007,6 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div
             className="md:hidden mt-3 p-3 rounded-lg animate-slideDown"
@@ -1102,7 +1082,6 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* Tabs - Mobile Optimized */}
         <div className="flex mt-3 overflow-x-auto hide-scrollbar">
           {["dashboard", "complaints", "users"].map((tab) => (
             <button
@@ -1133,7 +1112,7 @@ const AdminDashboard = () => {
         </div>
       </header>
 
-      {/* Main Content - Mobile Optimized */}
+      
       <main className="p-3 sm:p-4 md:p-6">
         {activeTab === "dashboard" && (
           <>
@@ -1150,7 +1129,6 @@ const AdminDashboard = () => {
               </p>
             </div>
 
-            {/* Stats Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mb-6">
               <StatCard
                 title="Total Complaints"
@@ -1181,7 +1159,7 @@ const AdminDashboard = () => {
               />
             </div>
 
-            {/* Role Stats */}
+      
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mb-6">
               <div
                 className="p-3 sm:p-4 rounded-xl text-center"
@@ -1233,7 +1211,6 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            {/* Recent Activity */}
             <div
               className="p-4 sm:p-6 rounded-xl"
               style={{
@@ -1601,7 +1578,6 @@ const AdminDashboard = () => {
         )}
       </main>
 
-      {/* Modals - Mobile Optimized */}
       {showUserModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div
@@ -1704,8 +1680,7 @@ const AdminDashboard = () => {
           <p className="font-medium text-sm">Complaint:</p>
           <p className="text-xs opacity-75">{selectedComplaint.title}</p>
         </div>
-        
-        {/* ✅ Sirf supervisor dropdown - officer code completely hata diya */}
+      
         <select
           value={assignData.supervisorId}
           onChange={(e) => setAssignData({ 
@@ -1933,7 +1908,6 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* Footer - Mobile Optimized */}
       <footer
         className="mt-8 py-4 sm:py-6 px-3 sm:px-4 border-t"
         style={{
@@ -1996,6 +1970,7 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard; 
+
 
 
 
