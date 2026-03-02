@@ -57,8 +57,6 @@ const OfficerDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [user, setUser] = useState(null);
   const [verificationRemarks, setVerificationRemarks] = useState("");
-
-  // Officer theme colors - Yellow/Orange palette
   const colors =
     theme === "light"
       ? {
@@ -106,8 +104,6 @@ const OfficerDashboard = () => {
     fetchDashboardData();
     fetchUserProfile();
   }, []);
-
-  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = () => {
       setProfileDropdownOpen(false);
@@ -124,7 +120,6 @@ const OfficerDashboard = () => {
         setUser(JSON.parse(savedUser));
         return;
       }
-
       const response = await api.get("/v1/user/me");
       setUser(response.data?.data || null);
     } catch (error) {
@@ -378,7 +373,6 @@ const OfficerDashboard = () => {
       className="min-h-screen"
       style={{ backgroundColor: colors.bg, color: colors.text }}
     >
-      {/* Header - Mobile Optimized */}
       <header
         className="sticky top-0 z-50 border-b px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4"
         style={{
@@ -388,7 +382,6 @@ const OfficerDashboard = () => {
         }}
       >
         <div className="flex justify-between items-center">
-          {/* Logo */}
           <div
             onClick={() => navigate("/dashboard")}
             style={{
@@ -409,8 +402,6 @@ const OfficerDashboard = () => {
               <span style={{ color: colors.accent }}>FIX</span>
             </span>
           </div>
-
-          {/* Mobile Menu Button */}
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -424,8 +415,6 @@ const OfficerDashboard = () => {
           >
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
-
-          {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
             <button
               onClick={toggleTheme}
@@ -541,8 +530,6 @@ const OfficerDashboard = () => {
             </div>
           </div>
         </div>
-
-        {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div
             className="md:hidden mt-3 p-3 rounded-lg animate-slideDown"
@@ -563,7 +550,7 @@ const OfficerDashboard = () => {
                 className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
                 style={{ backgroundColor: `${colors.border}20` }}
               >
-                <span>{theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}</span>
+                <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
               </button>
               
               <button
@@ -574,7 +561,7 @@ const OfficerDashboard = () => {
                 className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
                 style={{ backgroundColor: `${colors.border}20` }}
               >
-                <span>🔄 Refresh</span>
+                <span>Refresh</span>
               </button>
               
               <button
@@ -582,7 +569,7 @@ const OfficerDashboard = () => {
                 className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
                 style={{ backgroundColor: `${colors.border}20` }}
               >
-                <span>👤 Profile</span>
+                <span>Profile</span>
               </button>
               
               <button
@@ -590,13 +577,11 @@ const OfficerDashboard = () => {
                 className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
                 style={{ color: colors.danger, backgroundColor: `${colors.border}20` }}
               >
-                <span>🚪 Logout</span>
+                <span>Logout</span>
               </button>
             </div>
           </div>
         )}
-
-        {/* Tabs - Mobile Optimized */}
         <div className="flex mt-3 overflow-x-auto hide-scrollbar">
           {["assigned", "dashboard"].map((tab) => (
             <button
@@ -626,8 +611,6 @@ const OfficerDashboard = () => {
           ))}
         </div>
       </header>
-
-      {/* Main Content - Mobile Optimized */}
       <main className="p-3 sm:p-4 md:p-6">
         {activeTab === "assigned" && (
           <div>
@@ -643,7 +626,6 @@ const OfficerDashboard = () => {
               </div>
 
               <div className="flex flex-col gap-3">
-                {/* Search */}
                 <div className="relative w-full">
                   <Search
                     className="absolute left-3 top-1/2 transform -translate-y-1/2"
@@ -662,8 +644,6 @@ const OfficerDashboard = () => {
                     }}
                   />
                 </div>
-
-                {/* Filters - Horizontal Scroll */}
                 <div className="flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
                   <button
                     onClick={() => setSearchQuery("")}
@@ -693,8 +673,6 @@ const OfficerDashboard = () => {
                 </div>
               </div>
             </div>
-
-            {/* Image Upload Section - Mobile Optimized */}
             <div
               className="mb-4 p-4 rounded-lg"
               style={{
@@ -755,8 +733,6 @@ const OfficerDashboard = () => {
                 Max file size: 5MB. Upload before submitting.
               </p>
             </div>
-
-            {/* Complaints List - Mobile Optimized */}
             {loading ? (
               <div className="text-center py-8 opacity-75">
                 <Loader className="animate-spin w-6 h-6 mx-auto mb-2" />
@@ -784,7 +760,6 @@ const OfficerDashboard = () => {
                     }}
                   >
                     <div className="flex flex-col gap-3">
-                      {/* Status Badge */}
                       <div className="flex flex-wrap items-center gap-2">
                         <span
                           className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-2xs font-medium"
@@ -800,16 +775,10 @@ const OfficerDashboard = () => {
                           {formatDate(complaint.createdAt)}
                         </span>
                       </div>
-
-                      {/* Title */}
                       <h3 className="font-bold text-sm">{complaint.title}</h3>
-
-                      {/* Description */}
                       <p className="text-xs opacity-75 line-clamp-2">
                         {complaint.description}
                       </p>
-
-                      {/* Category, Area, Priority */}
                       <div className="flex flex-wrap items-center gap-2 text-2xs">
                         <span className="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800">
                           {complaint.category}
@@ -836,8 +805,6 @@ const OfficerDashboard = () => {
                           </span>
                         )}
                       </div>
-
-                      {/* Additional Info */}
                       <div className="text-2xs space-y-1">
                         <div>
                           <span className="opacity-75">Reported by:</span>{" "}
@@ -861,8 +828,6 @@ const OfficerDashboard = () => {
                           </div>
                         )}
                       </div>
-
-                      {/* Citizen Images */}
                       {complaint.images?.citizen?.length > 0 && (
                         <div className="mt-1">
                           <div className="flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
@@ -880,8 +845,6 @@ const OfficerDashboard = () => {
                           </div>
                         </div>
                       )}
-
-                      {/* Previously Submitted Image */}
                       {complaint.images?.officer && complaint.status === "PENDING_VERIFICATION" && (
                         <div className="mt-1">
                           <span className="text-2xs opacity-75 block mb-1">Previous:</span>
@@ -893,8 +856,6 @@ const OfficerDashboard = () => {
                           />
                         </div>
                       )}
-
-                      {/* Action Buttons */}
                       {(complaint.status === "IN_PROGRESS" || complaint.status === "PENDING_VERIFICATION") && (
                         <div className="flex gap-2 mt-2">
                           <button
@@ -924,8 +885,6 @@ const OfficerDashboard = () => {
                           </button>
                         </div>
                       )}
-
-                      {/* Verified Status */}
                       {complaint.status === "RESOLVED" && (
                         <div
                           className="text-center p-2 rounded-lg mt-2"
@@ -947,7 +906,6 @@ const OfficerDashboard = () => {
 
         {activeTab === "dashboard" && (
           <>
-            {/* Welcome Section */}
             <div className="mb-4">
               <h1
                 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-1"
@@ -959,8 +917,6 @@ const OfficerDashboard = () => {
                 Manage and resolve assigned complaints
               </p>
             </div>
-
-            {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4">
               <StatCard
                 title="Total"
@@ -991,8 +947,6 @@ const OfficerDashboard = () => {
                 subtitle="Completed"
               />
             </div>
-
-            {/* Additional Stats */}
             <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4">
               <StatCard
                 title="Overdue"
@@ -1009,8 +963,6 @@ const OfficerDashboard = () => {
                 subtitle="Verification rate"
               />
             </div>
-
-            {/* Performance Bar */}
             <div className="mb-4">
               <h2 className="text-sm font-bold mb-2">Performance</h2>
               <div
@@ -1037,8 +989,6 @@ const OfficerDashboard = () => {
                 </div>
               </div>
             </div>
-
-            {/* Quick Actions */}
             <div>
               <h2 className="text-sm font-bold mb-2">Quick Actions</h2>
               <div className="grid grid-cols-2 gap-2">
@@ -1090,8 +1040,6 @@ const OfficerDashboard = () => {
           </>
         )}
       </main>
-
-      {/* Footer - Mobile Optimized */}
       <footer
         className="mt-8 py-4 px-3 border-t"
         style={{
@@ -1149,5 +1097,6 @@ const OfficerDashboard = () => {
 };
 
 export default OfficerDashboard;
+
 
 
