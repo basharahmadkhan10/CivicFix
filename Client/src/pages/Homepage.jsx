@@ -318,7 +318,6 @@ const HomePage = () => {
   const sectionRefs = useRef([]);
   const rafId = useRef(null);
 
-  // Check if mobile on mount and resize
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -408,7 +407,6 @@ const HomePage = () => {
     imgComm,
   ];
 
-  // Mobile menu component
   const MobileMenu = () => (
     <div
       style={{
@@ -691,7 +689,6 @@ const HomePage = () => {
               })}
             </div>
 
-            {/* Action Buttons */}
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
               <Link
                 to="/login"
@@ -784,7 +781,6 @@ const HomePage = () => {
             </div>
           </div>
 
-          {/* Mobile Menu Button */}
           <button
             className="hide-on-desktop"
             onClick={() => setMobileMenuOpen(true)}
@@ -801,11 +797,7 @@ const HomePage = () => {
           </button>
         </div>
       </nav>
-
-      {/* Mobile Menu */}
       <MobileMenu />
-
-      {/* Hero Section */}
       <section
         ref={(el) => (sectionRefs.current[0] = el)}
         style={{
@@ -947,8 +939,6 @@ const HomePage = () => {
             />
           </div>
         </div>
-
-        {/* Scroll indicator */}
         {!isMobile && (
           <div
             style={{
@@ -984,8 +974,6 @@ const HomePage = () => {
           </div>
         )}
       </section>
-
-      {/* Feature Sections */}
       {SECTIONS.map((section, index) => {
         const sectionIndex = index + 1;
         const image = sectionImages[index];
@@ -1011,7 +999,7 @@ const HomePage = () => {
                 direction: section.reverse && !isMobile ? "rtl" : "ltr",
               }}
             >
-              {/* Content */}
+             
               <div style={{ direction: "ltr" }}>
                 {activeSection === sectionIndex && (
                   <div
@@ -1078,8 +1066,6 @@ const HomePage = () => {
                 </p>
 
               </div>
-
-              {/* Image */}
               <div style={{ 
                 direction: "ltr",
                 order: isMobile && section.reverse ? -1 : 0 
@@ -1119,8 +1105,6 @@ const HomePage = () => {
           </section>
         );
       })}
-
-      {/* Features Grid */}
       <section
         style={{
           padding: isMobile ? "60px 20px" : "100px 48px",
@@ -1215,8 +1199,6 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-
-      {/* Stats Section */}
       <section
         style={{
           padding: isMobile ? "60px 20px" : "80px 48px",
@@ -1277,8 +1259,6 @@ const HomePage = () => {
           ))}
         </div>
       </section>
-
-      {/* CTA Section */}
       <section
         style={{
           padding: isMobile ? "80px 20px" : "120px 48px",
@@ -1379,8 +1359,6 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
       <footer
         style={{
           padding: isMobile ? "40px 20px 30px" : "60px 48px 40px",
@@ -1473,4 +1451,5 @@ const HomePage = () => {
 };
 
 export default HomePage;
+
 
