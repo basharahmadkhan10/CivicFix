@@ -29,7 +29,7 @@ router.get("/users/:userId", getUser);
 router.patch("/users/:userId/manage", manageUser);
 router.get("/users/:userId/performance", getUserPerformance);
 
-// complaint routes
+
 router.get("/complaints", getAllComplaints);
 router.get("/complaints/:id", getComplaintDetails);
 router.patch("/complaints/:id", updateComplaint);
@@ -39,13 +39,13 @@ router.patch("/complaints/:id/reassign", reassignComplaint);
 router.patch("/complaints/:id/escalate", escalateComplaint);
 router.patch("/complaints/:id/override", overrideComplaint);
 
-// dashboard routes
+
 router.get("/dashboard", getDashboardStats);
 router.get("/reports/sla-compliance", getSLAComplianceReport);
 router.get("/audit-trail", getAuditTrail);
 router.get("/system-health", getSystemHealth);
 
-// default
 router.patch("/complaints/:id/assign-supervisor", assignComplaintToSupervisor);
 
 export default router;
+
