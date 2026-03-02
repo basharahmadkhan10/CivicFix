@@ -69,8 +69,6 @@ const SupervisorDashboard = () => {
   });
   const [user, setUser] = useState(null);
   const [notifications, setNotifications] = useState([]);
-
-  // Modal states
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
@@ -90,8 +88,6 @@ const SupervisorDashboard = () => {
 
   const [officers, setOfficers] = useState([]);
   const [selectedStatusFilter, setSelectedStatusFilter] = useState("ALL");
-
-  // Supervisor theme colors - Blue theme
   const colors =
     theme === "light"
       ? {
@@ -153,7 +149,6 @@ const SupervisorDashboard = () => {
     filterComplaints();
   }, [searchQuery, selectedStatusFilter, complaints]);
 
-  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = () => {
       setProfileDropdownOpen(false);
@@ -613,7 +608,6 @@ const SupervisorDashboard = () => {
       className="min-h-screen"
       style={{ backgroundColor: colors.bg, color: colors.text }}
     >
-      {/* Header - Mobile Optimized */}
       <header
         className="sticky top-0 z-50 border-b px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4"
         style={{
@@ -623,7 +617,6 @@ const SupervisorDashboard = () => {
         }}
       >
         <div className="flex justify-between items-center">
-          {/* Logo */}
           <div
             onClick={() => navigate("/dashboard")}
             style={{
@@ -644,8 +637,6 @@ const SupervisorDashboard = () => {
               <span style={{ color: colors.accent }}>FIX</span>
             </span>
           </div>
-
-          {/* Mobile Menu Button */}
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -659,8 +650,6 @@ const SupervisorDashboard = () => {
           >
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
-
-          {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
             <button
               onClick={toggleTheme}
@@ -767,8 +756,6 @@ const SupervisorDashboard = () => {
             </div>
           </div>
         </div>
-
-        {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div
             className="md:hidden mt-3 p-3 rounded-lg animate-slideDown"
@@ -789,7 +776,7 @@ const SupervisorDashboard = () => {
                 className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
                 style={{ backgroundColor: `${colors.border}20` }}
               >
-                <span>{theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}</span>
+                <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
               </button>
               
               <button
@@ -800,7 +787,7 @@ const SupervisorDashboard = () => {
                 className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
                 style={{ backgroundColor: `${colors.border}20` }}
               >
-                <span>🔄 Refresh</span>
+                <span>Refresh</span>
               </button>
               
               <button
@@ -808,7 +795,7 @@ const SupervisorDashboard = () => {
                 className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
                 style={{ backgroundColor: `${colors.border}20` }}
               >
-                <span>👤 Profile</span>
+                <span>Profile</span>
               </button>
               
               <button
@@ -816,13 +803,11 @@ const SupervisorDashboard = () => {
                 className="w-full text-left py-2.5 px-3 rounded-lg flex items-center justify-between text-sm"
                 style={{ color: colors.danger, backgroundColor: `${colors.border}20` }}
               >
-                <span>🚪 Logout</span>
+                <span>Logout</span>
               </button>
             </div>
           </div>
         )}
-
-        {/* Tabs - Mobile Optimized */}
         <div className="flex mt-3 overflow-x-auto hide-scrollbar">
           {["overview", "assigned", "pending", "officers"].map((tab) => (
             <button
@@ -864,9 +849,7 @@ const SupervisorDashboard = () => {
         </div>
       </header>
 
-      {/* Main Content - Mobile Optimized */}
       <main className="p-3 sm:p-4 md:p-6">
-        {/* Overview Tab */}
         {activeTab === "overview" && (
           <>
             <div className="mb-4 sm:mb-6 md:mb-8">
@@ -911,8 +894,6 @@ const SupervisorDashboard = () => {
                 subtitle="Successfully closed"
               />
             </div>
-
-            {/* Pending Verification Alert */}
             {pendingVerification.length > 0 && (
               <div
                 className="mb-4 sm:mb-6 p-3 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3"
@@ -943,7 +924,6 @@ const SupervisorDashboard = () => {
               </div>
             )}
 
-            {/* Quick Actions */}
             <div className="mb-6">
               <h2 className="text-base sm:text-lg font-bold mb-3">Quick Actions</h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -1013,8 +993,6 @@ const SupervisorDashboard = () => {
                 </button>
               </div>
             </div>
-
-            {/* Recent Assigned Complaints */}
             <div>
               <div className="flex justify-between items-center mb-3">
                 <h2 className="text-base sm:text-lg font-bold">Recent Assigned</h2>
@@ -1120,8 +1098,6 @@ const SupervisorDashboard = () => {
             </div>
           </>
         )}
-
-        {/* Assigned Complaints Tab */}
         {activeTab === "assigned" && (
           <div>
             <div className="flex flex-col gap-3 mb-4">
@@ -1289,7 +1265,6 @@ const SupervisorDashboard = () => {
           </div>
         )}
 
-        {/* Pending Verification Tab */}
         {activeTab === "pending" && (
           <div>
             <div className="flex justify-between items-center mb-4">
@@ -1357,9 +1332,7 @@ const SupervisorDashboard = () => {
                         {complaint.description}
                       </p>
 
-                      {/* Image Preview */}
                       <div className="grid grid-cols-2 gap-2">
-  {/* Citizen Image */}
   <div className="relative">
     <p className="text-2xs mb-1 opacity-75">Citizen</p>
     <img
@@ -1372,8 +1345,6 @@ const SupervisorDashboard = () => {
       }}
     />
   </div>
-
-  {/* Officer Image */}
   <div className="relative">
     <p className="text-2xs mb-1 opacity-75">Officer</p>
     <img
@@ -1428,7 +1399,6 @@ const SupervisorDashboard = () => {
           </div>
         )}
 
-        {/* Officers Tab */}
         {activeTab === "officers" && (
           <div>
             <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-4">
@@ -1488,8 +1458,6 @@ const SupervisorDashboard = () => {
           </div>
         )}
       </main>
-
-      {/* Modals - Mobile Optimized */}
       {showAssignModal && selectedComplaint && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div
@@ -1654,7 +1622,6 @@ const SupervisorDashboard = () => {
             <div className="space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-  {/* Citizen Image */}
   <div
     className="rounded-xl overflow-hidden"
     style={{
@@ -1682,7 +1649,6 @@ const SupervisorDashboard = () => {
     </div>
   </div>
 
-  {/* Officer Image */}
   <div
     className="rounded-xl overflow-hidden"
     style={{
@@ -1851,7 +1817,6 @@ const SupervisorDashboard = () => {
         </div>
       )}
 
-      {/* Footer */}
       <footer
         className="mt-8 py-4 px-3 border-t"
         style={{
@@ -1909,6 +1874,7 @@ const SupervisorDashboard = () => {
 };
 
 export default SupervisorDashboard;
+
 
 
 
