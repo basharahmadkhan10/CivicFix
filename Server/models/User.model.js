@@ -75,7 +75,7 @@ userSchema.methods.generateOTP = function (purpose) {
   const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
   this.otp = {
     code: hashedOtp,
-    expiresAt: Date.now() + 5 * 60 * 1000,
+    expiresAt: new Date(Date.now() + 5 * 60 * 1000),
     purpose,
   };
 
@@ -83,10 +83,11 @@ userSchema.methods.generateOTP = function (purpose) {
 };
 userSchema.methods.verifyOTP = function (enteredOtp, purpose) {
   if (!this.otp) return false;
+  const cleanOtp = String(enteredOtp).trim();
   const hashedOtp = crypto
-    .createHash("sha256")
-    .update(enteredOtp)
-    .digest("hex");
+  .createHash("sha256")
+  .update(cleanOtp)
+  .digest("hex");
 
   return (
     this.otp.code === hashedOtp &&
@@ -98,3 +99,4 @@ userSchema.methods.clearOTP = function () {
   this.otp = undefined;
 };
 export default mongoose.model("User", userSchema);
+
