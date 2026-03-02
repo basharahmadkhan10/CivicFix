@@ -1356,32 +1356,35 @@ const SupervisorDashboard = () => {
                       </p>
 
                       {/* Image Preview */}
-                      <div className="flex gap-2">
-                        {complaint.images?.citizen?.length > 0 && (
-                          <div className="flex-1">
-                            <img
-                              src={complaint.images.citizen[0]}
-                              alt="Citizen"
-                              className="w-full h-20 object-cover rounded-lg"
-                              onError={(e) => {
-                                e.target.src = "https://via.placeholder.com/100?text=No+Image";
-                              }}
-                            />
-                          </div>
-                        )}
-                        {complaint.images?.officer && (
-                          <div className="flex-1">
-                            <img
-                              src={complaint.images.officer}
-                              alt="Officer"
-                              className="w-full h-20 object-cover rounded-lg"
-                              onError={(e) => {
-                                e.target.src = "https://via.placeholder.com/100?text=No+Image";
-                              }}
-                            />
-                          </div>
-                        )}
-                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+  {/* Citizen Image */}
+  <div className="relative">
+    <p className="text-2xs mb-1 opacity-75">Citizen</p>
+    <img
+      src={complaint.images?.citizen?.[0] || "https://via.placeholder.com/400x300?text=No+Citizen+Image"}
+      alt="Citizen"
+      className="w-full h-32 sm:h-40 object-cover rounded-lg cursor-pointer"
+      onClick={() => openDetailsModal(complaint)}
+      onError={(e) => {
+        e.currentTarget.src = "https://via.placeholder.com/400x300?text=No+Image";
+      }}
+    />
+  </div>
+
+  {/* Officer Image */}
+  <div className="relative">
+    <p className="text-2xs mb-1 opacity-75">Officer</p>
+    <img
+      src={complaint.images?.officer || "https://via.placeholder.com/400x300?text=No+Officer+Image"}
+      alt="Officer"
+      className="w-full h-32 sm:h-40 object-cover rounded-lg cursor-pointer"
+      onClick={() => openDetailsModal(complaint)}
+      onError={(e) => {
+        e.currentTarget.src = "https://via.placeholder.com/400x300?text=No+Image";
+      }}
+    />
+  </div>
+</div>
 
                       {complaint.remarks && (
                         <div
@@ -1861,5 +1864,6 @@ const SupervisorDashboard = () => {
 };
 
 export default SupervisorDashboard;
+
 
 
