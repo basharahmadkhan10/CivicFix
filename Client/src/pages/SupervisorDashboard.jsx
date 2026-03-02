@@ -1363,7 +1363,7 @@ const SupervisorDashboard = () => {
     <img
       src={complaint.images?.citizen?.[0] || "https://via.placeholder.com/400x300?text=No+Citizen+Image"}
       alt="Citizen"
-      className="w-full h-32 sm:h-40 object-cover rounded-lg cursor-pointer"
+      className="w-full h-52 sm:h-40 object-cover rounded-lg cursor-pointer"
       onClick={() => openDetailsModal(complaint)}
       onError={(e) => {
         e.currentTarget.src = "https://via.placeholder.com/400x300?text=No+Image";
@@ -1377,7 +1377,7 @@ const SupervisorDashboard = () => {
     <img
       src={complaint.images?.officer || "https://via.placeholder.com/400x300?text=No+Officer+Image"}
       alt="Officer"
-      className="w-full h-32 sm:h-40 object-cover rounded-lg cursor-pointer"
+      className="w-full h-52 sm:h-40 object-cover rounded-lg cursor-pointer"
       onClick={() => openDetailsModal(complaint)}
       onError={(e) => {
         e.currentTarget.src = "https://via.placeholder.com/400x300?text=No+Image";
@@ -1864,6 +1864,7 @@ const SupervisorDashboard = () => {
 };
 
 export default SupervisorDashboard;
+
 
 
 
